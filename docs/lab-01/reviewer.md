@@ -1,30 +1,16 @@
-# Lab 1 — Peer Review Record
+# Lab 1 - Peer Review Record
 
-**Author:** Pattharapon Kijjanukij — pattharapon.kijj@kmutt.ac.th — GitHub: @Pattharapon
-**Peer reviewer:** Peer Partner — Partner ID — GitHub: @partner
+**Author:** Pattharapon Kijjanukij - GitHub: @Earth2509
+**Peer reviewer:** Sittijed Jantarataeme - Student ID: 67070501046 - GitHub: @Nuggetkub
 
-## Pull Requests I authored (reviewed by my partner)
+## Pull Requests I authored
 
-| PR | Branch | Target | Reviewer verdict |
-|----|--------|--------|------------------|
-| #1 | feature/1-project-foundation | lab1-staging | Approved |
-| #2 | feature/2-health-check | lab1-staging | Approved |
-| #3 | feature/3-category-seed | lab1-staging | Approved |
-| #4 | feature/4-category-list | lab1-staging | Approved |
+| PR | Branch | Target | Status |
+|---|---|---|---|
+| [#1](https://github.com/Earth2509/toktickit/pull/1) | feature/1-project-foundation | lab1-staging | Changes requested; revision in progress |
 
-**Reviewer comment I received:** "Great work on the full-stack setup! GET /api/health and GET /api/categories return expected JSON, seed is idempotent, and Vitest/Supertest tests pass cleanly."
+## Review feedback and response
 
-**How I responded:** "Thank you! Merged all feature branches into `lab1-staging` and opened release PR to `main`."
+The reviewer identified missing Prisma initialization, a misleading template README, and evidence records that did not reflect the actual repository state. This revision adds the base Prisma schema, corrects the README, makes the foundation test commands usable before feature tests exist, and replaces placeholder review evidence with the actual Issue 1 review state.
 
-## Pull Requests I reviewed for my partner
-
-| PR | Partner Branch | Target | My verdict |
-|----|----------------|--------|------------|
-| #1 | feature/1-project-foundation | lab1-staging | Approved |
-| #2 | feature/2-health-check | lab1-staging | Approved |
-| #3 | feature/3-category-seed | lab1-staging | Approved |
-| #4 | feature/4-category-list | lab1-staging | Approved |
-
-**My comment to partner:** "Verified your PRs! DB model, seed script, Express endpoints, and React UI error handling all meet acceptance criteria."
-
-**Partner's response:** "Thanks! Proceeding to merge into lab1-staging and release to main."
+Further rows will be recorded only after each corresponding pull request receives a real review.
