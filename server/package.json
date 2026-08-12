@@ -10,7 +10,7 @@
     "prisma:validate": "prisma validate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "prisma": { "seed": "tsx prisma/seed.ts" },
   "dependencies": {
@@ -30,3 +30,4 @@
     "vitest": "^2.1.8"
   }
 }
+
