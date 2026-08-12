@@ -1,20 +1,18 @@
-# Lab 1 — AI Use and Reflection
+# Lab 1 - AI Use and Reflection
 
-**LLM/agent used:** Antigravity Coding Agent (Gemini 3.6 Flash / High Thinking Level)
+**Agent used:** Codex desktop, assisted by GPT-5.
+**Scope of this record:** all four Lab 1 Issues and the final release review.
 
-## Selected key prompts (6–10)
-
-| # | Prompt (summarised) | What I did with the result |
-|---|---------------------|----------------------------|
-| 1 | Read and explain TokTickIT requirements and create an implementation plan | Reviewed the generated implementation plan covering architecture, database, API, UI, and tests. Approved the plan to proceed. |
-| 2 | Initialize project Git repository and branch structure (`main`, `lab1-staging`, feature branches) | Executed Git commands to set up the repository workflow as specified by the project branch model. |
-| 3 | Define Prisma `Category` and `Ticket` schema with relations and constraints | Updated `server/prisma/schema.prisma` and generated Prisma Client. |
-| 4 | Create idempotent Prisma seed script for IT request categories and sample tickets | Implemented `server/prisma/seed.ts` using `upsert` and verified that running the seed multiple times produces no duplicate rows. |
-| 5 | Implement REST API endpoints for categories and tickets (`GET`, `POST`, `PATCH`) | Updated `server/src/app.ts` to return HTTP status codes and JSON data with proper validation and error handling. |
-| 6 | Write Supertest test cases for health check, category list, and ticket REST API endpoints | Created test suites under `server/tests/lab-01/` and ran Vitest to verify green status. |
-| 7 | Create `api.ts` wrappers and React components (`TicketList`, `TicketDetailView`, `CreateTicketModal`) | Built component hierarchy and state management in `client/src/` for managing IT service desk requests. |
-| 8 | Write Vitest & Testing Library tests for React UI components | Created test suites under `client/tests/lab-01/` mocking API calls and verified component rendering and modal interactions. |
+| Prompt purpose | Selected prompt | Reflection |
+|---|---|---|
+| Understand the contract | Read the Lab 1 requirements and summarize the four Issues, dependencies, required branches, and evidence. | A clear dependency order kept the work on the required feature branches. |
+| Set up project foundation | Set up React, TypeScript, Vite, Bootstrap, Express, TypeScript, PostgreSQL, and Prisma without adding later feature behavior. | Narrow scope avoided implementing features before their Issues were ready. |
+| Implement health check | Add GET /api/health, a Supertest test, and a React system-status call with a useful offline state. | The first implementation needed follow-up review to distinguish connection errors from server responses. |
+| Seed categories | Create the Prisma Category model, migration, and idempotent seed for the four required request categories. | Upsert made the seed safe to run repeatedly. |
+| Display category list | Add GET /api/categories through Prisma, then render the API result with loading and error states. | Routed fetch mocks were necessary because the screen calls both health and category endpoints. |
+| Fix review feedback | Address PR #8 feedback about readable formatting, accessibility status roles, and friendly network errors. | A regression test with TypeError(Failed to fetch) prevents raw browser errors from reaching users. |
+| Prepare release evidence | Update test results, peer-review records, and the release PR from lab1-staging to main. | Evidence must record actual test output and reviews rather than planned or template content. |
 
 ## Reflection
 
-Using the AI agent accelerated full-stack setup, database ORM migration, component design, and test suite generation significantly. Providing explicit constraints—such as specifying exact JSON schema keys, component interaction logic, and idempotent database seeding rules—ensured the agent produced precise, production-ready code on the first attempt without unnecessary bloat.
+Using small, issue-scoped prompts made it easier to review every change against the acceptance criteria. Peer review was especially useful for finding gaps that a happy-path implementation missed: a blanket fetch mock hid an invalid category payload, and displaying caught error text leaked a browser network message. I improved subsequent prompts by specifying the failure mode, required test evidence, branch target, and documentation update. I reviewed generated code, commits, and PR feedback before accepting each change.

@@ -1,30 +1,23 @@
-# Lab 1 — Peer Review Record
+# Lab 1 - Peer Review Record
 
-**Author:** Pattharapon Kijjanukij — pattharapon.kijj@kmutt.ac.th — GitHub: @Pattharapon
-**Peer reviewer:** Peer Partner — Partner ID — GitHub: @partner
+**Author:** Pattharapon Kijjanukij - Student ID: 67070501069 - GitHub: @Earth2509
+**Peer reviewer:** Sittijed Jantarataeme - Student ID: 67070501046 - GitHub: @Nuggetkub
 
-## Pull Requests I authored (reviewed by my partner)
+## Pull Requests I authored
 
-| PR | Branch | Target | Reviewer verdict |
-|----|--------|--------|------------------|
-| #1 | feature/1-project-foundation | lab1-staging | Approved |
-| #2 | feature/2-health-check | lab1-staging | Approved |
-| #3 | feature/3-category-seed | lab1-staging | Approved |
-| #4 | feature/4-category-list | lab1-staging | Approved |
+| PR | Branch | Target | Review outcome |
+|---|---|---|---|
+| [#1](https://github.com/Earth2509/toktickit/pull/1) | feature/1-project-foundation | lab1-staging | Changes requested, revised, approved, and merged |
+| [#6](https://github.com/Earth2509/toktickit/pull/6) | feature/2-health-check | lab1-staging | Approved and merged |
+| [#7](https://github.com/Earth2509/toktickit/pull/7) | feature/3-category-seed | lab1-staging | Approved and merged |
+| [#8](https://github.com/Earth2509/toktickit/pull/8) | feature/4-category-list | lab1-staging | Changes requested, revised, approved, and merged |
+| [#9](https://github.com/Earth2509/toktickit/pull/9) | lab1-staging | main | Final release review in progress |
 
-**Reviewer comment I received:** "Great work on the full-stack setup! GET /api/health and GET /api/categories return expected JSON, seed is idempotent, and Vitest/Supertest tests pass cleanly."
+## Review feedback and response
 
-**How I responded:** "Thank you! Merged all feature branches into `lab1-staging` and opened release PR to `main`."
+- **PR #1:** The reviewer found missing Prisma initialization, a misleading template README, and inaccurate evidence. I added the Prisma base configuration, corrected the README, and replaced placeholder evidence with the actual review state.
+- **PR #6:** The review focused on useful failure messages. The health check UI keeps a friendly connection message for an unavailable backend.
+- **PR #7:** The reviewer confirmed the Category model, migration, and idempotent seed.
+- **PR #8:** The reviewer found an invalid blanket fetch mock, minified source, a missing online status role, and raw browser errors shown to users. I routed the fetch mock by endpoint, restored readable formatting and the status role, added loading/category-list coverage, translated network failures at the API boundary, and added a TypeError(Failed to fetch) regression test.
 
-## Pull Requests I reviewed for my partner
-
-| PR | Partner Branch | Target | My verdict |
-|----|----------------|--------|------------|
-| #1 | feature/1-project-foundation | lab1-staging | Approved |
-| #2 | feature/2-health-check | lab1-staging | Approved |
-| #3 | feature/3-category-seed | lab1-staging | Approved |
-| #4 | feature/4-category-list | lab1-staging | Approved |
-
-**My comment to partner:** "Verified your PRs! DB model, seed script, Express endpoints, and React UI error handling all meet acceptance criteria."
-
-**Partner's response:** "Thanks! Proceeding to merge into lab1-staging and release to main."
+All feature PRs had a real peer review before merging into lab1-staging. PR #9 records the final release review from lab1-staging to main.
