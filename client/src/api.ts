@@ -1,16 +1,43 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
-export type HealthResponse = {
+export type Category = {
+  id: number;
+  name: string;
+};
+
+type HealthCheck = {
   status: "ok";
   service: string;
 };
 
-export async function fetchHealth(): Promise<HealthResponse> {
-  const response = await fetch(API_BASE_URL + "/api/health");
+export async function fetchHealth(): Promise<HealthCheck> {
+  let response: Response;
+
+  try {
+    response = await fetch(API_BASE_URL + "/api/health");
+  } catch {
+    throw new Error("Unable to connect to TokTickIT API");
+  }
 
   if (!response.ok) {
     throw new Error("Unable to connect to TokTickIT API");
   }
 
-  return response.json() as Promise<HealthResponse>;
+  return response.json() as Promise<HealthCheck>;
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  let response: Response;
+
+  try {
+    response = await fetch(API_BASE_URL + "/api/categories");
+  } catch {
+    throw new Error("Unable to connect to TokTickIT API");
+  }
+
+  if (!response.ok) {
+    throw new Error("Unable to load request categories");
+  }
+
+  return response.json() as Promise<Category[]>;
 }
