@@ -11,7 +11,7 @@
 | [#6](https://github.com/Earth2509/toktickit/pull/6) | feature/2-health-check | lab1-staging | Approved and merged |
 | [#7](https://github.com/Earth2509/toktickit/pull/7) | feature/3-category-seed | lab1-staging | Approved and merged |
 | [#8](https://github.com/Earth2509/toktickit/pull/8) | feature/4-category-list | lab1-staging | Changes requested, revised, approved, and merged |
-| [#9](https://github.com/Earth2509/toktickit/pull/9) | lab1-staging | main | Final release review in progress |
+| [#9](https://github.com/Earth2509/toktickit/pull/9) | lab1-staging | main | Approved and merged |
 
 ## Review feedback and response
 
@@ -20,4 +20,4 @@
 - **PR #7:** The reviewer confirmed the Category model, migration, and idempotent seed.
 - **PR #8:** The reviewer found an invalid blanket fetch mock, minified source, a missing online status role, and raw browser errors shown to users. I routed the fetch mock by endpoint, restored readable formatting and the status role, added loading/category-list coverage, translated network failures at the API boundary, and added a TypeError(Failed to fetch) regression test.
 
-All feature PRs had a real peer review before merging into lab1-staging. PR #9 records the final release review from lab1-staging to main.
+All feature PRs had a real peer review before merging into lab1-staging. PR #9 was approved and merged as the final release from lab1-staging to main.

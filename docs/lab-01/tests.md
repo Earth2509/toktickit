@@ -10,7 +10,7 @@ All Lab 1 automated tests pass on lab1-staging and are included in the release P
 | UI-02 | feature/4-category-list | Vitest | Loading state changes to the category list | Passed |
 | UI-03 | feature/2-health-check | Vitest | API failure displays a useful error message without exposing a browser network error | Passed |
 
-## Terminal evidence
+## Test summary
 
     client
     ✓ tests/App.test.tsx (3 tests)
