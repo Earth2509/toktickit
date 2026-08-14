@@ -7,7 +7,7 @@
 
 | PR | Branch | Target | Review outcome |
 |---|---|---|---|
-| [#1](https://github.com/Earth2509/toktickit/pull/1) | feature/1-project-foundation | lab1-staging | Changes requested, revised, approved, and merged |
+| [#1](https://github.com/Earth2509/toktickit/pull/1) | feature/1-project-foundation | lab1-staging | Commented, revised, approved, and merged |
 | [#6](https://github.com/Earth2509/toktickit/pull/6) | feature/2-health-check | lab1-staging | Approved and merged |
 | [#7](https://github.com/Earth2509/toktickit/pull/7) | feature/3-category-seed | lab1-staging | Approved and merged |
 | [#8](https://github.com/Earth2509/toktickit/pull/8) | feature/4-category-list | lab1-staging | Changes requested, revised, approved, and merged |
