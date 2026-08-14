@@ -10,9 +10,17 @@ All Lab 1 automated tests pass on lab1-staging and are included in the release P
 | UI-02 | feature/4-category-list | Vitest | Loading state changes to the category list | Passed |
 | UI-03 | feature/2-health-check | Vitest | API failure displays a useful error message without exposing a browser network error | Passed |
 
-## Terminal evidence
+## Test summary
 
-    client   Test Files  1 passed (1)   Tests  3 passed (3)
-    server   Test Files  2 passed (2)   Tests  2 passed (2)
+    client
+    ✓ tests/App.test.tsx (3 tests)
+    Test Files  1 passed (1)
+    Tests  3 passed (3)
+
+    server
+    ✓ tests/categories.test.ts (1 test)
+    ✓ tests/health.test.ts (1 test)
+    Test Files  2 passed (2)
+    Tests  2 passed (2)
 
 The client suite covers UI-01 through UI-03. The server suite covers API-01 and API-02.
