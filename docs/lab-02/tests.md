@@ -8,6 +8,8 @@
 
 Lab 2 uses Test-DD and TDD. The planned tests are derived from the approved acceptance criteria before implementation. API tests exercise Express routes with a mocked Prisma/storage boundary where appropriate. UI tests exercise user-visible states with React Testing Library and mocked API boundaries. Playwright E2E tests cover the integrated requester flow and responsive screenshots. Visual checks supplement, not replace, automated assertions.
 
+E2E execution has an explicit infrastructure dependency: a dedicated Lab 2 Issue will add the root Playwright configuration, E2E command ownership, and the `e2e/lab-02/` directory before the E2E cases below are implemented. The cases are planned here but are not claimed runnable until that Issue is merged through the normal peer-reviewed workflow.
+
 ## 2. Planned Tests
 
 | Test ID | Level | AC | Scenario and expected result | Planned test file | Final |

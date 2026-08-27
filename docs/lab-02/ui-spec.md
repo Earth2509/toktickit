@@ -43,7 +43,7 @@ The screen contains TokTickIT title, a concise testing-only explanation, active 
 
 ### Layout
 
-Use a centered card with system-generated/read-only information near the top, classification fields grouped together, full-width Summary and Description, attachment section below them, and actions at the bottom. Requester is read-only and populated from the selected context. Ticket Number remains read-only and is shown after successful backend creation.
+Use a centered card with system-generated/read-only information near the top, classification fields grouped together, full-width Summary and Description, attachment section below them, and actions at the bottom. Requester is read-only and populated from the selected context. Ticket Number and Ticket Date are system-generated, read-only values shown after successful backend creation. Before submission, their reserved positions explain that the backend will assign them after the Ticket is saved.
 
 ### Controls and states
 

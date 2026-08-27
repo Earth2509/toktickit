@@ -6,15 +6,15 @@
 
 ## Selected Prompts and Use
 
-| # | Prompt purpose | How the result is reviewed or used |
+| # | Selected key prompt | How the result is reviewed or used |
 |---|---|---|
-| 1 | Interpret the Lab 2 stakeholder request and list the included and excluded product scope. | Reviewed against the labsheet; real authentication and IT Staff features remain excluded. |
-| 2 | Convert the stakeholder request into numbered functional requirements, business rules, acceptance criteria, and a Definition of Done. | The resulting contract is checked for testability, ownership behavior, attachment lifecycle, and internal consistency. |
-| 3 | Propose a Prisma data model for Requesters, Tickets, Attachments, Related Systems, and repeatable seed data. | Field names, relationships, constraints, indexes, migration impact, and Lab 3 evolution are reviewed before implementation. |
-| 4 | Design a safe REST API contract for requester-scoped ticket creation, list/detail retrieval, upload, download, and soft removal. | Request/response shapes, status codes, validation, pagination, and ownership errors are documented in `api-spec.md`. |
-| 5 | Produce a Test-DD plan that maps every acceptance criterion to unit, API, UI, style, responsive, or E2E tests. | Planned scenarios, file paths, commands, and final-results rules are reviewed before tests are written. |
-| 6 | Define a reusable Zen Green UI specification for Requester selection, Create Ticket, My Tickets, Ticket Detail, and Attachments. | Tokens, component states, accessibility, and viewport rules are reviewed against the Lab 2 requirements. |
-| 7 | Audit the Engineering Contract for ambiguity, missing business rules, conflicts, dependencies, and an implementation order. | Findings are resolved in the documents before implementation Issues begin. |
+| 1 | "Read the Lab 2 stakeholder request. Identify the included scope and the excluded Lab 3 authentication and IT Staff scope. Produce a concise, testable interpretation without writing code." | Reviewed against the labsheet; real authentication and IT Staff features remain excluded. |
+| 2 | "Convert the approved Lab 2 scope into numbered functional requirements, business rules, Given-When-Then acceptance criteria, and a Definition of Done. Flag any decision that needs student approval." | The resulting contract is checked for testability, ownership behavior, attachment lifecycle, and internal consistency. |
+| 3 | "Propose a Prisma data design for Requesters, Tickets, Attachments, Related Systems, and repeatable seed data. Explain constraints, indexes, soft removal, and the transition to Lab 3 authentication. Do not apply a migration." | Field names, relationships, constraints, indexes, migration impact, and Lab 3 evolution are reviewed before implementation. |
+| 4 | "Design a safe REST API contract for requester-scoped Ticket creation, list/detail retrieval, upload, download, and soft removal. Define validation, ownership, pagination, idempotency, response shapes, and safe status codes." | Request/response shapes, status codes, validation, pagination, idempotency, and ownership errors are documented in `api-spec.md`. |
+| 5 | "Create a Test-DD plan that maps every Lab 2 acceptance criterion to unit, API, UI, style, responsive, or E2E tests. Include realistic test-file paths and commands, but do not claim tests have run." | Planned scenarios, file paths, commands, and final-results rules are reviewed before tests are written. |
+| 6 | "Define a reusable Zen Green UI specification for Requester selection, Create Ticket, My Tickets, Ticket Detail, and Attachments. Include accessibility, loading, validation, error, busy, empty, and responsive states." | Tokens, component states, accessibility, and viewport rules are reviewed against the Lab 2 requirements. |
+| 7 | "Audit the Engineering Contract for ambiguity, missing business rules, conflicts, dependencies, and implementation order. Report gaps without changing scope or inventing Lab 3 features." | Findings are resolved in the documents before implementation Issues begin. |
 
 ## My Reflection
 

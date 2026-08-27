@@ -72,6 +72,9 @@ The Requester needs a clear way to report an IT problem, choose its classificati
 - **BR-25:** The UI distinguishes an empty ticket list (no owned tickets) from no results after an active search or filter.
 - **BR-26:** API failures preserve unsaved Create Ticket values and show a safe user-facing message without raw stack traces or browser network error text.
 - **BR-27:** In Lab 3, real authenticated identity will replace the development requester context while the Ticket-to-Requester ownership relationship remains unchanged.
+- **BR-28:** `requestedPriority` is a native enum declared in severity order: `LOW`, `MEDIUM`, `HIGH`, `URGENT`. When the user sorts by Requested Priority ascending, results use that severity order; descending reverses it.
+- **BR-29:** `idempotencyKey` is a required client-generated UUID for `POST /api/tickets`. Reusing a key with the same normalized requester and Ticket payload returns the original Ticket; reusing it with a different normalized payload returns `409` and creates no Ticket.
+- **BR-30:** Current Status remains a documented list filter for forward compatibility, but every Lab 2 Ticket is `NEW` and Lab 2 has no status transitions. Part 7 filter evidence must therefore demonstrate Category, Related System, and Requested Priority; status filtering is scaffolding for a later lab.
 
 ## 6. UI Specification Summary
 
@@ -84,7 +87,7 @@ The UI follows `docs/lab-02/ui-spec.md`. It uses the Zen Green palette, a shared
 | `Requester` | `id`, `displayName`, unique `email`, `isActive`, timestamps; one-to-many Tickets | The persisted model represents the person who owns Tickets. Development selection is a client testing context, not a separate security model. |
 | `Category` | existing `id`, unique `name`; add `isActive` | Existing Lab 1 reference data remains reusable while enabling active-only retrieval. |
 | `RelatedSystem` | `id`, unique `name`, `isActive`, timestamps; one-to-many Tickets | Separates the affected product/device from the broad Category. |
-| `Ticket` | `id`, unique `ticketNumber`, `requesterId`, `categoryId`, `relatedSystemId`, Summary, Description, Requested Priority, `currentStatus`, idempotency key, timestamps | `ticketNumber` is based on the saved numeric ID in a transaction, using `TT-YYYY-000001` format. The unique ID supports a deterministic, backend-only official number. |
+| `Ticket` | `id`, unique `ticketNumber`, `requesterId`, `categoryId`, `relatedSystemId`, Summary, Description, `requestedPriority: RequestedPriority`, `currentStatus: NEW`, idempotency key, timestamps | `ticketNumber` is based on the saved numeric ID in a transaction, using `TT-YYYY-000001` format. `RequestedPriority` is a native enum declared `LOW`, `MEDIUM`, `HIGH`, `URGENT`, so severity sorting is deterministic. The unique ID supports a deterministic, backend-only official number. |
 | `Attachment` | `id`, `ticketId`, safe storage key, original filename, MIME type, byte size, uploaded timestamp, removal fields | Soft removal is represented by nullable removal metadata; active queries use `removedAt IS NULL`. |
 
 Required relationships are Requester 1-to-many Ticket, Ticket 1-to-many Attachment, Category 1-to-many Ticket, and RelatedSystem 1-to-many Ticket. The design uses unique constraints for Ticket Number, idempotency key, Requester email, and reference-data names. Indexes will support requester-scoped list queries ordered by creation time and filtered reference IDs.
@@ -129,4 +132,7 @@ The complete API contract is in `docs/lab-02/api-spec.md`. It covers active refe
 - `Requester` is the persistent ownership model; the word Development describes the temporary selector workflow rather than a second user table.
 - Ticket creation precedes attachment upload so a partial attachment failure can be reported and retried without losing a valid Ticket.
 - Cross-requester access returns not found rather than forbidden to avoid confirming that another Requester's resource exists.
+- Requested Priority is a native enum in severity order so the My Tickets sort has a defined user-facing order rather than alphabetical database ordering.
+- Current Status is exposed as forward-compatible list-filter scaffolding, but only `NEW` exists in Lab 2. Required filter demonstrations use Category, Related System, and Requested Priority instead.
+- A required idempotency key represents one normalized create payload. The server returns the saved result for an identical retry and rejects a different payload reusing that key.
 - Exact visual spacing and component implementation may evolve, but must satisfy `ui-spec.md` and the Lab 2 visual checklist.

@@ -8,6 +8,7 @@
 
 - JSON endpoints use `application/json`; file upload uses `multipart/form-data`.
 - Validation errors return `{ "message": string, "fieldErrors": Record<string, string> }`.
+- `400` means the request cannot be parsed or a list-query parameter is malformed. `422` means a syntactically well-formed JSON body reached field validation but violates a documented Ticket or removal rule.
 - Unexpected errors return a safe `{ "message": "Unable to complete the request" }` response without internal details.
 - A missing, inactive, or non-owned resource returns a safe `404` response where disclosure would reveal another Requester's data.
 - Ticket list responses include `{ items, page, pageSize, totalItems, totalPages }`.
@@ -24,7 +25,7 @@
 
 ### `POST /api/tickets`
 
-Creates one validated Ticket for the selected Requester.
+Creates one validated Ticket for the selected Requester. `idempotencyKey` is required and must be a client-generated UUID. The server compares a normalized create payload for a reused key: an identical retry returns the original Ticket; a changed requester, reference, summary, description, or priority with that same key is a conflict.
 
 ```json
 {
@@ -38,7 +39,7 @@ Creates one validated Ticket for the selected Requester.
 }
 ```
 
-Success: `201` with the saved Ticket, including `id`, `ticketNumber`, `requesterId`, reference data, `currentStatus: "NEW"`, and timestamps. Repeating the same valid idempotency key returns the previously created representation with `200` and does not create another Ticket.
+Success: `201` with the saved Ticket, including `id`, `ticketNumber`, `requesterId`, reference data, `currentStatus: "NEW"`, and timestamps. Repeating the same valid idempotency key with the same normalized payload returns the previously created representation with `200` and does not create another Ticket.
 
 Failures: `400` malformed body, `404` inactive/missing requester or inactive/missing reference data, `422` field validation errors, `409` conflicting idempotency key payload, and `503`/`500` safe persistence error.
 
@@ -48,7 +49,7 @@ Returns only the selected Requester's Tickets.
 
 Required query parameter: `requesterId`.
 
-Optional query parameters: `search`, `categoryId`, `relatedSystemId`, `requestedPriority`, `currentStatus`, `sortBy` (`createdAt`, `updatedAt`, `ticketNumber`, `requestedPriority`), `sortOrder` (`asc`, `desc`), `page` (minimum 1), and `pageSize` (10, 20, or 50).
+Optional query parameters: `search`, `categoryId`, `relatedSystemId`, `requestedPriority`, `currentStatus`, `sortBy` (`createdAt`, `updatedAt`, `ticketNumber`, `requestedPriority`), `sortOrder` (`asc`, `desc`), `page` (minimum 1), and `pageSize` (10, 20, or 50). For `requestedPriority`, ascending order is `LOW`, `MEDIUM`, `HIGH`, `URGENT`; descending reverses that severity order. Current Status is accepted for forward compatibility but all Lab 2 Tickets are `NEW`, so meaningful Lab 2 filter evidence uses Category, Related System, and Requested Priority.
 
 Success: `200` with `{ items, page, pageSize, totalItems, totalPages }`. The default order is `createdAt desc, id desc`. Invalid query values return `400` with field errors. Empty and no-results searches both return `200` with an empty `items` array; the UI determines the correct presentation from active query state.
 
