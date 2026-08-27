@@ -15,6 +15,7 @@
 | 5 | "Create a Test-DD plan that maps every Lab 2 acceptance criterion to unit, API, UI, style, responsive, or E2E tests. Include realistic test-file paths and commands, but do not claim tests have run." | Planned scenarios, file paths, commands, and final-results rules are reviewed before tests are written. |
 | 6 | "Define a reusable Zen Green UI specification for Requester selection, Create Ticket, My Tickets, Ticket Detail, and Attachments. Include accessibility, loading, validation, error, busy, empty, and responsive states." | Tokens, component states, accessibility, and viewport rules are reviewed against the Lab 2 requirements. |
 | 7 | "Audit the Engineering Contract for ambiguity, missing business rules, conflicts, dependencies, and implementation order. Report gaps without changing scope or inventing Lab 3 features." | Findings are resolved in the documents before implementation Issues begin. |
+| 8 | "Implement Issue #13 only: add active Requester and Related System reference data, idempotent seed data, safe active-reference APIs, Development Requester selection and switching, Zen Green application shell, migration, and focused API/UI tests. Do not implement Ticket creation, lists, detail, or attachments." | The implementation was checked against Issue #13, built locally, and tested. Ticket, list, detail, and attachment work remain deferred to their own Issues. |
 
 ## My Reflection
 

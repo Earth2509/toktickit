@@ -78,6 +78,17 @@ The final report will include complete passing unit, API, and UI terminal output
 
 Implementation has not started. This section will be updated with actual file paths, test counts, terminal output, and `Passed` status only after the related tests run on `main`.
 
+### Issue #13 Feature-Branch Verification
+
+On 27 August 2026, the Requester foundation was verified on `feature/lab2-requester-foundation` before peer review:
+
+- `cd server && npm test`: 3 test files and 5 tests passed, including `server/tests/lab-02/development-requesters.api.test.ts`.
+- `cd server && npm run build`: passed.
+- `cd client && npm test`: 2 test files and 4 tests passed, including `client/tests/lab-02/RequesterSelector.test.tsx`.
+- `cd client && npm run build`: passed.
+
+These results are feature-branch evidence only. The related final table entries remain `Planned` until the peer-approved work is integrated and rerun on `main`.
+
 ## 7. Known Limitations or Deferred Tests
 
 Real authentication and IT Staff workflows are intentionally deferred to later labs. They are not substitutes for Lab 2 ownership tests; requester ownership is still enforced by the backend using the selected development requester ID.
