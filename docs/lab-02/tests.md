@@ -76,7 +76,7 @@ The final report will include complete passing unit, API, and UI terminal output
 
 ## 6. Final Results
 
-Implementation has not started. This section will be updated with actual file paths, test counts, terminal output, and `Passed` status only after the related tests run on `main`.
+Implementation evidence is recorded here as each Issue is verified. A test remains `Planned` in the table above until its peer-approved work is integrated and rerun on the final `main` branch.
 
 ### Issue #13 Feature-Branch Verification
 
@@ -100,7 +100,19 @@ On 28 August 2026, the Prisma migration was verified against the isolated
 - `cd server && npm test`: 3 test files and 5 tests passed; `npm run build` and `npx prisma validate` passed.
 - `cd client && npm test`: 2 test files and 4 tests passed; `npm run build` passed.
 
-The migration verification and all test results above remain feature-branch evidence pending renewed peer review.
+The migration verification and all test results above were feature-branch evidence at the time of review. Issue #13 was subsequently approved and merged into `lab2-staging` through PR #21; final `main` verification remains part of the release Issue.
+
+### Issue #14 Feature-Branch Verification
+
+On 28 August 2026, Ticket creation was verified on `feature/lab2-ticket-create-api` before peer review:
+
+- `cd server && npm test`: 6 test files and 15 tests passed. This includes `ticket-number.unit.test.ts`, `ticket-validation.unit.test.ts`, and `create-ticket.api.test.ts`.
+- `cd server && npm run build`: passed.
+- `cd server && npm run prisma:validate`: passed.
+- In isolated PostgreSQL schema `lab2_ticket_create_check`, `npx prisma migrate reset --force --skip-generate` applied all three committed migrations, including `20260828150000_lab2_ticket_creation`.
+- `npm run prisma:seed` completed twice against the isolated schema without duplicate reference data.
+
+This is feature-branch evidence only. The Issue #14 entries remain `Planned` until the peer-approved work is integrated and rerun on the final `main` branch.
 
 ## 7. Known Limitations or Deferred Tests
 
