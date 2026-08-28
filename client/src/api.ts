@@ -16,27 +16,6 @@ export type Requester = {
   email: string;
 };
 
-type HealthCheck = {
-  status: "ok";
-  service: string;
-};
-
-export async function fetchHealth(): Promise<HealthCheck> {
-  let response: Response;
-
-  try {
-    response = await fetch(API_BASE_URL + "/api/health");
-  } catch {
-    throw new Error("Unable to connect to TokTickIT API");
-  }
-
-  if (!response.ok) {
-    throw new Error("Unable to connect to TokTickIT API");
-  }
-
-  return response.json() as Promise<HealthCheck>;
-}
-
 export async function fetchCategories(): Promise<Category[]> {
   return fetchReferenceData<Category[]>("/api/categories", "Unable to load request categories");
 }

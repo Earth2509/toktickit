@@ -13,7 +13,15 @@ afterEach(() => {
 });
 
 function mockRequesterResponse(body: unknown, ok = true) {
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok, json: async () => body }));
+  vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+    if (url.endsWith("/api/requesters")) {
+      return Promise.resolve({ ok, json: async () => body });
+    }
+
+    return Promise.resolve({ ok: false, json: async () => ({}) });
+  }));
 }
 
 describe("Development Requester Selection", () => {
@@ -27,8 +35,19 @@ describe("Development Requester Selection", () => {
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
   });
 
-  it("persists the selected Requester and lets the user change it", async () => {
-    mockRequesterResponse(requesters);
+  it("persists the selected Requester and refreshes the list when the user changes it", async () => {
+    const refreshedRequesters = [requesters[0]];
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+      if (!url.endsWith("/api/requesters")) {
+        return Promise.resolve({ ok: false, json: async () => ({}) });
+      }
+
+      const body = fetchMock.mock.calls.length === 1 ? requesters : refreshedRequesters;
+      return Promise.resolve({ ok: true, json: async () => body });
+    });
+    vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
     const selector = await screen.findByLabelText("Development Requester");
@@ -42,6 +61,8 @@ describe("Development Requester Selection", () => {
     fireEvent.click(screen.getByRole("button", { name: "Change Requester" }));
 
     expect(await screen.findByRole("heading", { name: "Development Requester Selection" })).toBeInTheDocument();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(screen.queryByRole("option", { name: /Busaba Wattanakul/ })).not.toBeInTheDocument();
     expect(window.localStorage.getItem("toktickit.lab2.developmentRequesterId")).toBeNull();
   });
 

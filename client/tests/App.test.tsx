@@ -7,9 +7,21 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
+function mockRequesterResponse(body: unknown, ok = true) {
+  vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+    if (url.endsWith("/api/requesters")) {
+      return Promise.resolve({ ok, json: async () => body });
+    }
+
+    return Promise.resolve({ ok: false, json: async () => ({}) });
+  }));
+}
+
 describe("TokTickIT application shell", () => {
   it("renders the Development Requester selector", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => [] }));
+    mockRequesterResponse([]);
     render(<App />);
 
     expect(screen.getByRole("heading", { name: "Development Requester Selection" })).toBeInTheDocument();

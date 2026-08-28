@@ -10,7 +10,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function loadRequesters() {
+  async function loadRequesters(restoreStoredRequester = true) {
     setLoading(true);
     setError("");
 
@@ -18,12 +18,14 @@ export default function App() {
       const loadedRequesters = await fetchRequesters();
       setRequesters(loadedRequesters);
 
-      const storedRequesterId = window.localStorage.getItem(REQUESTER_STORAGE_KEY);
-      const storedRequester = loadedRequesters.find((requester) => requester.id === Number(storedRequesterId));
-      if (storedRequester) {
-        setActiveRequester(storedRequester);
-      } else {
-        window.localStorage.removeItem(REQUESTER_STORAGE_KEY);
+      if (restoreStoredRequester) {
+        const storedRequesterId = window.localStorage.getItem(REQUESTER_STORAGE_KEY);
+        const storedRequester = loadedRequesters.find((requester) => requester.id === Number(storedRequesterId));
+        if (storedRequester) {
+          setActiveRequester(storedRequester);
+        } else {
+          window.localStorage.removeItem(REQUESTER_STORAGE_KEY);
+        }
       }
     } catch {
       setError("Unable to load Development Requesters. Please retry.");
@@ -48,6 +50,7 @@ export default function App() {
     window.localStorage.removeItem(REQUESTER_STORAGE_KEY);
     setSelectedRequesterId("");
     setActiveRequester(null);
+    void loadRequesters(false);
   }
 
   if (activeRequester) {
