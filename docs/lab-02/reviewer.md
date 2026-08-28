@@ -11,15 +11,14 @@ Each Lab 2 Issue is implemented on one feature branch, reviewed through a Pull R
 
 | Issue / Pull Request | Scope | Reviewer feedback | Author response | Outcome |
 |---|---|---|---|---|
-| [#11](https://github.com/Earth2509/toktickit/issues/11) / [PR #12](https://github.com/Earth2509/toktickit/pull/12) | Engineering Contract and Test Plan | @Nuggetkub reviewed the contract on 26 August 2026. The review requested an explicit Create Ticket Ticket Date, a reviewer record that includes reviews given as well as received, and stronger documentation of priority sorting, status-filter limits, E2E ownership, prompts, validation status codes, and idempotency. | The author corrected the documentation in a follow-up commit on `feature/11-engineering-contract`. The GitHub reply and re-review request will be recorded after the correction is pushed. | Feedback addressed; re-review and approval pending. |
+| [#11](https://github.com/Earth2509/toktickit/issues/11) / [PR #12](https://github.com/Earth2509/toktickit/pull/12) | Engineering Contract and Test Plan | @Nuggetkub reviewed the contract on 26 August 2026. The review requested an explicit Create Ticket Ticket Date, a reviewer record that includes reviews given as well as received, and stronger documentation of priority sorting, status-filter limits, E2E ownership, prompts, validation status codes, and idempotency. | The author corrected the documentation in commit `2b50480`, replied to the review, and requested review again. | Approved and merged into `lab2-staging` through PR #12. |
+| [#13](https://github.com/Earth2509/toktickit/issues/13) / [PR #21](https://github.com/Earth2509/toktickit/pull/21) | Requester foundation | @Nuggetkub requested proof that the committed Prisma migration applies from an empty database and requested `migration_lock.toml`. The review also recommended removing Bootstrap, routing fetch mocks by URL, committing the client lockfile, and refreshing Requesters when the context changes. | The migration was reset and seeded twice in an isolated schema, with 4 Categories, 4 active Requesters, 1 inactive Requester, and 6 Related Systems confirmed. `migration_lock.toml`, `client/package-lock.json`, URL-routed fetch mocks, requester refresh behavior, and Bootstrap removal were added. | Pending renewed peer review. |
 
 ## Reviews Given by the Author
 
-No Lab 2 peer review has been given by the author yet. When the author reviews a peer's Lab 2 Pull Request, this section will record the real PR link, the specific feedback given, the peer's response, and the final result. It will not be reconstructed or claimed before the GitHub activity exists.
-
 | Pull Request reviewed | Feedback given by @Earth2509 | Peer response / outcome |
 |---|---|---|
-| No Lab 2 review recorded yet | Not applicable | Pending future peer-review activity |
+| [Nuggetkub/toktickit PR #29](https://github.com/Nuggetkub/toktickit/pull/29) | The specification, API, test, UI, and AI-use documents were reviewed as internally consistent. Before approval, the author requested the required `docs/lab-02/reviewer.md` file, including both peers, the PR link, the review feedback, author response, and pending approval outcome. | The peer added the required record in commit `86b796c`. The PR was approved by @Earth2509 and merged into `lab2-staging` on 28 August 2026. |
 
 ## Review Checklist for Issue #11
 
