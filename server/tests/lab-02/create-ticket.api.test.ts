@@ -67,11 +67,12 @@ describe("POST /api/tickets", () => {
 
     expect(response.status).toBe(201);
     expect(response.body).toMatchObject({
-      ticketNumber: "TT-2026-000042",
       currentStatus: "NEW",
       summary: "Cannot connect to the campus network",
       description: "The wireless connection drops every few minutes.",
     });
+    expect(response.body.ticketNumber).toMatch(/^TT-\d{4}-\d{6}$/);
+    expect(response.body.ticketNumber).not.toMatch(/^PENDING-/);
     expect(ticketCreate).toHaveBeenCalledWith({
       data: expect.objectContaining({
         requesterId: 1,
@@ -107,6 +108,16 @@ describe("POST /api/tickets", () => {
     expect(transaction).not.toHaveBeenCalled();
   });
 
+  it("returns safe JSON for a body rejected by the JSON parser", async () => {
+    const response = await request(app)
+      .post("/api/tickets")
+      .send({ ...requestBody, description: "x".repeat(103_000) });
+
+    expect(response.status).toBe(413);
+    expect(response.headers["content-type"]).toContain("application/json");
+    expect(response.body).toEqual({ message: "Request payload is too large." });
+  });
+
   it("returns the original Ticket when the same idempotency key and payload are retried", async () => {
     ticketFindUnique.mockResolvedValue(createdTicket);
 
@@ -127,6 +138,31 @@ describe("POST /api/tickets", () => {
     expect(transaction).not.toHaveBeenCalled();
   });
 
+  it("returns the winning Ticket when a concurrent create loses the idempotency race", async () => {
+    ticketFindUnique
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(createdTicket);
+    transaction.mockRejectedValueOnce(Object.assign(new Error("duplicate key"), { code: "P2002" }));
+
+    const response = await request(app).post("/api/tickets").send(requestBody);
+
+    expect(response.status).toBe(200);
+    expect(response.body.ticketNumber).toBe("TT-2026-000042");
+    expect(transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns a conflict when a concurrent winning Ticket has different data", async () => {
+    ticketFindUnique
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ ...createdTicket, summary: "A different network incident" });
+    transaction.mockRejectedValueOnce(Object.assign(new Error("duplicate key"), { code: "P2002" }));
+
+    const response = await request(app).post("/api/tickets").send(requestBody);
+
+    expect(response.status).toBe(409);
+    expect(response.body).toEqual({ message: "The idempotency key was already used with different Ticket data." });
+  });
+
   it("fails safely when a requester or reference record is inactive or unavailable", async () => {
     requesterFindFirst.mockResolvedValue(null);
 
@@ -135,5 +171,23 @@ describe("POST /api/tickets", () => {
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ message: "Requester or reference data is unavailable." });
     expect(transaction).not.toHaveBeenCalled();
+  });
+
+  it("returns 500 for an unexpected persistence failure", async () => {
+    transaction.mockRejectedValueOnce(new Error("unexpected failure"));
+
+    const response = await request(app).post("/api/tickets").send(requestBody);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ message: "Unable to complete the request" });
+  });
+
+  it("returns 503 for an unavailable database dependency", async () => {
+    transaction.mockRejectedValueOnce(Object.assign(new Error("database unavailable"), { code: "P1001" }));
+
+    const response = await request(app).post("/api/tickets").send(requestBody);
+
+    expect(response.status).toBe(503);
+    expect(response.body).toEqual({ message: "Ticket service is temporarily unavailable." });
   });
 });

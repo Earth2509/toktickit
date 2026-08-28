@@ -106,7 +106,7 @@ The migration verification and all test results above were feature-branch eviden
 
 On 28 August 2026, Ticket creation was verified on `feature/lab2-ticket-create-api` before peer review:
 
-- `cd server && npm test`: 6 test files and 15 tests passed. This includes `ticket-number.unit.test.ts`, `ticket-validation.unit.test.ts`, and `create-ticket.api.test.ts`.
+- `cd server && npm test`: 6 test files and 20 tests passed. This includes `ticket-number.unit.test.ts`, `ticket-validation.unit.test.ts`, and `create-ticket.api.test.ts`, including the idempotency-race, oversized JSON, and safe-error-response cases added during peer review.
 - `cd server && npm run build`: passed.
 - `cd server && npm run prisma:validate`: passed.
 - In isolated PostgreSQL schema `lab2_ticket_create_check`, `npx prisma migrate reset --force --skip-generate` applied all three committed migrations, including `20260828150000_lab2_ticket_creation`.

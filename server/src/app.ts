@@ -121,20 +121,45 @@ app.post("/api/tickets", async (req, res) => {
       return res.status(409).json({ message: "The idempotency key was already used with different Ticket data." });
     }
 
-    return res.status(503).json({ message: "Unable to complete the request" });
+    if (isDependencyUnavailable(error)) {
+      return res.status(503).json({ message: "Ticket service is temporarily unavailable." });
+    }
+
+    return res.status(500).json({ message: "Unable to complete the request" });
   }
 });
 
-app.use((error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (error instanceof SyntaxError && "body" in error) {
     return res.status(400).json({ message: "Malformed JSON body." });
   }
 
-  return next(error);
+  if (statusCode(error) === 413) {
+    return res.status(413).json({ message: "Request payload is too large." });
+  }
+
+  return res.status(500).json({ message: "Unable to complete the request" });
 });
 
 function isUniqueConstraintError(error: unknown): boolean {
-  return typeof error === "object" && error !== null && "code" in error && error.code === "P2002";
+  return errorCode(error) === "P2002";
+}
+
+function isDependencyUnavailable(error: unknown): boolean {
+  const code = errorCode(error);
+  return code !== undefined && ["P1000", "P1001", "P1002", "P1008", "P1009", "P1017"].includes(code);
+}
+
+function errorCode(error: unknown): string | undefined {
+  return typeof error === "object" && error !== null && "code" in error && typeof error.code === "string"
+    ? error.code
+    : undefined;
+}
+
+function statusCode(error: unknown): number | undefined {
+  return typeof error === "object" && error !== null && "status" in error && typeof error.status === "number"
+    ? error.status
+    : undefined;
 }
 
 export default app;
