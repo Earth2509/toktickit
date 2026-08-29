@@ -25,7 +25,7 @@
 
 ### `POST /api/tickets`
 
-Creates one validated Ticket for the selected Requester. `idempotencyKey` is required and must be a client-generated UUID. The server compares a normalized create payload for a reused key: an identical retry returns the original Ticket; a changed requester, reference, summary, description, or priority with that same key is a conflict.
+Creates one validated Ticket for the selected Requester. `idempotencyKey` is required and must be a client-generated UUID. The browser keeps the same key when an unchanged create request is retried and generates a new key whenever the user changes a create-request field. The server compares a normalized create payload for a reused key: an identical retry returns the original Ticket; a changed requester, reference, summary, description, or priority with that same key is a conflict.
 
 ```json
 {

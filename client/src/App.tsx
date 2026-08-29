@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchRequesters, type Requester } from "./api";
+import CreateTicketForm from "./CreateTicketForm";
 
 const REQUESTER_STORAGE_KEY = "toktickit.lab2.developmentRequesterId";
 
@@ -113,6 +114,8 @@ type RequesterWorkspaceProps = {
 };
 
 function RequesterWorkspace({ requester, onChangeRequester }: RequesterWorkspaceProps) {
+  const [view, setView] = useState<"home" | "create" | "tickets">("home");
+
   return (
     <main className="app-page">
       <header className="application-header">
@@ -127,14 +130,28 @@ function RequesterWorkspace({ requester, onChangeRequester }: RequesterWorkspace
         </div>
       </header>
 
-      <section className="workspace-card" aria-labelledby="workspace-heading">
-        <h1 id="workspace-heading">Requester Workspace</h1>
-        <p>You are testing the requester context for <strong>{requester.displayName}</strong>. Ticket creation and ticket browsing will be delivered in the next approved Lab 2 Issues.</p>
-        <nav className="workspace-navigation" aria-label="Requester workspace">
-          <button className="button button-primary" disabled>Create Ticket</button>
-          <button className="button button-secondary" disabled>My Tickets</button>
-        </nav>
-      </section>
+      <nav className="workspace-navigation application-navigation" aria-label="Requester workspace">
+        <button className={`button ${view === "create" ? "button-primary" : "button-secondary"}`} onClick={() => setView("create")}>Create Ticket</button>
+        <button className={`button ${view === "tickets" ? "button-primary" : "button-secondary"}`} onClick={() => setView("tickets")}>My Tickets</button>
+      </nav>
+
+      {view === "home" && (
+        <section className="workspace-card" aria-labelledby="workspace-heading">
+          <h1 id="workspace-heading">Requester Workspace</h1>
+          <p>You are testing the requester context for <strong>{requester.displayName}</strong>. Create a new request or view your requester-owned Tickets.</p>
+          <button className="button button-primary" onClick={() => setView("create")}>Create Ticket</button>
+        </section>
+      )}
+
+      {view === "create" && <CreateTicketForm requester={requester} onViewMyTickets={() => setView("tickets")} />}
+
+      {view === "tickets" && (
+        <section className="workspace-card" aria-labelledby="my-tickets-heading">
+          <h1 id="my-tickets-heading">My Tickets</h1>
+          <p>Ticket browsing will be available in the next approved Lab 2 Issue. You can create a new Ticket now.</p>
+          <button className="button button-primary" onClick={() => setView("create")}>Create Ticket</button>
+        </section>
+      )}
     </main>
   );
 }
