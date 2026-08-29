@@ -153,6 +153,24 @@ This is feature-branch evidence only. The Issue #16 entries remain `Planned`
 until the peer-approved work is integrated and rerun on the final `main`
 branch.
 
+### Issue #17 Feature-Branch Verification
+
+On 29 August 2026, the My Tickets screen was verified on
+`feature/lab2-my-tickets-ui` before peer review:
+
+- `cd client && npm test`: 4 test files and 15 tests passed. The new
+  `MyTickets.test.tsx` coverage checks requester-scoped rendering, search and
+  filter requests, sorting, pagination reset, empty and no-results states,
+  safe API failure feedback, and Requester switching without stale Tickets.
+- `cd client && npm run build`: passed.
+- The responsive list provides an accessible table on desktop and labelled
+  ticket cards on narrow screens, while My Tickets excludes detail-only ticket
+  descriptions from the rendered list response.
+
+This is feature-branch evidence only. The Issue #17 entries remain `Planned`
+until the peer-approved work is integrated and rerun on the final `main`
+branch.
+
 ## 7. Known Limitations or Deferred Tests
 
 Real authentication and IT Staff workflows are intentionally deferred to later labs. They are not substitutes for Lab 2 ownership tests; requester ownership is still enforced by the backend using the selected development requester ID.
