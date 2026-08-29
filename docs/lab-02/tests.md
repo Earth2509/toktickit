@@ -30,7 +30,7 @@ E2E execution has an explicit infrastructure dependency: a dedicated Lab 2 Issue
 | API-10 | API | AC-11 | Soft removal records the reason, retains metadata, and blocks removed download. | `server/tests/lab-02/attachments.api.test.ts` | Planned |
 | UI-01 | UI | AC-01, AC-02 | Selector has loading, empty, failure, keyboard, and continue behavior. | `client/tests/lab-02/RequesterSelector.test.tsx` | Planned |
 | UI-02 | UI | AC-03, AC-04 | Create Ticket renders reference data, field errors, busy state, success number, and disabled submit behavior. | `client/tests/lab-02/CreateTicketForm.test.tsx` | Planned |
-| UI-03 | UI | AC-10 | Invalid attachment feedback names the rejected file and successful files remain selected. | `client/tests/lab-02/CreateTicketForm.test.tsx` | Planned |
+| UI-03 | UI | AC-10 | Invalid attachment feedback names every rejected file with its type or size reason, while permitted files remain selected. | `client/tests/lab-02/CreateTicketForm.test.tsx` | Planned |
 | UI-04 | UI | AC-06, AC-07 | My Tickets reloads after Requester change and renders loading, empty, no-results, filters, sort, and pagination. | `client/tests/lab-02/MyTickets.test.tsx` | Planned |
 | UI-05 | UI | AC-08, AC-11 | Detail shows owned data, removed metadata, blocked download, and safe cross-owner failure. | `client/tests/lab-02/RequesterTicketDetail.test.tsx` | Planned |
 | UI-06 | UI style | AC-12 | Required labels, asterisks, status/busy states, focusable controls, and Zen Green classes/tokens are asserted. | `client/tests/lab-02/ZenGreenStyles.test.tsx` | Planned |
@@ -119,11 +119,11 @@ This is feature-branch evidence only. The Issue #14 entries remain `Planned` unt
 On 29 August 2026, the Create Ticket screen was verified on
 `feature/lab2-create-ticket-ui` before peer review:
 
-- `cd client && npm test`: 3 test files and 8 tests passed. The four new
+- `cd client && npm test`: 3 test files and 9 tests passed. The five new
   `client/tests/lab-02/CreateTicketForm.test.tsx` cases cover local required
   field validation, a successful create request, recoverable API failure with
-  preserved inputs and selected valid files during retry, and rejected local
-  attachment types.
+  preserved inputs and selected valid files during retry, mixed attachment
+  selection with named type/size rejection reasons, and an overlong Summary.
 - `cd client && npm run build`: passed.
 - The screen loads active Categories and Related Systems, holds a Requester as
   a read-only value, generates an idempotency key for a create attempt,

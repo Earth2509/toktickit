@@ -134,5 +134,5 @@ The complete API contract is in `docs/lab-02/api-spec.md`. It covers active refe
 - Cross-requester access returns not found rather than forbidden to avoid confirming that another Requester's resource exists.
 - Requested Priority is a native enum in severity order so the My Tickets sort has a defined user-facing order rather than alphabetical database ordering.
 - Current Status is exposed as forward-compatible list-filter scaffolding, but only `NEW` exists in Lab 2. Required filter demonstrations use Category, Related System, and Requested Priority instead.
-- A required idempotency key represents one normalized create payload. The server returns the saved result for an identical retry and rejects a different payload reusing that key.
+- A required idempotency key represents one normalized create payload. The browser keeps the same key for an unchanged retry and generates a new key when the user edits a create-request field. The server returns the saved result for an identical retry and rejects a different payload reusing that key.
 - Exact visual spacing and component implementation may evolve, but must satisfy `ui-spec.md` and the Lab 2 visual checklist.

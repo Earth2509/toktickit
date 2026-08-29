@@ -86,6 +86,7 @@ describe("Create Ticket", () => {
 
     expect(await screen.findByRole("heading", { name: "Your request has been created" })).toBeInTheDocument();
     expect(screen.getByText("TT-2026-000042")).toBeInTheDocument();
+    expect(screen.getByText(/Attachments were validated locally but are not uploaded in this step/)).toBeInTheDocument();
     const postCall = fetchMock.mock.calls.find(([, init]) => (init as RequestInit | undefined)?.method === "POST");
     expect(postCall).toBeDefined();
     const postedBody = JSON.parse((postCall![1] as RequestInit).body as string);
@@ -114,14 +115,32 @@ describe("Create Ticket", () => {
     expect(fetchMock.mock.calls.filter(([, init]) => (init as RequestInit | undefined)?.method === "POST")).toHaveLength(2);
   });
 
-  it("reports a locally invalid attachment without discarding the Ticket form", async () => {
+  it("keeps permitted attachments and names every rejected file in a mixed selection", async () => {
     mockApi();
     await openCreateTicket();
+    const validFile = new File(["evidence"], "evidence.png", { type: "image/png" });
     const invalidFile = new File(["not an attachment"], "notes.txt", { type: "text/plain" });
+    const oversizedFile = new File([new Uint8Array(5 * 1024 * 1024 + 1)], "oversized.pdf", { type: "application/pdf" });
 
-    fireEvent.change(screen.getByLabelText("Attachments"), { target: { files: [invalidFile] } });
+    fireEvent.change(screen.getByLabelText("Attachments"), { target: { files: [validFile, invalidFile, oversizedFile] } });
 
-    expect(await screen.findByText("Choose JPEG, PNG, WEBP, or PDF files no larger than 5 MB.")).toBeInTheDocument();
-    expect(screen.getByLabelText(/^Summary/)).toHaveValue("");
+    expect(await screen.findByText(/notes\.txt: unsupported file type/)).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("notes.txt");
+    expect(screen.getByRole("alert")).toHaveTextContent("oversized.pdf");
+    expect(screen.getByLabelText("Selected valid files")).toHaveTextContent("evidence.png");
+    expect(screen.getByLabelText("Selected valid files")).not.toHaveTextContent("notes.txt");
+  });
+
+  it("validates an overlong Summary instead of silently truncating it", async () => {
+    const fetchMock = mockApi();
+    await openCreateTicket();
+    completeValidTicketForm();
+    fireEvent.change(screen.getByLabelText(/^Summary/), { target: { value: "A".repeat(121) } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit Ticket" }));
+
+    expect(await screen.findByText("Enter 5-120 characters.")).toBeInTheDocument();
+    expect(screen.getByText("121/120 characters")).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([, init]) => (init as RequestInit | undefined)?.method === "POST")).toHaveLength(0);
   });
 });

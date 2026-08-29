@@ -132,16 +132,12 @@ export default function CreateTicketForm({ requester, onViewMyTickets }: CreateT
 
   function selectFiles(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
-    const invalidFile = files.find((file) => !permittedFileTypes.includes(file.type) || file.size > maximumFileSize);
+    const validFiles = files.filter(isPermittedFile);
+    const rejectedFiles = files.filter((file) => !isPermittedFile(file));
 
-    if (invalidFile) {
-      setFileError("Choose JPEG, PNG, WEBP, or PDF files no larger than 5 MB.");
-      event.target.value = "";
-      return;
-    }
-
-    setSelectedFiles(files);
-    setFileError("");
+    // FileList cannot be edited. Keep a separate selection of the locally permitted files.
+    if (validFiles.length > 0) setSelectedFiles((current) => mergeSelectedFiles(current, validFiles));
+    setFileError(rejectedFiles.map(describeRejectedFile).join(" "));
   }
 
   function createAnotherTicket() {
@@ -162,7 +158,7 @@ export default function CreateTicketForm({ requester, onViewMyTickets }: CreateT
         <div className="success-panel" role="status">
           <p><strong>Ticket Number</strong><span>{createdTicket.ticketNumber}</span></p>
           <p><strong>Ticket Date</strong><span>{formatTicketDate(createdTicket.createdAt)}</span></p>
-          <p>Attachments are not uploaded in this step. Your selected files remain available only in the current browser session.</p>
+          <p>Attachments were validated locally but are not uploaded in this step. Select them again when attachment upload is available after Ticket creation.</p>
         </div>
         <div className="form-actions">
           <button className="button button-primary" onClick={onViewMyTickets}>View My Tickets</button>
@@ -220,17 +216,19 @@ export default function CreateTicketForm({ requester, onViewMyTickets }: CreateT
               </select>
             </Field>
             <Field label="Summary" id="summary" error={fieldErrors.summary} required className="full-width">
-              <input id="summary" value={values.summary} onChange={(event) => updateValue("summary", event.target.value)} maxLength={120} aria-invalid={Boolean(fieldErrors.summary)} aria-describedby={describedBy("summary", fieldErrors.summary)} />
-              <span className="field-hint">5-120 characters</span>
+              <input id="summary" value={values.summary} onChange={(event) => updateValue("summary", event.target.value)} aria-invalid={Boolean(fieldErrors.summary)} aria-describedby={describedBy("summary", fieldErrors.summary, "summary-hint summary-count")} />
+              <span id="summary-hint" className="field-hint">5-120 characters</span>
+              <span id="summary-count" className="field-hint" aria-live="polite">{values.summary.length}/120 characters</span>
             </Field>
             <Field label="Description" id="description" error={fieldErrors.description} required className="full-width">
-              <textarea id="description" value={values.description} onChange={(event) => updateValue("description", event.target.value)} maxLength={2000} rows={6} aria-invalid={Boolean(fieldErrors.description)} aria-describedby={describedBy("description", fieldErrors.description)} />
-              <span className="field-hint">10-2,000 characters</span>
+              <textarea id="description" value={values.description} onChange={(event) => updateValue("description", event.target.value)} rows={6} aria-invalid={Boolean(fieldErrors.description)} aria-describedby={describedBy("description", fieldErrors.description, "description-hint description-count")} />
+              <span id="description-hint" className="field-hint">10-2,000 characters</span>
+              <span id="description-count" className="field-hint" aria-live="polite">{values.description.length}/2,000 characters</span>
             </Field>
             <Field label="Attachments" id="attachments" error={fileError} className="full-width">
               <input id="attachments" type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf" onChange={selectFiles} aria-describedby={describedBy("attachments", fileError, "attachments-hint")} />
               <span id="attachments-hint" className="field-hint">JPEG, PNG, WEBP, or PDF up to 5 MB each. Upload will be available after the Ticket is created.</span>
-              {selectedFiles.length > 0 && <ul className="selected-files" aria-label="Selected valid files">{selectedFiles.map((file) => <li key={`${file.name}-${file.lastModified}`}>{file.name} ({formatFileSize(file.size)})</li>)}</ul>}
+              {selectedFiles.length > 0 && <ul className="selected-files" aria-label="Selected valid files">{selectedFiles.map((file) => <li key={fileIdentity(file)}>{file.name} ({formatFileSize(file.size)})</li>)}</ul>}
             </Field>
           </div>
         </fieldset>
@@ -287,4 +285,26 @@ function formatTicketDate(value: string): string {
 
 function formatFileSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(bytes < 1024 * 1024 ? 1 : 2)} MB`;
+}
+
+function isPermittedFile(file: File): boolean {
+  return permittedFileTypes.includes(file.type) && file.size <= maximumFileSize;
+}
+
+function describeRejectedFile(file: File): string {
+  if (!permittedFileTypes.includes(file.type)) {
+    return `${file.name}: unsupported file type. Choose JPEG, PNG, WEBP, or PDF.`;
+  }
+
+  return `${file.name}: exceeds the 5 MB limit.`;
+}
+
+function mergeSelectedFiles(current: File[], additions: File[]): File[] {
+  const uniqueFiles = new Map(current.map((file) => [fileIdentity(file), file]));
+  additions.forEach((file) => uniqueFiles.set(fileIdentity(file), file));
+  return [...uniqueFiles.values()];
+}
+
+function fileIdentity(file: File): string {
+  return `${file.name}-${file.size}-${file.lastModified}`;
 }
