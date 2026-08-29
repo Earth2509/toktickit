@@ -42,8 +42,8 @@ function response(body: unknown, ok = true): MockResponse {
   return { ok, json: async () => body };
 }
 
-function ticketResponse(items: unknown[], page = 1, totalPages = 1) {
-  return response({ items, page, pageSize: 10, totalItems: items.length, totalPages });
+function ticketResponse(items: unknown[], page = 1, totalPages = 1, totalItems = items.length) {
+  return response({ items, page, pageSize: 10, totalItems, totalPages });
 }
 
 function mockApi(ticketHandler: (url: URL) => MockResponse = (url) => {
@@ -82,6 +82,7 @@ describe("My Tickets", () => {
     expect(screen.getByText("Laptop battery drains quickly")).toBeInTheDocument();
     expect(screen.queryByText("VPN access needs renewal")).not.toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Requested Priority" })).toBeInTheDocument();
+    expect(screen.getByText("Showing 1–1 of 1 ticket · Page 1 of 1")).toBeInTheDocument();
 
     await waitFor(() => {
       const ticketUrl = fetchMock.mock.calls
@@ -128,22 +129,60 @@ describe("My Tickets", () => {
     });
   });
 
+  it("debounces search input so one completed term produces one Ticket request", async () => {
+    const fetchMock = mockApi();
+    await openMyTickets();
+    await screen.findByText("TT-2026-000042");
+    const ticketCallCount = () => fetchMock.mock.calls
+      .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url))
+      .filter((url) => url.pathname === "/api/tickets").length;
+
+    fireEvent.change(screen.getByLabelText("Search tickets"), { target: { value: "l" } });
+    fireEvent.change(screen.getByLabelText("Search tickets"), { target: { value: "la" } });
+    fireEvent.change(screen.getByLabelText("Search tickets"), { target: { value: "lap" } });
+    fireEvent.change(screen.getByLabelText("Search tickets"), { target: { value: "lapt" } });
+    fireEvent.change(screen.getByLabelText("Search tickets"), { target: { value: "lapto" } });
+    fireEvent.change(screen.getByLabelText("Search tickets"), { target: { value: "laptop" } });
+
+    expect(ticketCallCount()).toBe(1);
+    await waitFor(() => expect(ticketCallCount()).toBe(2));
+  });
+
+  it("enables Clear filters for a sort-only change and restores the default order", async () => {
+    const fetchMock = mockApi();
+    await openMyTickets();
+    await screen.findByText("TT-2026-000042");
+
+    fireEvent.change(screen.getByLabelText("Sort"), { target: { value: "ticketNumber:asc" } });
+    const clearButton = screen.getByRole("button", { name: "Clear filters" });
+    expect(clearButton).toBeEnabled();
+    fireEvent.click(clearButton);
+
+    await waitFor(() => {
+      const ticketUrls = fetchMock.mock.calls
+        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url))
+        .filter((url) => url.pathname === "/api/tickets");
+      expect(ticketUrls.at(-1)?.searchParams.get("sortBy")).toBe("createdAt");
+      expect(ticketUrls.at(-1)?.searchParams.get("sortOrder")).toBe("desc");
+    });
+  });
+
   it("shows a no-results state separately from an empty requester and returns to page one when filters change", async () => {
     mockApi((url) => {
       if (url.searchParams.get("search") === "unmatched") return ticketResponse([]);
-      return ticketResponse([ananTicket], Number(url.searchParams.get("page") ?? "1"), 2);
+      return ticketResponse([ananTicket], Number(url.searchParams.get("page") ?? "1"), 2, 15);
     });
     await openMyTickets();
     await screen.findByText("TT-2026-000042");
 
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    expect(await screen.findByText("Page 2 of 2")).toBeInTheDocument();
+    expect(await screen.findByText("Showing 11–15 of 15 tickets · Page 2 of 2")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Search tickets"), { target: { value: "unmatched" } });
 
     expect(await screen.findByText("No Tickets match your search or filters.")).toBeInTheDocument();
     fireEvent.click(screen.getAllByRole("button", { name: "Clear filters" })[0]);
     expect(await screen.findByText("TT-2026-000042")).toBeInTheDocument();
-    expect(screen.getByText("Page 1 of 2")).toBeInTheDocument();
+    expect(screen.getByText("Showing 1–10 of 15 tickets · Page 1 of 2")).toBeInTheDocument();
   });
 
   it("clears the old requester's visible data before loading a new requester", async () => {

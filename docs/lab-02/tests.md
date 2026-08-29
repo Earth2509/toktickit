@@ -158,10 +158,11 @@ branch.
 On 29 August 2026, the My Tickets screen was verified on
 `feature/lab2-my-tickets-ui` before peer review:
 
-- `cd client && npm test`: 4 test files and 15 tests passed. The new
+- `cd client && npm test`: 4 test files and 17 tests passed. The new
   `MyTickets.test.tsx` coverage checks requester-scoped rendering, search and
-  filter requests, sorting, pagination reset, empty and no-results states,
-  safe API failure feedback, and Requester switching without stale Tickets.
+  filter requests, debounced search, sorting, pagination result counts and
+  reset, empty and no-results states, safe API failure feedback, and Requester
+  switching without stale Tickets.
 - `cd client && npm run build`: passed.
 - The responsive list provides an accessible table on desktop and labelled
   ticket cards on narrow screens, while My Tickets excludes detail-only ticket

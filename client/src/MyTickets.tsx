@@ -34,6 +34,7 @@ const initialFilters: TicketFilters = {
 
 export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps) {
   const [filters, setFilters] = useState<TicketFilters>(initialFilters);
+  const [searchInput, setSearchInput] = useState(initialFilters.search);
   const [page, setPage] = useState(1);
   const [referenceData, setReferenceData] = useState<{ categories: Category[]; relatedSystems: RelatedSystem[] }>({
     categories: [],
@@ -45,7 +46,8 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
   const [reloadVersion, setReloadVersion] = useState(0);
 
   const [sortBy, sortOrder] = filters.sort.split(":") as ["createdAt" | "updatedAt" | "ticketNumber" | "requestedPriority", "asc" | "desc"];
-  const hasActiveFilters = Boolean(filters.search.trim() || filters.categoryId || filters.relatedSystemId || filters.requestedPriority);
+  const hasSearchOrFilters = Boolean(searchInput.trim() || filters.categoryId || filters.relatedSystemId || filters.requestedPriority);
+  const hasModifiedControls = hasSearchOrFilters || filters.sort !== initialFilters.sort;
 
   useEffect(() => {
     let active = true;
@@ -62,6 +64,15 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    const searchTimer = window.setTimeout(() => {
+      setFilters((current) => current.search === searchInput ? current : { ...current, search: searchInput });
+      setPage(1);
+    }, 300);
+
+    return () => window.clearTimeout(searchTimer);
+  }, [searchInput]);
 
   useEffect(() => {
     let active = true;
@@ -97,7 +108,10 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
 
   const pageSummary = useMemo(() => {
     if (!results) return "";
-    return `Page ${results.page} of ${results.totalPages}`;
+    const firstResult = (results.page - 1) * results.pageSize + 1;
+    const lastResult = Math.min(results.page * results.pageSize, results.totalItems);
+    const ticketLabel = results.totalItems === 1 ? "ticket" : "tickets";
+    return `Showing ${firstResult}–${lastResult} of ${results.totalItems} ${ticketLabel} · Page ${results.page} of ${results.totalPages}`;
   }, [results]);
 
   function updateFilters(update: Partial<TicketFilters>) {
@@ -106,6 +120,7 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
   }
 
   function clearFilters() {
+    setSearchInput(initialFilters.search);
     setFilters(initialFilters);
     setPage(1);
   }
@@ -127,8 +142,8 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
           <input
             id="ticket-search"
             type="search"
-            value={filters.search}
-            onChange={(event) => updateFilters({ search: event.target.value })}
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
             placeholder="Ticket number or summary"
           />
         </div>
@@ -171,7 +186,7 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
         </div>
 
         <div className="ticket-toolbar-actions">
-          <button className="button button-secondary" type="button" onClick={clearFilters} disabled={!hasActiveFilters}>Clear filters</button>
+          <button className="button button-secondary" type="button" onClick={clearFilters} disabled={!hasModifiedControls}>Clear filters</button>
           <button className="button button-secondary" type="button" onClick={() => setReloadVersion((version) => version + 1)} disabled={loading}>Refresh</button>
         </div>
       </div>
@@ -187,8 +202,8 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
 
       {!loading && !error && results?.items.length === 0 && (
         <div className="empty-panel" role="status">
-          <p>{hasActiveFilters ? "No Tickets match your search or filters." : "No Tickets have been created for this Requester yet."}</p>
-          {hasActiveFilters ? <button className="button button-secondary" type="button" onClick={clearFilters}>Clear filters</button> : <button className="button button-primary" type="button" onClick={onCreateTicket}>Create Ticket</button>}
+          <p>{hasSearchOrFilters ? "No Tickets match your search or filters." : "No Tickets have been created for this Requester yet."}</p>
+          {hasSearchOrFilters ? <button className="button button-secondary" type="button" onClick={clearFilters}>Clear filters</button> : <button className="button button-primary" type="button" onClick={onCreateTicket}>Create Ticket</button>}
         </div>
       )}
 
