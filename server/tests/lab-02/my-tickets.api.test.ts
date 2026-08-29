@@ -21,7 +21,6 @@ const listedTicket = {
   categoryId: 2,
   relatedSystemId: 3,
   summary: "Campus Wi-Fi disconnects regularly",
-  description: "The wireless connection drops every few minutes.",
   requestedPriority: "HIGH",
   currentStatus: "NEW",
   createdAt: new Date("2026-08-29T08:00:00.000Z"),
@@ -51,6 +50,7 @@ describe("GET /api/tickets", () => {
       category: { id: 2, name: "Network" },
       relatedSystem: { id: 3, name: "Campus Wi-Fi" },
     });
+    expect(response.body.items[0]).not.toHaveProperty("description");
     expect(requesterFindFirst).toHaveBeenCalledWith({ where: { id: 1, isActive: true }, select: { id: true } });
     expect(ticketCount).toHaveBeenCalledWith({ where: { requesterId: 1 } });
     expect(ticketFindMany).toHaveBeenCalledWith(expect.objectContaining({
@@ -59,6 +59,7 @@ describe("GET /api/tickets", () => {
       skip: 0,
       take: 10,
     }));
+    expect(ticketFindMany.mock.calls[0][0].select).not.toHaveProperty("description");
   });
 
   it("applies search, all required filters, priority sort, and page metadata within the owner scope", async () => {
@@ -91,14 +92,14 @@ describe("GET /api/tickets", () => {
     }));
   });
 
-  it("returns a successful empty result for an owner with no matching Tickets", async () => {
+  it("keeps a usable single-page contract for an empty owner result", async () => {
     ticketCount.mockResolvedValue(0);
     ticketFindMany.mockResolvedValue([]);
 
     const response = await request(app).get("/api/tickets?requesterId=1&search=unmatched");
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 0 });
+    expect(response.body).toEqual({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 });
   });
 
   it("keeps ticket data owner-scoped when the Development Requester changes", async () => {
@@ -109,7 +110,7 @@ describe("GET /api/tickets", () => {
     const response = await request(app).get("/api/tickets?requesterId=2");
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 0 });
+    expect(response.body).toEqual({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 });
     expect(ticketFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: { requesterId: 2 } }));
   });
 

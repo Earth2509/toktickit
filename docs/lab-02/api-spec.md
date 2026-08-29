@@ -51,7 +51,7 @@ Required query parameter: `requesterId`.
 
 Optional query parameters: `search`, `categoryId`, `relatedSystemId`, `requestedPriority`, `currentStatus`, `sortBy` (`createdAt`, `updatedAt`, `ticketNumber`, `requestedPriority`), `sortOrder` (`asc`, `desc`), `page` (minimum 1), and `pageSize` (10, 20, or 50). For `requestedPriority`, ascending order is `LOW`, `MEDIUM`, `HIGH`, `URGENT`; descending reverses that severity order. Current Status is accepted for forward compatibility but all Lab 2 Tickets are `NEW`, so meaningful Lab 2 filter evidence uses Category, Related System, and Requested Priority.
 
-Success: `200` with `{ items, page, pageSize, totalItems, totalPages }`. The default order is `createdAt desc, id desc`. Invalid query values return `400` with field errors. Empty and no-results searches both return `200` with an empty `items` array; the UI determines the correct presentation from active query state.
+Success: `200` with `{ items, page, pageSize, totalItems, totalPages }`. List rows include the fields required by My Tickets and exclude the detail-only `description`; Ticket Detail returns the full description. `totalPages` is always at least `1`, including empty and no-results lists, so pagination has a consistent page-1 contract. The default order is `createdAt desc, id desc`. Invalid query values return `400` with field errors. Empty and no-results searches both return `200` with an empty `items` array; the UI determines the correct presentation from active query state.
 
 ### `GET /api/tickets/:ticketId`
 

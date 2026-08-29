@@ -164,7 +164,6 @@ app.get("/api/tickets", async (req, res) => {
           categoryId: true,
           relatedSystemId: true,
           summary: true,
-          description: true,
           requestedPriority: true,
           currentStatus: true,
           createdAt: true,
@@ -180,7 +179,7 @@ app.get("/api/tickets", async (req, res) => {
       page: query.page,
       pageSize: query.pageSize,
       totalItems,
-      totalPages: Math.ceil(totalItems / query.pageSize),
+      totalPages: Math.max(1, Math.ceil(totalItems / query.pageSize)),
     });
   } catch (error) {
     if (isDependencyUnavailable(error)) {
