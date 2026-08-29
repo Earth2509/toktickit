@@ -8,9 +8,9 @@
 
 body { margin: 0; min-width: 320px; background: #f5f7f6; }
 
-button, select { font: inherit; }
+button, select, input, textarea { font: inherit; }
 
-button:focus-visible, select:focus-visible {
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
   outline: 3px solid #0b7a46;
   outline-offset: 3px;
 }
@@ -55,6 +55,37 @@ button:focus-visible, select:focus-visible {
 .workspace-card p { color: #40564a; line-height: 1.6; }
 .workspace-navigation { display: flex; gap: .75rem; }
 .workspace-navigation .button { margin-top: .5rem; }
+.application-navigation { width: min(100%, 1060px); margin: 1rem auto 0; }
+.application-navigation .button { margin-top: 0; }
+
+.ticket-card { width: min(100%, 960px); margin: 1.5rem auto 2.5rem; padding: clamp(1.5rem, 4vw, 2.5rem); background: #fff; border: 1px solid #d8e3db; border-radius: 16px; box-shadow: 0 12px 32px rgb(24 52 37 / 8%); }
+.ticket-card h1 { margin: .35rem 0 .75rem; font-size: clamp(1.6rem, 4vw, 2.2rem); }
+.ticket-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.5rem; }
+.ticket-card-heading > div:first-child > p:last-child { margin: 0; color: #40564a; line-height: 1.55; }
+.section-kicker { margin: 0; color: #006b3c; font-size: .85rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.readonly-summary { display: grid; grid-template-columns: auto auto; gap: .35rem .8rem; min-width: 15rem; padding: .9rem 1rem; color: #40564a; background: #eef3ef; border-radius: 8px; font-size: .9rem; }
+.readonly-summary strong { color: #1f3428; text-align: right; }
+.ticket-card fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.15rem; }
+.form-field { min-width: 0; }
+.form-field.full-width { grid-column: 1 / -1; }
+.form-field label { display: block; margin-bottom: .45rem; color: #1f3428; font-weight: 700; }
+.required-marker { color: #a22a2a; }
+.form-field input:not([type="file"]), .form-field select, .form-field textarea { width: 100%; padding: .6rem .7rem; color: #1f3428; background: #fff; border: 1px solid #789180; border-radius: 8px; }
+.form-field textarea { min-height: 9rem; resize: vertical; line-height: 1.5; }
+.form-field input[aria-invalid="true"], .form-field select[aria-invalid="true"], .form-field textarea[aria-invalid="true"] { border-color: #a22a2a; }
+.form-field input[type="file"] { width: 100%; padding: .55rem; border: 1px dashed #789180; border-radius: 8px; background: #f9fcfa; }
+.readonly-input { color: #40564a !important; background: #eef3ef !important; }
+.field-hint { display: block; margin-top: .35rem; color: #52685a; font-size: .85rem; line-height: 1.45; }
+.field-error { margin: .4rem 0 0; color: #8c2020; font-size: .9rem; font-weight: 650; }
+.selected-files { margin: .75rem 0 0; padding: .75rem 1rem .75rem 2rem; color: #234b35; background: #eaf6ef; border-radius: 8px; }
+.selected-files li + li { margin-top: .25rem; }
+.form-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.form-actions .button { margin-top: 0; }
+.success-panel { padding: 1.15rem; color: #234b35; background: #eaf6ef; border: 1px solid #bedec8; border-radius: 8px; }
+.success-panel p { margin: 0 0 .75rem; line-height: 1.5; }
+.success-panel p:last-child { margin-bottom: 0; }
+.success-panel p:not(:last-child) { display: grid; grid-template-columns: minmax(9rem, auto) 1fr; gap: 1rem; }
 
 @media (max-width: 767px) {
   .app-page { padding: 1rem; }
@@ -62,4 +93,9 @@ button:focus-visible, select:focus-visible {
   .application-header { align-items: flex-start; flex-direction: column; }
   .requester-context { justify-content: flex-start; }
   .workspace-navigation { flex-direction: column; }
+  .ticket-card-heading { flex-direction: column; }
+  .readonly-summary { width: 100%; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-field.full-width { grid-column: auto; }
+  .success-panel p:not(:last-child) { grid-template-columns: 1fr; gap: .15rem; }
 }
