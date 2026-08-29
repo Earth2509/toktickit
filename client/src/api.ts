@@ -44,6 +44,28 @@ export type Ticket = {
   updatedAt: string;
 };
 
+export type TicketListItem = Omit<Ticket, "description">;
+
+export type TicketListQuery = {
+  requesterId: number;
+  search?: string;
+  categoryId?: number;
+  relatedSystemId?: number;
+  requestedPriority?: RequestedPriority;
+  sortBy?: "createdAt" | "updatedAt" | "ticketNumber" | "requestedPriority";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  pageSize?: 10 | 20 | 50;
+};
+
+export type TicketListResponse = {
+  items: TicketListItem[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
+
 export class TicketApiError extends Error {
   fieldErrors?: Record<string, string>;
 
@@ -95,6 +117,37 @@ export async function createTicket(input: CreateTicketInput): Promise<Ticket> {
   }
 
   return payload as Ticket;
+}
+
+export async function fetchTickets(query: TicketListQuery): Promise<TicketListResponse> {
+  const parameters = new URLSearchParams({ requesterId: String(query.requesterId) });
+
+  if (query.search?.trim()) parameters.set("search", query.search.trim());
+  if (query.categoryId) parameters.set("categoryId", String(query.categoryId));
+  if (query.relatedSystemId) parameters.set("relatedSystemId", String(query.relatedSystemId));
+  if (query.requestedPriority) parameters.set("requestedPriority", query.requestedPriority);
+  if (query.sortBy) parameters.set("sortBy", query.sortBy);
+  if (query.sortOrder) parameters.set("sortOrder", query.sortOrder);
+  if (query.page) parameters.set("page", String(query.page));
+  if (query.pageSize) parameters.set("pageSize", String(query.pageSize));
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}/api/tickets?${parameters.toString()}`);
+  } catch {
+    throw new TicketApiError("Unable to load Tickets. Please retry.");
+  }
+
+  const payload = await response.json().catch(() => null) as { message?: unknown } | null;
+
+  if (!response.ok) {
+    throw new TicketApiError(
+      typeof payload?.message === "string" ? payload.message : "Unable to load Tickets. Please retry.",
+    );
+  }
+
+  return payload as TicketListResponse;
 }
 
 async function fetchReferenceData<T>(path: string, errorMessage: string): Promise<T> {

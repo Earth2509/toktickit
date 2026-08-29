@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchRequesters, type Requester } from "./api";
 import CreateTicketForm from "./CreateTicketForm";
+import MyTickets from "./MyTickets";
 
 const REQUESTER_STORAGE_KEY = "toktickit.lab2.developmentRequesterId";
 
@@ -145,13 +146,7 @@ function RequesterWorkspace({ requester, onChangeRequester }: RequesterWorkspace
 
       {view === "create" && <CreateTicketForm requester={requester} onViewMyTickets={() => setView("tickets")} />}
 
-      {view === "tickets" && (
-        <section className="workspace-card" aria-labelledby="my-tickets-heading">
-          <h1 id="my-tickets-heading">My Tickets</h1>
-          <p>Ticket browsing will be available in the next approved Lab 2 Issue. You can create a new Ticket now.</p>
-          <button className="button button-primary" onClick={() => setView("create")}>Create Ticket</button>
-        </section>
-      )}
+      {view === "tickets" && <MyTickets key={requester.id} requester={requester} onCreateTicket={() => setView("create")} />}
     </main>
   );
 }
