@@ -134,6 +134,25 @@ This is feature-branch evidence only. The Issue #15 entries remain `Planned`
 until the peer-approved work is integrated and rerun on the final `main`
 branch.
 
+### Issue #16 Feature-Branch Verification
+
+On 29 August 2026, the My Tickets API was verified on
+`feature/lab2-my-tickets-api` before peer review:
+
+- `cd server && npm test`: 8 test files and 32 tests passed. The new
+  `ticket-query.unit.test.ts` and `my-tickets.api.test.ts` cases cover
+  requester ownership, validation, search, Category, Related System, priority
+  and status filters, deterministic sorting, pagination, empty results, and
+  safe unavailable-requester or database responses.
+- `cd server && npm run build`: passed.
+- The endpoint defaults to `createdAt desc`, then `id desc`; pagination accepts
+  only page sizes 10, 20, or 50; and Requested Priority sorting uses the native
+  PostgreSQL enum sequence `LOW`, `MEDIUM`, `HIGH`, `URGENT`.
+
+This is feature-branch evidence only. The Issue #16 entries remain `Planned`
+until the peer-approved work is integrated and rerun on the final `main`
+branch.
+
 ## 7. Known Limitations or Deferred Tests
 
 Real authentication and IT Staff workflows are intentionally deferred to later labs. They are not substitutes for Lab 2 ownership tests; requester ownership is still enforced by the backend using the selected development requester ID.

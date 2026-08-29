@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { randomUUID } from "node:crypto";
 import { getPrisma } from "./prisma.js";
+import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
 
 export const app = express();
@@ -126,6 +127,67 @@ app.post("/api/tickets", async (req, res) => {
     }
 
     return res.status(500).json({ message: "Unable to complete the request" });
+  }
+});
+
+app.get("/api/tickets", async (req, res) => {
+  const validation = validateTicketListQuery(req.query);
+  if (!validation.value) {
+    return res.status(400).json({ message: "Ticket list query validation failed", fieldErrors: validation.fieldErrors });
+  }
+
+  const query = validation.value;
+  const prisma = getPrisma();
+
+  try {
+    const requester = await prisma.requester.findFirst({
+      where: { id: query.requesterId, isActive: true },
+      select: { id: true },
+    });
+
+    if (!requester) {
+      return res.status(404).json({ message: "Requester is unavailable." });
+    }
+
+    const where = ticketListWhere(query);
+    const [totalItems, items] = await Promise.all([
+      prisma.ticket.count({ where }),
+      prisma.ticket.findMany({
+        where,
+        orderBy: ticketListOrderBy(query),
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: {
+          id: true,
+          ticketNumber: true,
+          requesterId: true,
+          categoryId: true,
+          relatedSystemId: true,
+          summary: true,
+          description: true,
+          requestedPriority: true,
+          currentStatus: true,
+          createdAt: true,
+          updatedAt: true,
+          category: { select: { id: true, name: true } },
+          relatedSystem: { select: { id: true, name: true } },
+        },
+      }),
+    ]);
+
+    return res.status(200).json({
+      items,
+      page: query.page,
+      pageSize: query.pageSize,
+      totalItems,
+      totalPages: Math.ceil(totalItems / query.pageSize),
+    });
+  } catch (error) {
+    if (isDependencyUnavailable(error)) {
+      return res.status(503).json({ message: "Ticket service is temporarily unavailable." });
+    }
+
+    return res.status(500).json({ message: "Unable to load Tickets" });
   }
 });
 
