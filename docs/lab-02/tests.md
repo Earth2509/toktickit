@@ -243,6 +243,28 @@ This is feature-branch evidence only. The E2E entries remain `Planned` in the
 traceability table until the peer-approved work is integrated and rerun on the
 final `main` branch.
 
+### Issue #20 Staging Integration Verification
+
+On 30 August 2026, the integrated `lab2-staging` release candidate was
+verified from the `feature/lab2-release-integration` branch. The checks used
+isolated PostgreSQL schemas so neither the normal application schema nor its
+data was reset:
+
+- Server verification used the dedicated `lab2_release_check` schema. All
+  committed migrations were reset and seeded there before the run. `cd server
+  && npm test` passed **10 test files and 43 tests**; `npm run build` and
+  `npm run prisma:validate` also passed.
+- `cd client && npm test` passed **5 test files and 19 tests**. `npm run
+  build` also passed.
+- `npm run e2e` used the dedicated `lab2_e2e` schema and passed **5 Playwright
+  tests**. It covered requester-owned Ticket creation, requester switching,
+  attachment upload/download/soft removal, and desktop, tablet, and mobile
+  responsive checks.
+
+This is integrated staging evidence. The final results table remains
+`Planned` until the peer-approved release reaches `main` and the required
+final-main verification is complete.
+
 ## 7. Known Limitations or Deferred Tests
 
 Real authentication and IT Staff workflows are intentionally deferred to later labs. They are not substitutes for Lab 2 ownership tests; requester ownership is still enforced by the backend using the selected development requester ID.
