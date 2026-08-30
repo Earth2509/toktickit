@@ -139,6 +139,17 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 .remove-confirmation .attachment-actions { margin-top: .7rem; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
+@media (max-width: 991px) {
+  .ticket-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .search-filter { grid-column: 1 / -1; }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .ticket-table { min-width: 0; table-layout: fixed; }
+  .ticket-table th:nth-child(3), .ticket-table td:nth-child(3) { display: none; }
+  .ticket-table th, .ticket-table td { padding: .75rem .6rem; overflow-wrap: anywhere; }
+}
+
 @media (max-width: 767px) {
   .app-page { padding: 1rem; }
   .selector-card, .workspace-card { margin: 1rem auto; }
