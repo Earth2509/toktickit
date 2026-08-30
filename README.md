@@ -59,4 +59,31 @@ cd server && npm test
 cd client && npm test
 ```
 
+## Lab 2 integrated E2E checks
+
+The root-level Playwright command starts the API and client itself. It creates
+and resets only the dedicated PostgreSQL schema named `lab2_e2e`, applies the
+committed migrations, reruns the idempotent seed, and uses an isolated runtime
+attachment directory under `artifacts/`. No separately started development
+server is required, and E2E records do not alter the normal application schema.
+
+Before the first E2E run, install the root dependency and Chromium browser:
+
+```bash
+npm install
+npm run e2e:install
+```
+
+The normal local database setup still applies: copy `server/.env.example` to
+`server/.env` and set a working PostgreSQL `DATABASE_URL`. Then run:
+
+```bash
+npm run e2e
+```
+
+The suite performs real requester-owned ticket creation, requester switching,
+Ticket Detail attachment lifecycle actions, and desktop/tablet/mobile visual
+checks. HTML, trace, and responsive screenshot artifacts are written under
+`artifacts/lab-02/` and are intentionally ignored by Git.
+
 The foundation keeps the test commands ready. Feature-specific tests are added together with their corresponding functionality.

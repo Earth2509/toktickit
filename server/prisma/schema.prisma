@@ -7,8 +7,85 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum RequestedPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  NEW
+}
+
 model Category {
   id        Int      @id @default(autoincrement())
   name      String   @unique
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+  tickets   Ticket[]
+}
+
+model Requester {
+  id          Int      @id @default(autoincrement())
+  displayName String
+  email       String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tickets     Ticket[]
+  removedAttachments Attachment[] @relation("AttachmentRemovedBy")
+}
+
+model RelatedSystem {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tickets   Ticket[]
+}
+
+model Ticket {
+  id                Int               @id @default(autoincrement())
+  ticketNumber      String            @unique
+  requesterId       Int
+  categoryId        Int
+  relatedSystemId   Int
+  summary           String
+  description       String
+  requestedPriority RequestedPriority
+  currentStatus     TicketStatus      @default(NEW)
+  idempotencyKey    String            @unique
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  requester     Requester     @relation(fields: [requesterId], references: [id])
+  category      Category      @relation(fields: [categoryId], references: [id])
+  relatedSystem RelatedSystem @relation(fields: [relatedSystemId], references: [id])
+  attachments   Attachment[]
+
+  @@index([requesterId, createdAt])
+  @@index([categoryId])
+  @@index([relatedSystemId])
+}
+
+model Attachment {
+  id                   Int       @id @default(autoincrement())
+  ticketId             Int
+  activeSlot           Int?
+  storageKey           String    @unique
+  originalFilename     String
+  mimeType             String
+  sizeBytes            Int
+  createdAt            DateTime  @default(now())
+  removedAt            DateTime?
+  removedByRequesterId Int?
+  removalReason        String?
+
+  ticket           Ticket     @relation(fields: [ticketId], references: [id])
+  removedByRequester Requester? @relation("AttachmentRemovedBy", fields: [removedByRequesterId], references: [id])
+
+  @@index([ticketId, removedAt])
+  @@index([removedByRequesterId])
 }

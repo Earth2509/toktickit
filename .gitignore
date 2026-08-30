@@ -11,6 +11,12 @@ client/.vite/
 !.env.example
 # prisma
 server/prisma/*.db
+# runtime attachment storage
+server/uploads/
+# generated E2E runtime files and visual-test output
+artifacts/lab-02/e2e-runtime/
+artifacts/lab-02/test-results/
+artifacts/lab-02/playwright-report/
 # logs & OS
 *.log
 .DS_Store
