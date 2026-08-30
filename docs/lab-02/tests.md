@@ -172,6 +172,30 @@ This is feature-branch evidence only. The Issue #17 entries remain `Planned`
 until the peer-approved work is integrated and rerun on the final `main`
 branch.
 
+### Issue #18 Feature-Branch Verification
+
+On 30 August 2026, Ticket Detail and the Attachment lifecycle were verified on
+`feature/lab2-ticket-detail-attachments` before peer review:
+
+- `cd server && npm test`: 10 test files and 41 tests passed. The new
+  `attachment-validation.unit.test.ts` and `attachments.api.test.ts` coverage
+  checks permitted MIME types, the 5 MB limit, owner-scoped Ticket Detail,
+  upload metadata, active-file limits, downloads, soft removal, and retained
+  removal audit data.
+- `cd server && npm run build` and `npx prisma validate`: passed.
+- `cd client && npm test`: 5 test files and 19 tests passed. The new
+  `RequesterTicketDetail.test.tsx` verifies requester-owned detail rendering,
+  removed metadata without a download control, permitted upload feedback, and
+  removal-reason validation.
+- `cd client && npm run build`: passed.
+- Runtime file bytes are stored under ignored `server/uploads/` using a
+  generated storage key. The API returns metadata only and never exposes that
+  key or a server filesystem path.
+
+This is feature-branch evidence only. The Issue #18 entries remain `Planned`
+until the peer-approved work is integrated and rerun on the final `main`
+branch.
+
 ## 7. Known Limitations or Deferred Tests
 
 Real authentication and IT Staff workflows are intentionally deferred to later labs. They are not substitutes for Lab 2 ownership tests; requester ownership is still enforced by the backend using the selected development requester ID.

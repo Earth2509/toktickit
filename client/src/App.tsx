@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchRequesters, type Requester } from "./api";
 import CreateTicketForm from "./CreateTicketForm";
 import MyTickets from "./MyTickets";
+import TicketDetail from "./TicketDetail";
 
 const REQUESTER_STORAGE_KEY = "toktickit.lab2.developmentRequesterId";
 
@@ -115,7 +116,13 @@ type RequesterWorkspaceProps = {
 };
 
 function RequesterWorkspace({ requester, onChangeRequester }: RequesterWorkspaceProps) {
-  const [view, setView] = useState<"home" | "create" | "tickets">("home");
+  const [view, setView] = useState<"home" | "create" | "tickets" | "detail">("home");
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+
+  function showTicketDetail(ticketId: number) {
+    setSelectedTicketId(ticketId);
+    setView("detail");
+  }
 
   return (
     <main className="app-page">
@@ -146,7 +153,9 @@ function RequesterWorkspace({ requester, onChangeRequester }: RequesterWorkspace
 
       {view === "create" && <CreateTicketForm requester={requester} onViewMyTickets={() => setView("tickets")} />}
 
-      {view === "tickets" && <MyTickets key={requester.id} requester={requester} onCreateTicket={() => setView("create")} />}
+      {view === "tickets" && <MyTickets key={requester.id} requester={requester} onCreateTicket={() => setView("create")} onViewTicket={showTicketDetail} />}
+
+      {view === "detail" && selectedTicketId !== null && <TicketDetail requester={requester} ticketId={selectedTicketId} onBack={() => setView("tickets")} />}
     </main>
   );
 }

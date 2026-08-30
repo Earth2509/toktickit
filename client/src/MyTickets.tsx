@@ -14,6 +14,7 @@ import {
 type MyTicketsProps = {
   requester: Requester;
   onCreateTicket: () => void;
+  onViewTicket: (ticketId: number) => void;
 };
 
 type TicketFilters = {
@@ -32,7 +33,7 @@ const initialFilters: TicketFilters = {
   sort: "createdAt:desc",
 };
 
-export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps) {
+export default function MyTickets({ requester, onCreateTicket, onViewTicket }: MyTicketsProps) {
   const [filters, setFilters] = useState<TicketFilters>(initialFilters);
   const [searchInput, setSearchInput] = useState(initialFilters.search);
   const [page, setPage] = useState(1);
@@ -212,7 +213,7 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
           <div className="ticket-table-wrapper">
             <table className="ticket-table">
               <thead>
-                <tr><th>Ticket Number</th><th>Summary</th><th>Category</th><th>Requested Priority</th><th>Current Status</th><th>Last Updated</th></tr>
+                <tr><th>Ticket Number</th><th>Summary</th><th>Category</th><th>Requested Priority</th><th>Current Status</th><th>Last Updated</th><th><span className="visually-hidden">Actions</span></th></tr>
               </thead>
               <tbody>
                 {results.items.map((ticket) => (
@@ -223,6 +224,7 @@ export default function MyTickets({ requester, onCreateTicket }: MyTicketsProps)
                     <td data-label="Requested Priority"><span className={`priority-badge priority-${ticket.requestedPriority.toLowerCase()}`}>{ticket.requestedPriority}</span></td>
                     <td data-label="Current Status"><span className="status-badge">{ticket.currentStatus}</span></td>
                     <td data-label="Last Updated">{formatTicketDate(ticket.updatedAt)}</td>
+                    <td data-label="Actions"><button className="button button-secondary ticket-detail-button" type="button" onClick={() => onViewTicket(ticket.id)}>View details</button></td>
                   </tr>
                 ))}
               </tbody>
