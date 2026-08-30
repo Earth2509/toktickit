@@ -8,7 +8,7 @@
 
 Lab 2 uses Test-DD and TDD. The planned tests are derived from the approved acceptance criteria before implementation. API tests exercise Express routes with a mocked Prisma/storage boundary where appropriate. UI tests exercise user-visible states with React Testing Library and mocked API boundaries. Playwright E2E tests cover the integrated requester flow and responsive screenshots. Visual checks supplement, not replace, automated assertions.
 
-E2E execution has an explicit infrastructure dependency: a dedicated Lab 2 Issue will add the root Playwright configuration, E2E command ownership, and the `e2e/lab-02/` directory before the E2E cases below are implemented. The cases are planned here but are not claimed runnable until that Issue is merged through the normal peer-reviewed workflow.
+The root-level Playwright configuration and `e2e/lab-02/` suite are owned by Issue #19. The `npm run e2e` command starts both application services, derives an isolated `lab2_e2e` PostgreSQL schema from the documented local connection, resets only that schema, applies the committed migrations, reruns the idempotent seed, and stores runtime files separately. E2E results are not claimed as passing until this command has run successfully against the final `main` branch.
 
 ## 2. Planned Tests
 
@@ -34,10 +34,10 @@ E2E execution has an explicit infrastructure dependency: a dedicated Lab 2 Issue
 | UI-04 | UI | AC-06, AC-07 | My Tickets reloads after Requester change and renders loading, empty, no-results, filters, sort, and pagination. | `client/tests/lab-02/MyTickets.test.tsx` | Planned |
 | UI-05 | UI | AC-08, AC-11 | Detail shows owned data, removed metadata, blocked download, and safe cross-owner failure. | `client/tests/lab-02/RequesterTicketDetail.test.tsx` | Planned |
 | UI-06 | UI style | AC-12 | Required labels, asterisks, status/busy states, focusable controls, and Zen Green classes/tokens are asserted. | `client/tests/lab-02/ZenGreenStyles.test.tsx` | Planned |
-| E2E-01 | E2E | AC-01, AC-03 | Select Requester A, create a Ticket, and see its official number and saved values. | `e2e/lab-02/requester-ticket-flow.spec.ts` | Planned |
-| E2E-02 | E2E | AC-06, AC-07 | Change to Requester B, verify A's tickets disappear, then search/filter/page B's list. | `e2e/lab-02/my-tickets.spec.ts` | Planned |
-| E2E-03 | E2E | AC-09, AC-11 | Upload a permitted Attachment, download it, soft-remove it, and verify download is blocked. | `e2e/lab-02/attachments.spec.ts` | Planned |
-| E2E-04 | Responsive | AC-12 | Capture Create, List, and Detail at desktop, tablet, and mobile; verify no horizontal page overflow. | `e2e/lab-02/responsive-visual.spec.ts` | Planned |
+| E2E-01 | E2E | AC-01, AC-03 | Select Requester A, create a Ticket, and see its official number and saved values. | `e2e/lab-02/requester-flow.spec.ts` | Planned |
+| E2E-02 | E2E | AC-06, AC-07 | Change to Requester B and verify that a search cannot reveal Requester A's Ticket. | `e2e/lab-02/requester-flow.spec.ts` | Planned |
+| E2E-03 | E2E | AC-09, AC-11 | Upload a permitted Attachment, download it, soft-remove it, and verify Download is unavailable. | `e2e/lab-02/requester-flow.spec.ts` | Planned |
+| E2E-04 | Responsive | AC-12 | Capture Create, List, and Detail at desktop, tablet, and mobile; verify no horizontal page overflow. | `e2e/lab-02/requester-flow.spec.ts` | Planned |
 
 ## 3. Acceptance-Criterion Traceability
 
@@ -69,8 +69,27 @@ E2E execution has an explicit infrastructure dependency: a dedicated Lab 2 Issue
 ```bash
 cd server && npm test
 cd ../client && npm test
-cd .. && npx playwright test e2e/lab-02
+cd .. && npm run e2e
 ```
+
+### E2E prerequisites and expected output
+
+1. Install the root dependency once with `npm install`, then install the
+   browser with `npm run e2e:install`.
+2. Copy `server/.env.example` to `server/.env` and provide a working local
+   PostgreSQL `DATABASE_URL`. This is the same documented application setup;
+   the E2E command itself starts both services and prepares a separate
+   `lab2_e2e` schema and reference data without changing the normal
+   application schema.
+3. `npm run e2e` runs the requester flow serially against the integrated
+   client, API, Prisma database, and attachment storage. It emits terminal
+   results, an HTML report, failure traces, and responsive screenshots under
+   ignored `artifacts/lab-02/` paths.
+
+The responsive test attaches Create Ticket, My Tickets, and Ticket Detail
+screenshots at desktop (1280 px), tablet (820 px), and mobile (390 px) widths.
+Each capture also asserts that the document has no page-level horizontal
+overflow.
 
 The final report will include complete passing unit, API, and UI terminal output from `main`, plus the E2E command result and responsive screenshots.
 
@@ -195,6 +214,34 @@ On 30 August 2026, Ticket Detail and the Attachment lifecycle were verified on
 This is feature-branch evidence only. The Issue #18 entries remain `Planned`
 until the peer-approved work is integrated and rerun on the final `main`
 branch.
+
+### Issue #19 E2E Infrastructure Preparation
+
+Issue #19 adds the root `npm run e2e` ownership, serial integrated requester
+flow, attachment lifecycle coverage, and reproducible responsive screenshot
+captures. The implementation intentionally does not claim a passing result
+until Playwright, Chromium, and the local PostgreSQL setup have been run
+together and the peer-reviewed work reaches `main`.
+
+### Issue #19 Feature-Branch Verification
+
+On 30 August 2026, the integrated Playwright suite was verified on
+`feature/lab2-e2e-visual-evidence`:
+
+- `npm run e2e`: 5 tests passed in 12 seconds. The suite created an owned
+  Ticket, verified requester switching keeps that Ticket private, uploaded and
+  downloaded a permitted PDF, soft-removed it with an audit reason, and
+  confirmed that its Download control disappeared.
+- The E2E command derived and reset only the dedicated `lab2_e2e` schema,
+  applied all committed migrations, and reran the idempotent seed. Normal
+  application data was not used as E2E test data.
+- The responsive cases produced attached Create Ticket, My Tickets, and Ticket
+  Detail screenshots at 1280 px, 820 px, and 390 px, while asserting no
+  page-level horizontal overflow at each capture.
+
+This is feature-branch evidence only. The E2E entries remain `Planned` in the
+traceability table until the peer-approved work is integrated and rerun on the
+final `main` branch.
 
 ## 7. Known Limitations or Deferred Tests
 
