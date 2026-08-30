@@ -12,13 +12,22 @@ export type RemovalValidation =
   | { value: { requesterId: number; reason: string }; fieldErrors?: never }
   | { value?: never; fieldErrors: Record<string, string> };
 
-export function isPermittedAttachment(file: { mimetype: string; size: number }): { valid: true } | { valid: false; status: 413 | 415; message: string } {
+export function isPermittedAttachment(file: { mimetype: string; size: number; buffer: Buffer }): { valid: true } | { valid: false; status: 413 | 415; message: string } {
   if (!permittedAttachmentTypes.has(file.mimetype)) {
     return { valid: false, status: 415, message: "Only JPEG, PNG, WEBP, and PDF files are supported." };
   }
 
   if (file.size > maximumAttachmentBytes) {
     return { valid: false, status: 413, message: "Each attachment must be 5 MB or smaller." };
+  }
+
+  const detectedType = detectedAttachmentType(file.buffer);
+  if (!detectedType) {
+    return { valid: false, status: 415, message: "The attachment content is not a supported file type." };
+  }
+
+  if (detectedType !== file.mimetype) {
+    return { valid: false, status: 415, message: "The attachment content does not match its declared file type." };
   }
 
   return { valid: true };
@@ -62,4 +71,12 @@ function removalReason(value: unknown, fieldErrors: Record<string, string>): str
     return undefined;
   }
   return trimmed;
+}
+
+function detectedAttachmentType(buffer: Buffer): string | undefined {
+  if (buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return "image/jpeg";
+  if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+  if (buffer.subarray(0, 4).equals(Buffer.from("RIFF")) && buffer.subarray(8, 12).equals(Buffer.from("WEBP"))) return "image/webp";
+  if (buffer.subarray(0, 5).equals(Buffer.from("%PDF-"))) return "application/pdf";
+  return undefined;
 }

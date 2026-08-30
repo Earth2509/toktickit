@@ -275,30 +275,25 @@ app.post("/api/tickets/:ticketId/attachments", upload.single("file"), async (req
     const ownedTicket = await prisma.ticket.findFirst({ where: { id: ticketId, requesterId }, select: { id: true } });
     if (!ownedTicket) return res.status(404).json({ message: "Ticket not found." });
 
-    const activeAttachments = await prisma.attachment.count({ where: { ticketId, removedAt: null } });
-    if (activeAttachments >= maximumActiveAttachments) {
-      return res.status(409).json({ message: "A Ticket can have no more than five active attachments." });
-    }
-
     const storageKey = randomUUID();
     const storagePath = path.join(attachmentDirectory, storageKey);
     await mkdir(attachmentDirectory, { recursive: true });
     await writeFile(storagePath, req.file.buffer, { flag: "wx" });
 
     try {
-      const attachment = await prisma.attachment.create({
-        data: {
-          ticketId,
-          storageKey,
-          originalFilename: safeFilename(req.file.originalname),
-          mimeType: req.file.mimetype,
-          sizeBytes: req.file.size,
-        },
-        select: attachmentSelect,
+      const attachment = await createAttachmentInAvailableSlot(prisma, {
+        ticketId,
+        storageKey,
+        originalFilename: safeFilename(req.file.originalname),
+        mimeType: req.file.mimetype,
+        sizeBytes: req.file.size,
       });
       return res.status(201).json(attachment);
     } catch (error) {
       await unlink(storagePath).catch(() => undefined);
+      if (error instanceof ActiveAttachmentLimitError) {
+        return res.status(409).json({ message: "A Ticket can have no more than five active attachments." });
+      }
       throw error;
     }
   } catch (error) {
@@ -353,7 +348,7 @@ app.patch("/api/tickets/:ticketId/attachments/:attachmentId/remove", async (req,
 
     const removedAttachment = await getPrisma().attachment.update({
       where: { id: attachment.id },
-      data: { removedAt: new Date(), removedByRequesterId: requesterId, removalReason: reason },
+      data: { activeSlot: null, removedAt: new Date(), removedByRequesterId: requesterId, removalReason: reason },
       select: attachmentSelect,
     });
     return res.status(200).json(removedAttachment);
@@ -414,9 +409,58 @@ function safeFilename(value: string): string {
   return filename.slice(0, 180) || "attachment";
 }
 
+class ActiveAttachmentLimitError extends Error {}
+
+async function createAttachmentInAvailableSlot(
+  prisma: ReturnType<typeof getPrisma>,
+  data: { ticketId: number; storageKey: string; originalFilename: string; mimeType: string; sizeBytes: number },
+) {
+  for (let attempt = 0; attempt < maximumActiveAttachments; attempt += 1) {
+    const activeAttachments = await prisma.attachment.findMany({
+      where: { ticketId: data.ticketId, removedAt: null },
+      select: { activeSlot: true },
+    });
+    const activeSlots = new Set(activeAttachments.flatMap((attachment) => attachment.activeSlot === null ? [] : [attachment.activeSlot]));
+    const activeSlot = firstAvailableAttachmentSlot(activeSlots);
+    if (!activeSlot) throw new ActiveAttachmentLimitError();
+
+    try {
+      return await prisma.attachment.create({
+        data: { ...data, activeSlot },
+        select: attachmentSelect,
+      });
+    } catch (error) {
+      if (isActiveAttachmentSlotConflict(error)) continue;
+      throw error;
+    }
+  }
+
+  throw new ActiveAttachmentLimitError();
+}
+
+function firstAvailableAttachmentSlot(activeSlots: Set<number>): number | undefined {
+  for (let slot = 1; slot <= maximumActiveAttachments; slot += 1) {
+    if (!activeSlots.has(slot)) return slot;
+  }
+  return undefined;
+}
+
 function attachmentFailure(res: express.Response, error: unknown, fallback: string) {
   if (isDependencyUnavailable(error)) return res.status(503).json({ message: fallback });
-  return res.status(503).json({ message: fallback });
+  return res.status(500).json({ message: fallback });
+}
+
+function isActiveAttachmentSlotConflict(error: unknown): boolean {
+  if (!isUniqueConstraintError(error)) return false;
+  const target = uniqueConstraintTarget(error);
+  if (Array.isArray(target)) return target.includes("ticketId") && target.includes("activeSlot");
+  return typeof target === "string" && target.includes("Attachment_active_ticket_slot_key");
+}
+
+function uniqueConstraintTarget(error: unknown): unknown {
+  if (typeof error !== "object" || error === null || !("meta" in error)) return undefined;
+  const meta = error.meta;
+  return typeof meta === "object" && meta !== null && "target" in meta ? meta.target : undefined;
 }
 
 function isMulterFileLimitError(error: unknown): boolean {

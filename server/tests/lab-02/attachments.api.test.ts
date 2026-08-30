@@ -52,6 +52,8 @@ const activeAttachment = {
   removedByRequesterId: null,
   removalReason: null,
 };
+const pngFile = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const pdfFile = Buffer.from("%PDF-1.7\\n");
 
 describe("Ticket detail and attachment routes", () => {
   beforeEach(() => {
@@ -108,13 +110,12 @@ describe("Ticket detail and attachment routes", () => {
     const response = await request(app)
       .post("/api/tickets/42/attachments")
       .field("requesterId", "1")
-      .attach("file", Buffer.from("png data"), { filename: "network-proof.png", contentType: "image/png" });
+      .attach("file", pngFile, { filename: "network-proof.png", contentType: "image/png" });
 
     expect(response.status).toBe(201);
     expect(response.body).toMatchObject({ id: 8, originalFilename: "network-proof.png", mimeType: "image/png", removedAt: null });
     expect(response.body).not.toHaveProperty("storageKey");
-    expect(attachmentCount).toHaveBeenCalledWith({ where: { ticketId: 42, removedAt: null } });
-    expect(writeFile).toHaveBeenCalledWith(expect.stringContaining("uploads"), Buffer.from("png data"), { flag: "wx" });
+    expect(writeFile).toHaveBeenCalledWith(expect.stringContaining("uploads"), pngFile, { flag: "wx" });
   });
 
   it("rejects unsupported or oversized files and a sixth active attachment before creating metadata", async () => {
@@ -136,15 +137,37 @@ describe("Ticket detail and attachment routes", () => {
     expect(oversized.body).toEqual({ message: "Each attachment must be 5 MB or smaller." });
     expect(attachmentCreate).not.toHaveBeenCalled();
 
-    attachmentCount.mockResolvedValueOnce(5);
+    attachmentFindMany.mockResolvedValueOnce([
+      { activeSlot: 1 }, { activeSlot: 2 }, { activeSlot: 3 }, { activeSlot: 4 }, { activeSlot: 5 },
+    ]);
     const sixth = await request(app)
       .post("/api/tickets/42/attachments")
       .field("requesterId", "1")
-      .attach("file", Buffer.from("pdf data"), { filename: "proof.pdf", contentType: "application/pdf" });
+      .attach("file", pdfFile, { filename: "proof.pdf", contentType: "application/pdf" });
 
     expect(sixth.status).toBe(409);
     expect(sixth.body).toEqual({ message: "A Ticket can have no more than five active attachments." });
     expect(attachmentCreate).not.toHaveBeenCalled();
+  });
+
+  it("accepts at most five concurrent uploads by retrying a database slot collision", async () => {
+    const occupiedSlots = new Set<number>();
+    attachmentFindMany.mockImplementation(async () => [...occupiedSlots].map((activeSlot) => ({ activeSlot })));
+    attachmentCreate.mockImplementation(async ({ data }: { data: { activeSlot: number } }) => {
+      if (occupiedSlots.has(data.activeSlot)) {
+        throw Object.assign(new Error("duplicate active slot"), { code: "P2002", meta: { target: ["ticketId", "activeSlot"] } });
+      }
+      occupiedSlots.add(data.activeSlot);
+      return activeAttachment;
+    });
+
+    const responses = await Promise.all(Array.from({ length: 6 }, () => request(app)
+      .post("/api/tickets/42/attachments")
+      .field("requesterId", "1")
+      .attach("file", pngFile, { filename: "network-proof.png", contentType: "image/png" })));
+
+    expect(responses.map((response) => response.status).sort()).toEqual([201, 201, 201, 201, 201, 409]);
+    expect([...occupiedSlots].sort()).toEqual([1, 2, 3, 4, 5]);
   });
 
   it("does not disclose or attach files to a Ticket owned by another Requester", async () => {
@@ -153,7 +176,7 @@ describe("Ticket detail and attachment routes", () => {
     const response = await request(app)
       .post("/api/tickets/42/attachments")
       .field("requesterId", "2")
-      .attach("file", Buffer.from("pdf data"), { filename: "proof.pdf", contentType: "application/pdf" });
+      .attach("file", pdfFile, { filename: "proof.pdf", contentType: "application/pdf" });
 
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ message: "Ticket not found." });
@@ -190,5 +213,15 @@ describe("Ticket detail and attachment routes", () => {
       .patch("/api/tickets/42/attachments/8/remove")
       .send({ requesterId: 1, reason: "Duplicate screenshot" });
     expect(repeated.status).toBe(409);
+  });
+
+  it("returns 500 for an unexpected attachment failure and 503 only when the database is unavailable", async () => {
+    ticketFindFirst.mockRejectedValueOnce(new Error("unexpected"));
+    const unexpectedFailure = await request(app).get("/api/tickets/42?requesterId=1");
+    expect(unexpectedFailure.status).toBe(500);
+
+    ticketFindFirst.mockRejectedValueOnce(Object.assign(new Error("database unavailable"), { code: "P1001" }));
+    const dependencyFailure = await request(app).get("/api/tickets/42?requesterId=1");
+    expect(dependencyFailure.status).toBe(503);
   });
 });
