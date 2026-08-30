@@ -44,6 +44,22 @@ export type Ticket = {
   updatedAt: string;
 };
 
+export type Attachment = {
+  id: number;
+  originalFilename: string;
+  mimeType: string;
+  sizeBytes: number;
+  createdAt: string;
+  removedAt: string | null;
+  removedByRequesterId: number | null;
+  removalReason: string | null;
+};
+
+export type TicketDetail = Ticket & {
+  requester: Requester;
+  attachments: Attachment[];
+};
+
 export type TicketListItem = Omit<Ticket, "description">;
 
 export type TicketListQuery = {
@@ -148,6 +164,64 @@ export async function fetchTickets(query: TicketListQuery): Promise<TicketListRe
   }
 
   return payload as TicketListResponse;
+}
+
+export async function fetchTicket(ticketId: number, requesterId: number): Promise<TicketDetail> {
+  return ticketRequest<TicketDetail>(`/api/tickets/${ticketId}?requesterId=${requesterId}`, "Unable to load the Ticket. Please retry.");
+}
+
+export async function uploadTicketAttachment(ticketId: number, requesterId: number, file: File): Promise<Attachment> {
+  const formData = new FormData();
+  formData.set("requesterId", String(requesterId));
+  formData.set("file", file);
+  return ticketRequest<Attachment>(`/api/tickets/${ticketId}/attachments`, "Unable to upload the attachment. Please retry.", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export async function removeTicketAttachment(ticketId: number, attachmentId: number, requesterId: number, reason: string): Promise<Attachment> {
+  return ticketRequest<Attachment>(`/api/tickets/${ticketId}/attachments/${attachmentId}/remove`, "Unable to remove the attachment. Please retry.", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ requesterId, reason }),
+  });
+}
+
+export async function downloadTicketAttachment(ticketId: number, attachmentId: number, requesterId: number, filename: string): Promise<void> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/tickets/${ticketId}/attachments/${attachmentId}/download?requesterId=${requesterId}`);
+  } catch {
+    throw new TicketApiError("Unable to download the attachment. Please retry.");
+  }
+
+  if (!response.ok) throw new TicketApiError("Unable to download the attachment. Please retry.");
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(objectUrl);
+}
+
+async function ticketRequest<T>(path: string, fallbackMessage: string, init?: RequestInit): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(API_BASE_URL + path, init);
+  } catch {
+    throw new TicketApiError(fallbackMessage);
+  }
+
+  const payload = await response.json().catch(() => null) as { message?: unknown; fieldErrors?: unknown } | null;
+  if (!response.ok) {
+    const fieldErrors = payload?.fieldErrors && typeof payload.fieldErrors === "object" && !Array.isArray(payload.fieldErrors)
+      ? Object.fromEntries(Object.entries(payload.fieldErrors).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
+      : undefined;
+    throw new TicketApiError(typeof payload?.message === "string" ? payload.message : fallbackMessage, fieldErrors);
+  }
+  return payload as T;
 }
 
 async function fetchReferenceData<T>(path: string, errorMessage: string): Promise<T> {

@@ -102,6 +102,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 .ticket-table tr:last-child td { border-bottom: 0; }
 .ticket-table td { color: #40564a; line-height: 1.45; }
 .ticket-table td strong { color: #075c37; }
+.ticket-detail-button { margin: 0; min-width: max-content; }
 .priority-badge, .status-badge { display: inline-block; padding: .25rem .5rem; border-radius: 999px; font-size: .8rem; font-weight: 750; }
 .priority-low { color: #22543d; background: #dff5e6; }
 .priority-medium { color: #725800; background: #fff4cc; }
@@ -111,6 +112,32 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 .ticket-pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.25rem; }
 .ticket-pagination .button { margin-top: 0; }
 .ticket-pagination p { margin: 0; color: #40564a; font-weight: 700; }
+
+.ticket-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin: 0; overflow: hidden; border: 1px solid #d8e3db; border-radius: 10px; background: #d8e3db; }
+.detail-field { min-width: 0; padding: 1rem; background: #fff; }
+.detail-field-wide { grid-column: 1 / -1; }
+.detail-field dt { margin-bottom: .35rem; color: #234b35; font-size: .84rem; font-weight: 750; }
+.detail-field dd { margin: 0; color: #40564a; line-height: 1.55; overflow-wrap: anywhere; }
+.attachment-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #d8e3db; }
+.attachment-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.attachment-heading h2 { margin: 0; font-size: 1.3rem; }
+.attachment-heading p { margin: .35rem 0 1rem; color: #52685a; }
+.attachment-upload-label { display: block; margin-bottom: .45rem; font-weight: 700; }
+.attachment-section > input[type="file"] { width: 100%; padding: .55rem; border: 1px dashed #789180; border-radius: 8px; background: #f9fcfa; }
+.attachment-success { margin: .75rem 0; padding: .75rem 1rem; color: #234b35; background: #eaf6ef; border-radius: 8px; }
+.attachment-list { display: grid; gap: .75rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.attachment-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; padding: 1rem; border: 1px solid #d8e3db; border-radius: 10px; }
+.attachment-metadata { display: grid; gap: .35rem; min-width: 0; }
+.attachment-metadata strong { color: #1f3428; overflow-wrap: anywhere; }
+.attachment-metadata span { color: #52685a; font-size: .9rem; overflow-wrap: anywhere; }
+.removed-badge { width: fit-content; padding: .25rem .5rem; color: #52685a !important; background: #eef3ef; border-radius: 999px; font-weight: 700; }
+.attachment-actions { display: flex; flex-wrap: wrap; gap: .55rem; }
+.attachment-actions .button { margin: 0; }
+.remove-confirmation { grid-column: 1 / -1; padding-top: 1rem; border-top: 1px solid #d8e3db; }
+.remove-confirmation label { display: block; margin-bottom: .4rem; font-weight: 700; }
+.remove-confirmation input { width: 100%; padding: .6rem .7rem; border: 1px solid #789180; border-radius: 8px; }
+.remove-confirmation .attachment-actions { margin-top: .7rem; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 @media (max-width: 767px) {
   .app-page { padding: 1rem; }
@@ -125,6 +152,9 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
   .success-panel p:not(:last-child) { grid-template-columns: 1fr; gap: .15rem; }
   .ticket-toolbar { grid-template-columns: 1fr; }
   .ticket-toolbar-actions { grid-column: auto; }
+  .ticket-detail-grid { grid-template-columns: 1fr; }
+  .detail-field-wide { grid-column: auto; }
+  .attachment-item { grid-template-columns: 1fr; }
   .ticket-table { min-width: 0; }
   .ticket-table thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .ticket-table, .ticket-table tbody, .ticket-table tr, .ticket-table td { display: block; width: 100%; }

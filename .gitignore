@@ -11,6 +11,8 @@ client/.vite/
 !.env.example
 # prisma
 server/prisma/*.db
+# runtime attachment storage
+server/uploads/
 # logs & OS
 *.log
 .DS_Store
