@@ -1,6 +1,6 @@
 # Lab 2 Test Plan and Results
 
-**Status:** Planned before implementation  
+**Status:** Complete — final `main` verification recorded 31 August 2026; UI-06 was corrected and reverified during PR #30 review.
 **Related specification:** `docs/lab-02/specification.md`  
 **Test status convention:** `Planned` becomes `Passed` only after the test runs successfully on the final `main` branch.
 
@@ -10,38 +10,38 @@ Lab 2 uses Test-DD and TDD. The planned tests are derived from the approved acce
 
 The root-level Playwright configuration and `e2e/lab-02/` suite are owned by Issue #19. The `npm run e2e` command starts both application services, derives an isolated `lab2_e2e` PostgreSQL schema from the documented local connection, resets only that schema, applies the committed migrations, reruns the idempotent seed, and stores runtime files separately. E2E results are not claimed as passing until this command has run successfully against the final `main` branch.
 
-## 2. Planned Tests
+## 2. Test Matrix
 
-| Test ID | Level | AC | Scenario and expected result | Planned test file | Final |
+| Test ID | Level | AC | Scenario and expected result | Test file | Final |
 |---|---|---|---|---|---|
-| UNIT-01 | Unit | AC-03 | Format the official Ticket Number from a saved ID; it follows `TT-YYYY-000001`. | `server/tests/lab-02/ticket-number.unit.test.ts` | Planned |
-| UNIT-02 | Unit | AC-04 | Trim Summary/Description and reject values outside approved bounds. | `server/tests/lab-02/ticket-validation.unit.test.ts` | Planned |
-| UNIT-03 | Unit | AC-10 | Accept only permitted MIME types and reject files over 5 MB. | `server/tests/lab-02/attachment-validation.unit.test.ts` | Planned |
-| UNIT-04 | Unit | AC-11 | Active-attachment count ignores soft-removed metadata. | `server/tests/lab-02/attachment-rules.unit.test.ts` | Planned |
-| API-01 | API | AC-01 | Active requester endpoint excludes inactive records. | `server/tests/lab-02/development-requesters.api.test.ts` | Planned |
-| API-02 | API | AC-03 | Valid create returns 201, official number, `NEW`, and the selected requester ID. | `server/tests/lab-02/create-ticket.api.test.ts` | Planned |
-| API-03 | API | AC-04 | Invalid summary, description, priority, Category, or Related System returns field-safe validation errors. | `server/tests/lab-02/create-ticket.api.test.ts` | Planned |
-| API-04 | API | AC-05 | Same idempotency key returns the original Ticket without a duplicate record. | `server/tests/lab-02/create-ticket.api.test.ts` | Planned |
-| API-05 | API | AC-06 | List query scopes all results to requester A; switching to requester B changes the result set. | `server/tests/lab-02/my-tickets.api.test.ts` | Planned |
-| API-06 | API | AC-07 | Search, filter, sort, page, invalid query, and metadata behavior follow the contract. | `server/tests/lab-02/my-tickets.api.test.ts` | Planned |
-| API-07 | API | AC-08 | Owned detail succeeds; cross-requester Ticket retrieval returns safe 404. | `server/tests/lab-02/ticket-detail.api.test.ts` | Planned |
-| API-08 | API | AC-09 | Valid upload stores active metadata for an owned Ticket. | `server/tests/lab-02/attachments.api.test.ts` | Planned |
-| API-09 | API | AC-10 | Invalid type, oversize file, sixth active attachment, and cross-owner upload fail safely. | `server/tests/lab-02/attachments.api.test.ts` | Planned |
-| API-10 | API | AC-11 | Soft removal records the reason, retains metadata, and blocks removed download. | `server/tests/lab-02/attachments.api.test.ts` | Planned |
-| UI-01 | UI | AC-01, AC-02 | Selector has loading, empty, failure, keyboard, and continue behavior. | `client/tests/lab-02/RequesterSelector.test.tsx` | Planned |
-| UI-02 | UI | AC-03, AC-04 | Create Ticket renders reference data, field errors, busy state, success number, and disabled submit behavior. | `client/tests/lab-02/CreateTicketForm.test.tsx` | Planned |
-| UI-03 | UI | AC-10 | Invalid attachment feedback names every rejected file with its type or size reason, while permitted files remain selected. | `client/tests/lab-02/CreateTicketForm.test.tsx` | Planned |
-| UI-04 | UI | AC-06, AC-07 | My Tickets reloads after Requester change and renders loading, empty, no-results, filters, sort, and pagination. | `client/tests/lab-02/MyTickets.test.tsx` | Planned |
-| UI-05 | UI | AC-08, AC-11 | Detail shows owned data, removed metadata, blocked download, and safe cross-owner failure. | `client/tests/lab-02/RequesterTicketDetail.test.tsx` | Planned |
-| UI-06 | UI style | AC-12 | Required labels, asterisks, status/busy states, focusable controls, and Zen Green classes/tokens are asserted. | `client/tests/lab-02/ZenGreenStyles.test.tsx` | Planned |
-| E2E-01 | E2E | AC-01, AC-03 | Select Requester A, create a Ticket, and see its official number and saved values. | `e2e/lab-02/requester-flow.spec.ts` | Planned |
-| E2E-02 | E2E | AC-06, AC-07 | Change to Requester B and verify that a search cannot reveal Requester A's Ticket. | `e2e/lab-02/requester-flow.spec.ts` | Planned |
-| E2E-03 | E2E | AC-09, AC-11 | Upload a permitted Attachment, download it, soft-remove it, and verify Download is unavailable. | `e2e/lab-02/requester-flow.spec.ts` | Planned |
-| E2E-04 | Responsive | AC-12 | Capture Create, List, and Detail at desktop, tablet, and mobile; verify no horizontal page overflow. | `e2e/lab-02/requester-flow.spec.ts` | Planned |
+| UNIT-01 | Unit | AC-03 | Format the official Ticket Number from a saved ID; it follows `TT-YYYY-000001`. | `server/tests/lab-02/ticket-number.unit.test.ts` | Passed |
+| UNIT-02 | Unit | AC-04 | Trim Summary/Description and reject values outside approved bounds. | `server/tests/lab-02/ticket-validation.unit.test.ts` | Passed |
+| UNIT-03 | Unit | AC-10 | Accept only permitted MIME types and reject files over 5 MB. | `server/tests/lab-02/attachment-validation.unit.test.ts` | Passed |
+| UNIT-04 | API | AC-11 | Active-attachment limits are enforced and removal metadata is retained. | `server/tests/lab-02/attachments.api.test.ts` | Passed |
+| API-01 | API | AC-01 | Active requester endpoint excludes inactive records. | `server/tests/lab-02/development-requesters.api.test.ts` | Passed |
+| API-02 | API | AC-03 | Valid create returns 201, official number, `NEW`, and the selected requester ID. | `server/tests/lab-02/create-ticket.api.test.ts` | Passed |
+| API-03 | API | AC-04 | Invalid summary, description, priority, Category, or Related System returns field-safe validation errors. | `server/tests/lab-02/create-ticket.api.test.ts` | Passed |
+| API-04 | API | AC-05 | Same idempotency key returns the original Ticket without a duplicate record. | `server/tests/lab-02/create-ticket.api.test.ts` | Passed |
+| API-05 | API | AC-06 | List query scopes all results to requester A; switching to requester B changes the result set. | `server/tests/lab-02/my-tickets.api.test.ts` | Passed |
+| API-06 | API | AC-07 | Search, filter, sort, page, invalid query, and metadata behavior follow the contract. | `server/tests/lab-02/my-tickets.api.test.ts` | Passed |
+| API-07 | API | AC-08 | Owned detail succeeds; cross-requester Ticket retrieval returns safe 404. | `server/tests/lab-02/attachments.api.test.ts` | Passed |
+| API-08 | API | AC-09 | Valid upload stores active metadata for an owned Ticket. | `server/tests/lab-02/attachments.api.test.ts` | Passed |
+| API-09 | API | AC-10 | Invalid type, oversize file, sixth active attachment, and cross-owner upload fail safely. | `server/tests/lab-02/attachments.api.test.ts` | Passed |
+| API-10 | API | AC-11 | Soft removal records the reason, retains metadata, and blocks removed download. | `server/tests/lab-02/attachments.api.test.ts` | Passed |
+| UI-01 | UI | AC-01, AC-02 | Selector has loading, empty, failure, keyboard, and continue behavior. | `client/tests/lab-02/RequesterSelector.test.tsx` | Passed |
+| UI-02 | UI | AC-03, AC-04 | Create Ticket renders reference data, field errors, busy state, success number, and disabled submit behavior. | `client/tests/lab-02/CreateTicketForm.test.tsx` | Passed |
+| UI-03 | UI | AC-10 | Invalid attachment feedback names every rejected file with its type or size reason, while permitted files remain selected. | `client/tests/lab-02/CreateTicketForm.test.tsx` | Passed |
+| UI-04 | UI | AC-06, AC-07 | My Tickets reloads after Requester change and renders loading, empty, no-results, filters, sort, and pagination. | `client/tests/lab-02/MyTickets.test.tsx` | Passed |
+| UI-05 | UI | AC-08, AC-11 | Detail shows owned data, removed metadata, blocked download, and safe cross-owner failure. | `client/tests/lab-02/RequesterTicketDetail.test.tsx` | Passed |
+| UI-06 | UI style | AC-12 | Required labels and five asterisks, loading and submitting states, disabled controls, focus visibility, Zen Green tokens, and the mobile breakpoint are asserted. | `client/tests/lab-02/ZenGreen.styles.test.tsx` | Passed |
+| E2E-01 | E2E | AC-01, AC-03 | Select Requester A, create a Ticket, and see its official number and saved values. | `e2e/lab-02/requester-flow.spec.ts` | Passed |
+| E2E-02 | E2E | AC-06, AC-07 | Change to Requester B and verify that a search cannot reveal Requester A's Ticket. | `e2e/lab-02/requester-flow.spec.ts` | Passed |
+| E2E-03 | E2E | AC-09, AC-11 | Upload a permitted Attachment, download it, soft-remove it, and verify Download is unavailable. | `e2e/lab-02/requester-flow.spec.ts` | Passed |
+| E2E-04 | Responsive | AC-12 | Capture Create, List, and Detail at desktop, tablet, and mobile; verify no horizontal page overflow. | `e2e/lab-02/requester-flow.spec.ts` | Passed |
 
 ## 3. Acceptance-Criterion Traceability
 
-| Acceptance Criterion | Planned tests |
+| Acceptance Criterion | Test IDs |
 |---|---|
 | AC-01 | API-01, UI-01, E2E-01 |
 | AC-02 | UI-01 |
@@ -95,7 +95,80 @@ The final report will include complete passing unit, API, and UI terminal output
 
 ## 6. Final Results
 
-Implementation evidence is recorded here as each Issue is verified. A test remains `Planned` in the table above until its peer-approved work is integrated and rerun on the final `main` branch.
+The final verification below was run from `main` at commit `33687e1` (`Merge pull request #29 from Earth2509/lab2-staging`) on 31 August 2026. It records the exact release tree after peer approval and merge. The UI-06 correction added during PR #30 review is recorded separately below so that the original final-main run and the corrective run remain distinguishable.
+
+### Final `main` Verification
+
+No source code or test files were changed for this verification. The following commands were run from the merged `main` checkout:
+
+**Server — `cd server && npm test`**
+
+```text
+✓ tests/lab-02/ticket-number.unit.test.ts (2 tests)
+✓ tests/lab-02/ticket-validation.unit.test.ts (2 tests)
+✓ tests/lab-02/ticket-query.unit.test.ts (5 tests)
+✓ tests/lab-02/attachment-validation.unit.test.ts (3 tests)
+✓ tests/categories.test.ts (1 test)
+✓ tests/lab-02/development-requesters.api.test.ts (3 tests)
+✓ tests/lab-02/my-tickets.api.test.ts (7 tests)
+✓ tests/lab-02/create-ticket.api.test.ts (11 tests)
+✓ tests/health.test.ts (1 test)
+✓ tests/lab-02/attachments.api.test.ts (8 tests)
+
+Test Files  10 passed (10)
+Tests       43 passed (43)
+```
+
+`cd server && npm run build` passed, and `cd server && npx prisma validate` confirmed that `prisma/schema.prisma` is valid.
+
+**Client — `cd client && npm test`**
+
+```text
+✓ tests/App.test.tsx (1 test)
+✓ tests/lab-02/RequesterSelector.test.tsx (3 tests)
+✓ tests/lab-02/RequesterTicketDetail.test.tsx (2 tests)
+✓ tests/lab-02/CreateTicketForm.test.tsx (5 tests)
+✓ tests/lab-02/MyTickets.test.tsx (8 tests)
+
+Test Files  5 passed (5)
+Tests       19 passed (19)
+```
+
+`cd client && npm run build` passed. Vite built 31 modules and produced the production client bundle successfully.
+
+### UI-06 Post-Review Corrective Verification
+
+During PR #30 review, UI-06 was found to reference a file that did not exist in this repository. The row now points to the real `client/tests/lab-02/ZenGreen.styles.test.tsx` test. That test renders the Create Ticket flow and asserts its required labels and markers, loading and submitting states, disabled controls, focus treatment, Zen Green palette tokens, and the mobile breakpoint. It was added after the release verification, so this separate result does not alter the recorded `main` output above.
+
+Run on `docs/lab2-main-verification-evidence` after the correction:
+
+```text
+✓ tests/App.test.tsx (1 test)
+✓ tests/lab-02/RequesterSelector.test.tsx (3 tests)
+✓ tests/lab-02/ZenGreen.styles.test.tsx (1 test)
+✓ tests/lab-02/RequesterTicketDetail.test.tsx (2 tests)
+✓ tests/lab-02/CreateTicketForm.test.tsx (5 tests)
+✓ tests/lab-02/MyTickets.test.tsx (8 tests)
+
+Test Files  6 passed (6)
+Tests       20 passed (20)
+```
+
+`cd client && npm run build` also passed after the correction.
+
+**Integrated E2E — `npm run e2e`**
+
+```text
+✓ Requester can create, find, inspect, and soft-remove a real attachment
+✓ Requester switching keeps the integrated ticket list owner-scoped
+✓ Requester screens remain usable at desktop width
+✓ Requester screens remain usable at tablet width
+✓ Requester screens remain usable at mobile width
+
+5 passed (12.2s)
+```
+
+The E2E command used the dedicated `lab2_e2e` PostgreSQL schema only. It reset and seeded that isolated schema, leaving the normal application schema untouched. The five scenarios verify requester ownership, Ticket creation and discovery, attachment upload/download/soft removal, and desktop, tablet, and mobile usability without page-level horizontal overflow.
 
 ### Issue #13 Feature-Branch Verification
 
