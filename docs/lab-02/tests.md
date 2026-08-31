@@ -1,6 +1,6 @@
 # Lab 2 Test Plan and Results
 
-**Status:** Complete — final `main` verification recorded 31 August 2026
+**Status:** Complete — final `main` verification recorded 31 August 2026; UI-06 was corrected and reverified during PR #30 review.
 **Related specification:** `docs/lab-02/specification.md`  
 **Test status convention:** `Planned` becomes `Passed` only after the test runs successfully on the final `main` branch.
 
@@ -33,7 +33,7 @@ The root-level Playwright configuration and `e2e/lab-02/` suite are owned by Iss
 | UI-03 | UI | AC-10 | Invalid attachment feedback names every rejected file with its type or size reason, while permitted files remain selected. | `client/tests/lab-02/CreateTicketForm.test.tsx` | Passed |
 | UI-04 | UI | AC-06, AC-07 | My Tickets reloads after Requester change and renders loading, empty, no-results, filters, sort, and pagination. | `client/tests/lab-02/MyTickets.test.tsx` | Passed |
 | UI-05 | UI | AC-08, AC-11 | Detail shows owned data, removed metadata, blocked download, and safe cross-owner failure. | `client/tests/lab-02/RequesterTicketDetail.test.tsx` | Passed |
-| UI-06 | UI style | AC-12 | Required labels, asterisks, status/busy states, focusable controls, and Zen Green classes/tokens are asserted. | `client/tests/lab-02/ZenGreen.styles.test.tsx` | Passed |
+| UI-06 | UI style | AC-12 | Required labels and five asterisks, loading and submitting states, disabled controls, focus visibility, Zen Green tokens, and the mobile breakpoint are asserted. | `client/tests/lab-02/ZenGreen.styles.test.tsx` | Passed |
 | E2E-01 | E2E | AC-01, AC-03 | Select Requester A, create a Ticket, and see its official number and saved values. | `e2e/lab-02/requester-flow.spec.ts` | Passed |
 | E2E-02 | E2E | AC-06, AC-07 | Change to Requester B and verify that a search cannot reveal Requester A's Ticket. | `e2e/lab-02/requester-flow.spec.ts` | Passed |
 | E2E-03 | E2E | AC-09, AC-11 | Upload a permitted Attachment, download it, soft-remove it, and verify Download is unavailable. | `e2e/lab-02/requester-flow.spec.ts` | Passed |
@@ -95,7 +95,7 @@ The final report will include complete passing unit, API, and UI terminal output
 
 ## 6. Final Results
 
-The final verification below was run from `main` at commit `33687e1` (`Merge pull request #29 from Earth2509/lab2-staging`) on 31 August 2026. It records the exact release tree after peer approval and merge; the matrix above therefore marks every planned row as `Passed`.
+The final verification below was run from `main` at commit `33687e1` (`Merge pull request #29 from Earth2509/lab2-staging`) on 31 August 2026. It records the exact release tree after peer approval and merge. The UI-06 correction added during PR #30 review is recorded separately below so that the original final-main run and the corrective run remain distinguishable.
 
 ### Final `main` Verification
 
@@ -135,6 +135,26 @@ Tests       19 passed (19)
 ```
 
 `cd client && npm run build` passed. Vite built 31 modules and produced the production client bundle successfully.
+
+### UI-06 Post-Review Corrective Verification
+
+During PR #30 review, UI-06 was found to reference a file that did not exist in this repository. The row now points to the real `client/tests/lab-02/ZenGreen.styles.test.tsx` test. That test renders the Create Ticket flow and asserts its required labels and markers, loading and submitting states, disabled controls, focus treatment, Zen Green palette tokens, and the mobile breakpoint. It was added after the release verification, so this separate result does not alter the recorded `main` output above.
+
+Run on `docs/lab2-main-verification-evidence` after the correction:
+
+```text
+✓ tests/App.test.tsx (1 test)
+✓ tests/lab-02/RequesterSelector.test.tsx (3 tests)
+✓ tests/lab-02/ZenGreen.styles.test.tsx (1 test)
+✓ tests/lab-02/RequesterTicketDetail.test.tsx (2 tests)
+✓ tests/lab-02/CreateTicketForm.test.tsx (5 tests)
+✓ tests/lab-02/MyTickets.test.tsx (8 tests)
+
+Test Files  6 passed (6)
+Tests       20 passed (20)
+```
+
+`cd client && npm run build` also passed after the correction.
 
 **Integrated E2E — `npm run e2e`**
 
