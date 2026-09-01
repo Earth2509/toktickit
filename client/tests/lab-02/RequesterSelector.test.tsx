@@ -44,7 +44,11 @@ describe("Development Requester Selection", () => {
         return Promise.resolve({ ok: false, json: async () => ({}) });
       }
 
-      const body = fetchMock.mock.calls.length === 1 ? requesters : refreshedRequesters;
+      const requesterCallCount = fetchMock.mock.calls.filter(([request]) => {
+        const requestUrl = typeof request === "string" ? request : request instanceof URL ? request.toString() : request.url;
+        return requestUrl.endsWith("/api/requesters");
+      }).length;
+      const body = requesterCallCount === 1 ? requesters : refreshedRequesters;
       return Promise.resolve({ ok: true, json: async () => body });
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -54,14 +58,20 @@ describe("Development Requester Selection", () => {
     fireEvent.change(selector, { target: { value: "2" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
-    expect(await screen.findByRole("heading", { name: "Requester Workspace" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "My Tickets" })).toBeInTheDocument();
     expect(screen.getAllByText("Busaba Wattanakul").length).toBeGreaterThan(0);
     expect(window.localStorage.getItem("toktickit.lab2.developmentRequesterId")).toBe("2");
 
     fireEvent.click(screen.getByRole("button", { name: "Change Requester" }));
 
     expect(await screen.findByRole("heading", { name: "Development Requester Selection" })).toBeInTheDocument();
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    await waitFor(() => {
+      const requesterCalls = fetchMock.mock.calls.filter(([request]) => {
+        const requestUrl = typeof request === "string" ? request : request instanceof URL ? request.toString() : request.url;
+        return requestUrl.endsWith("/api/requesters");
+      });
+      expect(requesterCalls).toHaveLength(2);
+    });
     expect(screen.queryByRole("option", { name: /Busaba Wattanakul/ })).not.toBeInTheDocument();
     expect(window.localStorage.getItem("toktickit.lab2.developmentRequesterId")).toBeNull();
   });
