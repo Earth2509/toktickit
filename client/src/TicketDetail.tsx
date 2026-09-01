@@ -130,24 +130,28 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
 
   const activeCount = activeAttachmentCount(ticket.attachments);
 
-  return <section className="ticket-card ticket-detail-card" aria-labelledby="ticket-detail-heading">
+  return <>
+    <div className="page-breadcrumb">
+      <p><span>My Tickets</span><span aria-hidden="true">/</span><strong>Ticket Detail</strong></p>
+      <button className="button button-secondary" type="button" onClick={onBack}>Back to My Tickets</button>
+    </div>
+    <section className="ticket-card ticket-detail-card" aria-labelledby="ticket-detail-heading">
     <div className="ticket-card-heading">
       <div>
         <p className="section-kicker">Requester workspace</p>
         <h1 id="ticket-detail-heading">Ticket Detail</h1>
         <p>Review saved Ticket information and manage permitted attachments.</p>
       </div>
-      <button className="button button-secondary" type="button" onClick={onBack}>Back to My Tickets</button>
     </div>
 
     <dl className="ticket-detail-grid">
       <DetailField label="Ticket Number" value={ticket.ticketNumber} />
-      <DetailField label="Current Status" value={<span className="status-badge">{ticket.currentStatus}</span>} />
-      <DetailField label="Requester" value={`${ticket.requester.displayName} (${ticket.requester.email})`} />
       <DetailField label="Ticket Date" value={formatDate(ticket.createdAt)} />
       <DetailField label="Category" value={ticket.category.name} />
       <DetailField label="Related System" value={ticket.relatedSystem.name} />
+      <DetailField label="Requester" value={`${ticket.requester.displayName} (${ticket.requester.email})`} />
       <DetailField label="Requested Priority" value={<span className={`priority-badge priority-${ticket.requestedPriority.toLowerCase()}`}>{ticket.requestedPriority}</span>} />
+      <DetailField label="Current Status" value={<span className="status-badge">{ticket.currentStatus}</span>} />
       <DetailField label="Last Updated" value={formatDate(ticket.updatedAt)} />
       <DetailField label="Summary" value={ticket.summary} fullWidth />
       <DetailField label="Description" value={ticket.description} fullWidth />
@@ -193,7 +197,8 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
         </ul>
       )}
     </section>
-  </section>;
+    </section>
+  </>;
 }
 
 function DetailField({ label, value, fullWidth = false }: { label: string; value: ReactNode; fullWidth?: boolean }) {

@@ -6,6 +6,34 @@ import TicketDetail from "./TicketDetail";
 
 const REQUESTER_STORAGE_KEY = "toktickit.lab2.developmentRequesterId";
 
+function BrandClockIcon() {
+  return <svg className="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M15 7.5A19 19 0 1 1 7.2 17" /><path d="M7 7v10h10" /><path d="M24 13v12h9" /></svg>;
+}
+
+function TicketsIcon() {
+  return <svg className="header-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 8h6M9 12h6M9 16h4" /></svg>;
+}
+
+function AddTicketIcon() {
+  return <svg className="header-nav-icon header-add-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg>;
+}
+
+function ProfileIcon() {
+  return <svg className="profile-avatar" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" /><circle cx="14" cy="10" r="4" /><path d="M6.5 23c.7-4 3.5-6.2 7.5-6.2s6.8 2.2 7.5 6.2" /></svg>;
+}
+
+function ChevronDownIcon() {
+  return <svg className="profile-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>;
+}
+
+function HomeIcon() {
+  return <svg className="breadcrumb-home" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10.5V20h13v-9.5M10 20v-6h4v6" /></svg>;
+}
+
+function ShieldIcon() {
+  return <span className="auth-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5.2c0 4.5-2.7 8.1-7 9.8-4.3-1.7-7-5.3-7-9.8V6l7-3Z" /></svg></span>;
+}
+
 export default function App() {
   const [requesters, setRequesters] = useState<Requester[]>([]);
   const [selectedRequesterId, setSelectedRequesterId] = useState("");
@@ -61,30 +89,44 @@ export default function App() {
   }
 
   return (
-    <main className="app-page">
+    <main className="app-page application-page selector-page">
+      <header className="application-header">
+        <div className="application-brand"><BrandClockIcon /><div><p className="application-product">TokTickIT</p><p className="application-title">IT Service Desk</p></div></div>
+        <nav className="application-navigation selector-navigation" aria-label="Requester workspace preview">
+          <span className="header-nav-button header-nav-static"><TicketsIcon />My Tickets</span>
+          <span className="header-nav-button header-nav-static"><AddTicketIcon />Create Ticket</span>
+        </nav>
+        <div className="requester-context" aria-label="Profile unavailable until a Requester is selected"><span className="header-change-requester header-profile-static"><ProfileIcon /><span>Profile</span><ChevronDownIcon /></span></div>
+      </header>
+      <div className="selector-breadcrumb" aria-label="Current page"><HomeIcon /><span aria-hidden="true">›</span><strong>Development Requester Selection</strong></div>
       <section className="selector-card" aria-labelledby="requester-selection-heading">
-        <p className="brand-eyebrow">TokTickIT</p>
-        <h1 id="requester-selection-heading">Development Requester Selection</h1>
-        <p className="selector-intro">Select a Development Requester to test requester-specific ticket behavior. This is not a login screen.</p>
+        <div className="selector-card-header">
+          <span className="selector-user-icon" aria-hidden="true" />
+          <h1 id="requester-selection-heading" aria-label="Development Requester Selection">Select Development Requester</h1>
+          <p className="selector-intro">Choose a development requester to simulate the current requester context for Lab 2.</p>
+          <p className="selector-testing-note">This is not a login screen. It is provided for testing only.</p>
+        </div>
+        <div className="selector-card-body">
 
         {loading && <p role="status" className="status-message">Loading Development Requesters...</p>}
 
-        {error && (
+          {error && (
           <div className="error-panel" role="alert">
             <p>{error}</p>
             <button className="button button-secondary" onClick={() => void loadRequesters()}>Retry</button>
           </div>
-        )}
+          )}
 
-        {!loading && !error && requesters.length === 0 && (
+          {!loading && !error && requesters.length === 0 && (
           <div className="empty-panel" role="status">No active Development Requesters are available.</div>
-        )}
+          )}
 
-        {!loading && !error && requesters.length > 0 && (
+          {!loading && !error && requesters.length > 0 && (
           <>
-            <label htmlFor="development-requester">Development Requester</label>
+            <label htmlFor="development-requester">Development Requester <span className="required-marker" aria-hidden="true">*</span></label>
             <select
               id="development-requester"
+              aria-label="Development Requester"
               value={selectedRequesterId}
               onChange={(event) => setSelectedRequesterId(event.target.value)}
             >
@@ -95,16 +137,21 @@ export default function App() {
                 </option>
               ))}
             </select>
+            <div className="selector-info-callout"><span className="callout-icon" aria-hidden="true">i</span>Only active development requesters are shown.</div>
           </>
         )}
-
+          <div className="selector-auth-callout"><ShieldIcon /><div><strong>Authentication coming in Lab 3</strong><p>In Lab 3, this selection will be replaced with secure authentication so you can access the system with your own account.</p></div></div>
+        </div>
+        <div className="selector-card-actions">
+          <button className="button button-secondary selector-cancel" type="button" onClick={() => setSelectedRequesterId("")} disabled={!selectedRequesterId}>Cancel</button>
         <button
           className="button button-primary"
           onClick={continueWithRequester}
           disabled={loading || Boolean(error) || !selectedRequesterId}
         >
-          Continue
+          <span aria-hidden="true">→</span> Continue
         </button>
+        </div>
       </section>
     </main>
   );
@@ -116,7 +163,7 @@ type RequesterWorkspaceProps = {
 };
 
 function RequesterWorkspace({ requester, onChangeRequester }: RequesterWorkspaceProps) {
-  const [view, setView] = useState<"home" | "create" | "tickets" | "detail">("home");
+  const [view, setView] = useState<"home" | "create" | "tickets" | "detail">("tickets");
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
 
   function showTicketDetail(ticketId: number) {
@@ -125,23 +172,17 @@ function RequesterWorkspace({ requester, onChangeRequester }: RequesterWorkspace
   }
 
   return (
-    <main className="app-page">
+    <main className="app-page application-page">
       <header className="application-header">
-        <div>
-          <p className="brand-eyebrow">TokTickIT</p>
-          <p className="application-title">IT Service Desk</p>
-        </div>
+        <div className="application-brand"><BrandClockIcon /><div><p className="application-product">TokTickIT</p><p className="application-title">IT Service Desk</p></div></div>
+        <nav className="application-navigation" aria-label="Requester workspace">
+          <button className={`button header-nav-button ${view === "tickets" || view === "detail" ? "header-nav-button-active" : ""}`} onClick={() => setView("tickets")}><TicketsIcon />My Tickets</button>
+          <button className={`button header-nav-button ${view === "create" ? "header-nav-button-active" : ""}`} onClick={() => setView("create")}><AddTicketIcon />Create Ticket</button>
+        </nav>
         <div className="requester-context">
-          <span>Development Requester</span>
-          <strong>{requester.displayName}</strong>
-          <button className="button button-secondary" onClick={onChangeRequester}>Change Requester</button>
+          <button aria-label="Change Requester" className="button header-change-requester" onClick={onChangeRequester} title={`Development Requester: ${requester.displayName}. Change requester.`}><ProfileIcon /><span>Profile</span><ChevronDownIcon /></button>
         </div>
       </header>
-
-      <nav className="workspace-navigation application-navigation" aria-label="Requester workspace">
-        <button className={`button ${view === "create" ? "button-primary" : "button-secondary"}`} onClick={() => setView("create")}>Create Ticket</button>
-        <button className={`button ${view === "tickets" ? "button-primary" : "button-secondary"}`} onClick={() => setView("tickets")}>My Tickets</button>
-      </nav>
 
       {view === "home" && (
         <section className="workspace-card" aria-labelledby="workspace-heading">
