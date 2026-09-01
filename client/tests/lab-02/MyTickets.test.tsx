@@ -68,8 +68,6 @@ async function openMyTickets(requesterId = "1") {
   render(<App />);
   fireEvent.change(await screen.findByLabelText("Development Requester"), { target: { value: requesterId } });
   fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-  await screen.findByRole("heading", { name: "Requester Workspace" });
-  fireEvent.click(screen.getByRole("button", { name: "My Tickets" }));
   await screen.findByRole("heading", { name: "My Tickets" });
 }
 

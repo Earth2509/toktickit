@@ -37,8 +37,8 @@ async function openCreateTicket() {
   render(<App />);
   fireEvent.change(await screen.findByLabelText("Development Requester"), { target: { value: "1" } });
   fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-  await screen.findByRole("heading", { name: "Requester Workspace" });
-  fireEvent.click(screen.getAllByRole("button", { name: "Create Ticket" })[0]);
+  await screen.findByRole("heading", { name: "My Tickets" });
+  fireEvent.click(screen.getAllByRole("button", { name: "Create Ticket" })[1]);
   await screen.findByRole("heading", { name: "Create Ticket" });
   await screen.findByRole("option", { name: "Hardware" });
 }
