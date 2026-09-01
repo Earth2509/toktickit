@@ -49,7 +49,7 @@ describe("Zen Green UI style", () => {
     render(<App />);
     fireEvent.change(await screen.findByLabelText("Development Requester"), { target: { value: "1" } });
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-    await screen.findByRole("heading", { name: "Requester Workspace" });
+    await screen.findByRole("heading", { name: "My Tickets" });
     fireEvent.click(screen.getAllByRole("button", { name: "Create Ticket" })[0]);
     await screen.findByRole("heading", { name: "Create Ticket" });
 

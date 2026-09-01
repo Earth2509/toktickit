@@ -79,7 +79,7 @@ async function selectRequesterOnCurrentPage(page: Page, requesterName: string) {
   if (!requesterValue) throw new Error(`Requester ${requesterName} is not available in the E2E seed.`);
   await requesterSelect.selectOption(requesterValue);
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "Requester Workspace" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();
 }
 
 async function openCreateTicket(page: Page) {
