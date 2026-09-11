@@ -8,8 +8,9 @@ Status: Living record started before implementation. Tool: OpenAI Codex. This se
 |---|---|---|
 | P-01 | "นี่คืองานส่วนต่อไป" ("This is the next assignment"), with Lab_3_sheet.pdf | Read the assignment and explain scope, workflow, required evidence and the exact Answer Part 1-9 format. |
 | P-02 | "เริ่มทำส่วนแรกได้" ("You can start the first part") | Inspect released Lab 2 main and draft the Sprint 3 engineering contract, UI/API decisions and planned-test traceability before implementation. |
+| P-03 | "มีแก้ไข" ("There are requested changes") | Read @Nuggetkub's actual PR #35 review and revise role filtering, status policy, staff indication visibility, authentication feedback/limits, proxy transport and reproducible demo provisioning across the contract. |
 
-English translations above describe the actual Thai prompts; they are not presented as original English quotations. The final submission requires 6-10 selected real prompts. Only two are recorded so far. Add genuine later implementation/review/verification prompts as the sprint progresses; do not fabricate historical prompts to meet the count.
+English translations above describe the actual Thai prompts; they are not presented as original English quotations. The final submission requires 6-10 selected real prompts. Only three are recorded so far. Add genuine later implementation/review/verification prompts as the sprint progresses; do not fabricate historical prompts to meet the count.
 
 ## Specification-agent contribution
 
