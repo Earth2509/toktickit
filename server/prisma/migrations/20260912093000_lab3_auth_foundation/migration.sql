@@ -1,9 +1,22 @@
 -- Lab 3 authentication foundation.  Rename rather than copy/delete the Lab 2
 -- requester table so every existing Ticket requesterId and attachment removal
 -- attribution foreign key continues to point at the same records and IDs.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT lower(btrim("email"))
+    FROM "Requester"
+    GROUP BY lower(btrim("email"))
+    HAVING count(*) > 1
+  ) THEN
+    RAISE EXCEPTION 'Requester emails collide after trim/lower normalization; resolve collisions before the Lab 3 migration.';
+  END IF;
+END $$;
+
 ALTER TABLE "Requester" RENAME TO "User";
 ALTER TABLE "User" RENAME CONSTRAINT "Requester_pkey" TO "User_pkey";
 ALTER INDEX "Requester_email_key" RENAME TO "User_email_key";
+UPDATE "User" SET "email" = lower(btrim("email"));
 
 CREATE TYPE "UserRole" AS ENUM ('REQUESTER', 'IT_STAFF', 'ADMINISTRATOR');
 

@@ -15,12 +15,23 @@ if (schema !== "lab3_e2e") {
 const serverDirectory = path.resolve(import.meta.dirname, "..");
 const prismaCli = path.join(serverDirectory, "node_modules", "prisma", "build", "index.js");
 
-runPrisma(["generate"]);
-runPrisma(["migrate", "reset", "--force", "--skip-generate"]);
-runPrisma(["db", "seed"]);
+if (process.env.E2E_SKIP_PRISMA_GENERATE !== "true") {
+  runPrisma(["generate"]);
+}
+runPrisma(["migrate", "reset", "--force", "--skip-generate", "--skip-seed"]);
+runSeed();
 
 function runPrisma(args: string[]) {
   execFileSync(process.execPath, [prismaCli, ...args], {
+    cwd: serverDirectory,
+    env: process.env,
+    stdio: "inherit",
+  });
+}
+
+function runSeed() {
+  const tsxCli = path.join(serverDirectory, "node_modules", "tsx", "dist", "cli.mjs");
+  execFileSync(process.execPath, [tsxCli, "prisma/seed.ts"], {
     cwd: serverDirectory,
     env: process.env,
     stdio: "inherit",

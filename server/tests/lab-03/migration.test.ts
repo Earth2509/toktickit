@@ -2,6 +2,9 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { PrismaClient } from "@prisma/client";
 import { afterAll, describe, expect, it } from "vitest";
+import { seedDatabase } from "../../prisma/seed-data.js";
+import { verifyPassword } from "../../src/auth.js";
+import { provisionMigratedUser } from "../../src/provisioning.js";
 
 const configuredUrl = process.env.MIGRATION_TEST_DATABASE_URL;
 const testUrl = configuredUrl ? dedicatedMigrationUrl(configuredUrl) : undefined;
@@ -30,6 +33,13 @@ describe.skipIf(!testUrl)("Lab 3 requester-to-user migration", () => {
         "createdAt", "removedAt", "removedByRequesterId", "removalReason"
       ) VALUES (61, 51, NULL, 'migration-storage-key', 'evidence.txt', 'text/plain', 12, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 41, 'Migration evidence');
     `);
+    // The fixture uses explicit IDs so relationship preservation is easy to
+    // assert. Advance each SERIAL sequence to model a real populated database.
+    for (const table of ["Category", "RelatedSystem", "Requester", "Ticket", "Attachment"]) {
+      await prisma.$executeRawUnsafe(
+        `SELECT setval(pg_get_serial_sequence('"${table}"', 'id'), (SELECT MAX("id") FROM "${table}"), true);`,
+      );
+    }
 
     runMigration("20260912093000_lab3_auth_foundation", testUrl!);
 
@@ -47,18 +57,48 @@ describe.skipIf(!testUrl)("Lab 3 requester-to-user migration", () => {
     expect(ticket).toMatchObject({ id: 51, requesterId: 41, ticketNumber: "TT-2026-000051" });
     expect(attachment).toMatchObject({ id: 61, ticketId: 51, removedByRequesterId: 41, removalReason: "Migration evidence" });
 
-    runSeed(testUrl!);
+    const provisionedPassword = "Migration-only password 2026!";
+    await provisionMigratedUser(prisma, " MIGRATED@EXAMPLE.TEST ", provisionedPassword);
+    const provisionedUser = await prisma.user.findUnique({ where: { id: 41 } });
+    expect(provisionedUser?.passwordHash).toEqual(expect.any(String));
+    await expect(verifyPassword(provisionedPassword, provisionedUser!.passwordHash!)).resolves.toBe(true);
+    const originalProvisionedHash = provisionedUser!.passwordHash;
+    await expect(provisionMigratedUser(prisma, "migrated@example.test", "Another password 2026!")).rejects.toThrow(
+      "Credentials already exist",
+    );
+    expect((await prisma.user.findUnique({ where: { id: 41 } }))?.passwordHash).toBe(originalProvisionedHash);
+
+    await runSeed(prisma);
     const seededFixture = await prisma.user.findUnique({ where: { email: "requester1@example.test" } });
     expect(seededFixture).toMatchObject({ mustChangePassword: true, role: "REQUESTER", isActive: true });
-    expect((await prisma.user.findUnique({ where: { id: 41 } }))?.passwordHash).toBeNull();
+    expect((await prisma.user.findUnique({ where: { id: 41 } }))?.passwordHash).toBe(originalProvisionedHash);
 
     await prisma.user.update({ where: { id: seededFixture!.id }, data: { isActive: false, passwordHash: "preserved-local-test-hash" } });
-    runSeed(testUrl!);
+    await runSeed(prisma);
     expect(await prisma.user.findUnique({ where: { id: seededFixture!.id } })).toMatchObject({
       isActive: false,
       passwordHash: "preserved-local-test-hash",
     });
-  });
+  }, 30_000);
+
+  it("stops before renaming tables when normalized requester emails collide", async () => {
+    prisma = new PrismaClient({ datasources: { db: { url: testUrl } } });
+    await recreateTestSchema(prisma, testUrl!);
+    for (const migration of lab2MigrationDirectories) runMigration(migration, testUrl!);
+
+    await prisma.$executeRawUnsafe(`
+      INSERT INTO "Requester" ("displayName", "email", "isActive", "createdAt", "updatedAt")
+      VALUES
+        ('Collision One', 'collision@example.test', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+        ('Collision Two', ' COLLISION@EXAMPLE.TEST ', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+    `);
+
+    expect(() => runMigration("20260912093000_lab3_auth_foundation", testUrl!)).toThrow();
+    const requesterTable = await prisma.$queryRaw<Array<{ name: string | null }>>`
+      SELECT to_regclass('"Requester"')::text AS name
+    `;
+    expect(requesterTable[0]?.name).toBe('"Requester"');
+  }, 30_000);
 });
 
 afterAll(async () => {
@@ -101,18 +141,9 @@ function runMigration(directory: string, databaseUrl: string) {
   });
 }
 
-function runSeed(databaseUrl: string) {
-  const serverDirectory = process.cwd();
-  const tsxCli = path.join(serverDirectory, "node_modules", "tsx", "dist", "cli.mjs");
-  execFileSync(process.execPath, [tsxCli, "prisma/seed.ts"], {
-    cwd: serverDirectory,
-    env: {
-      ...process.env,
-      DATABASE_URL: databaseUrl,
-      LAB3_SEED_MODE: "local",
-      LAB3_SEED_PASSWORD: "migration-test-only-password",
-      NODE_ENV: "test",
-    },
-    stdio: "inherit",
-  });
+async function runSeed(client: PrismaClient) {
+  process.env.LAB3_SEED_MODE = "local";
+  process.env.LAB3_SEED_PASSWORD = "migration-test-only-password";
+  process.env.NODE_ENV = "test";
+  await seedDatabase(client);
 }

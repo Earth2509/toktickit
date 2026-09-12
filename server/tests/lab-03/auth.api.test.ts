@@ -119,7 +119,11 @@ describe("Lab 3 authentication API", () => {
       .set("X-CSRF-Token", login.body.csrfToken)
       .expect(204);
 
-    await request(app).get("/api/auth/me").set("Cookie", cookie).expect(401).expect({ code: "UNAUTHENTICATED" });
+    await request(app)
+      .get("/api/auth/me")
+      .set("Cookie", cookie)
+      .expect(401)
+      .expect(({ body }) => expect(body).toMatchObject({ code: "UNAUTHENTICATED" }));
   });
 
   it("uses safe failures for unknown credentials and only names inactive status after a matching password", async () => {
@@ -193,6 +197,16 @@ describe("Lab 3 authentication API", () => {
       .send({ email: "requester1@example.test", password: "wrong password for throttle" })
       .expect(429);
     expect(throttled.headers["retry-after"]).toMatch(/^\d+$/);
+  });
+
+  it("routes unexpected asynchronous session lookup failures through the safe error handler", async () => {
+    prisma.session.findUnique.mockRejectedValueOnce(new Error("simulated database failure"));
+
+    await request(app)
+      .get("/api/auth/me")
+      .set("Cookie", "toktickit_session=opaque-test-token")
+      .expect(500)
+      .expect({ message: "Unable to complete the request" });
   });
 });
 

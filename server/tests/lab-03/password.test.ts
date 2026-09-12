@@ -4,14 +4,18 @@ import { hashPassword, validateNewPassword, verifyPassword } from "../../src/aut
 describe("Lab 3 password primitives", () => {
   it("stores a versioned scrypt hash and verifies only the original password", async () => {
     const passwordHash = await hashPassword("Long enough local password");
+    const secondHash = await hashPassword("Long enough local password");
 
     expect(passwordHash).toMatch(/^scrypt\$1\$32768\$8\$3\$/);
+    expect(secondHash).not.toBe(passwordHash);
     await expect(verifyPassword("Long enough local password", passwordHash)).resolves.toBe(true);
     await expect(verifyPassword("A different local password", passwordHash)).resolves.toBe(false);
   });
 
   it("applies the documented Unicode-aware password policy without trimming input", () => {
-    expect(validateNewPassword("short")).toBe("Use 12 to 128 characters.");
+    expect(validateNewPassword("x".repeat(11))).toBe("Use 12 to 128 characters.");
+    expect(validateNewPassword("x".repeat(12))).toBeUndefined();
+    expect(validateNewPassword("x".repeat(128))).toBeUndefined();
     expect(validateNewPassword("            ")).toBe("The password cannot contain only whitespace.");
     expect(validateNewPassword("รหัสผ่านทดสอบ123")).toBeUndefined();
     expect(validateNewPassword("x".repeat(129))).toBe("Use 12 to 128 characters.");

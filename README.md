@@ -46,12 +46,21 @@ toktickit/
 4. Apply migrations and create local-only fixture data. The Lab 3 migration
    renames the existing `Requester` table to `User`; it does not delete or
    recreate user, Ticket, Attachment, or attachment-removal attribution rows.
+   It stops before the rename if two existing emails would collide after
+   trim/lower normalization.
 
    ```bash
    cd server
    npm run prisma:migrate
    npm run prisma:seed
    ```
+
+   Migrated users deliberately receive no default password. Provision one
+   migrated account locally by setting `LAB3_PROVISION_MODE=local`,
+   `LAB3_PROVISION_EMAIL`, and `LAB3_PROVISION_PASSWORD` for a single command,
+   then run `npm run prisma:provision-user`. The command refuses production,
+   missing users, invalid passwords, and any account that already has a hash;
+   it never prints the password.
 
 5. Validate the Prisma configuration.
 

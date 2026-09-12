@@ -49,10 +49,16 @@ app.get("/api/health", (_req, res) => res.status(200).json({ status: "ok", servi
 // These routes intentionally remain the only authenticated API surface in this
 // foundation change. Issue 3 moves the legacy Lab 2 resource routes to the
 // session identity at the same time as it replaces the requester selector UI.
-app.post("/api/auth/login", requireTrustedOrigin, login);
-app.get("/api/auth/me", requireAuthenticatedUser, currentUser);
-app.post("/api/auth/change-password", requireTrustedOrigin, requireAuthenticatedUser, requireCsrfToken, changePassword);
-app.post("/api/auth/logout", requireTrustedOrigin, logout);
+app.post("/api/auth/login", requireTrustedOrigin, asyncHandler(login));
+app.get("/api/auth/me", asyncHandler(requireAuthenticatedUser), asyncHandler(currentUser));
+app.post(
+  "/api/auth/change-password",
+  requireTrustedOrigin,
+  asyncHandler(requireAuthenticatedUser),
+  requireCsrfToken,
+  asyncHandler(changePassword),
+);
+app.post("/api/auth/logout", requireTrustedOrigin, asyncHandler(logout));
 
 app.get("/api/categories", async (_req, res) => {
   try {
@@ -394,6 +400,12 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
 
 function isUniqueConstraintError(error: unknown): boolean {
   return errorCode(error) === "P2002";
+}
+
+function asyncHandler(handler: express.RequestHandler): express.RequestHandler {
+  return (req, res, next) => {
+    Promise.resolve(handler(req, res, next)).catch(next);
+  };
 }
 
 function isDependencyUnavailable(error: unknown): boolean {

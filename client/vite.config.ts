@@ -11,6 +11,7 @@ const apiProxy = {
 
 export default defineConfig({
   plugins: [react()],
+  resolve: { preserveSymlinks: process.env.VITE_PRESERVE_SYMLINKS === "true" },
   server: { port: 5173, proxy: apiProxy },
   preview: { port: 4173, proxy: apiProxy },
   test: {
