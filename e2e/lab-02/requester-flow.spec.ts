@@ -1,6 +1,6 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
-const requesterA = "Anan Chaiyasit";
+const requesterA = "Aree Chaiyasit";
 const requesterB = "Busaba Wattanakul";
 
 test("Requester can create, find, inspect, and soft-remove a real attachment", async ({ page }) => {

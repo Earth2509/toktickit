@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -14,9 +13,17 @@ import {
 } from "./attachments.js";
 import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
+import {
+  changePassword,
+  currentUser,
+  login,
+  logout,
+  requireAuthenticatedUser,
+  requireCsrfToken,
+  requireTrustedOrigin,
+} from "./auth.js";
 
 export const app = express();
-app.use(cors());
 app.use(express.json());
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: maximumAttachmentBytes } });
@@ -38,6 +45,14 @@ const ticketDetailInclude = {
   attachments: { orderBy: { createdAt: "desc" as const }, select: attachmentSelect },
 };
 app.get("/api/health", (_req, res) => res.status(200).json({ status: "ok", service: "TokTickIT API" }));
+
+// These routes intentionally remain the only authenticated API surface in this
+// foundation change. Issue 3 moves the legacy Lab 2 resource routes to the
+// session identity at the same time as it replaces the requester selector UI.
+app.post("/api/auth/login", requireTrustedOrigin, login);
+app.get("/api/auth/me", requireAuthenticatedUser, currentUser);
+app.post("/api/auth/change-password", requireTrustedOrigin, requireAuthenticatedUser, requireCsrfToken, changePassword);
+app.post("/api/auth/logout", requireTrustedOrigin, logout);
 
 app.get("/api/categories", async (_req, res) => {
   try {
@@ -67,7 +82,7 @@ app.get("/api/related-systems", async (_req, res) => {
 
 app.get("/api/requesters", async (_req, res) => {
   try {
-    const requesters = await getPrisma().requester.findMany({
+    const requesters = await getPrisma().user.findMany({
       where: { isActive: true },
       orderBy: { displayName: "asc" },
       select: { id: true, displayName: true, email: true },
@@ -110,7 +125,7 @@ app.post("/api/tickets", async (req, res) => {
     }
 
     const [requester, category, relatedSystem] = await Promise.all([
-      prisma.requester.findFirst({ where: { id: input.requesterId, isActive: true }, select: { id: true } }),
+      prisma.user.findFirst({ where: { id: input.requesterId, isActive: true }, select: { id: true } }),
       prisma.category.findFirst({ where: { id: input.categoryId, isActive: true }, select: { id: true } }),
       prisma.relatedSystem.findFirst({ where: { id: input.relatedSystemId, isActive: true }, select: { id: true } }),
     ]);
@@ -169,7 +184,7 @@ app.get("/api/tickets", async (req, res) => {
   const prisma = getPrisma();
 
   try {
-    const requester = await prisma.requester.findFirst({
+    const requester = await prisma.user.findFirst({
       where: { id: query.requesterId, isActive: true },
       select: { id: true },
     });

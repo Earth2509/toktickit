@@ -8,8 +8,8 @@ if (!databaseUrl) {
 }
 
 const schema = new URL(databaseUrl).searchParams.get("schema");
-if (schema !== "lab2_e2e") {
-  throw new Error("E2E preparation only permits the dedicated lab2_e2e schema.");
+if (schema !== "lab3_e2e") {
+  throw new Error("E2E preparation only permits the dedicated lab3_e2e schema.");
 }
 
 const serverDirectory = path.resolve(import.meta.dirname, "..");

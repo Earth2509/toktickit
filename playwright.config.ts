@@ -29,6 +29,9 @@ export default defineConfig({
         PORT: "3001",
         DATABASE_URL: e2eDatabaseUrl,
         ATTACHMENT_STORAGE_DIR: path.join(e2eRuntimeDirectory, "uploads"),
+        LAB3_SEED_MODE: "local",
+        AUTH_CSRF_SECRET: "lab3-e2e-only-secret-not-for-production",
+        TRUSTED_ORIGINS: "http://127.0.0.1:4173",
       },
     },
     {
@@ -38,7 +41,7 @@ export default defineConfig({
       reuseExistingServer: false,
       env: {
         ...process.env,
-        VITE_API_URL: "http://127.0.0.1:3001",
+        VITE_API_PROXY_TARGET: "http://127.0.0.1:3001",
       },
     },
   ],
@@ -51,7 +54,7 @@ function isolatedE2eDatabaseUrl() {
   }
 
   const url = new URL(configuredUrl);
-  url.searchParams.set("schema", "lab2_e2e");
+  url.searchParams.set("schema", "lab3_e2e");
   return url.toString();
 }
 

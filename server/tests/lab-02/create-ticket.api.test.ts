@@ -11,7 +11,7 @@ const transaction = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({
   getPrisma: () => ({
-    requester: { findFirst: requesterFindFirst },
+    user: { findFirst: requesterFindFirst },
     category: { findFirst: categoryFindFirst },
     relatedSystem: { findFirst: relatedSystemFindFirst },
     ticket: { findUnique: ticketFindUnique },

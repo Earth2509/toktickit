@@ -5,7 +5,7 @@ Intended peer reviewer: SITTIJED JANTARATAEME, 67070501046, @Nuggetkub.
 
 ## Current record
 
-Engineering contract: [Issue #34](https://github.com/Earth2509/toktickit/issues/34), [PR #35](https://github.com/Earth2509/toktickit/pull/35), feature/lab3-engineering-contract -> lab3-staging. Reviewer @Nuggetkub requested changes on commit 6392536 in [review 5181355623](https://github.com/Earth2509/toktickit/pull/35#pullrequestreview-5181355623). The linked GitHub timeline is the authoritative review timestamp. No approval or merge is recorded; the corrections below await re-review. Prior Lab 2 approvals do not approve this increment.
+Engineering contract: [Issue #34](https://github.com/Earth2509/toktickit/issues/34), [PR #35](https://github.com/Earth2509/toktickit/pull/35), feature/lab3-engineering-contract -> lab3-staging. Reviewer @Nuggetkub requested changes on commit 6392536 in [review 5181355623](https://github.com/Earth2509/toktickit/pull/35), reviewed the correction commit `cf87b96`, approved it, and merged it into `lab3-staging` as `d819957` on 2026-09-12. The linked GitHub timeline is authoritative for the exact review and merge timestamps. The next dependent feature requires its own Issue, PR, approval and merge; this acceptance does not pre-approve later implementation work.
 
 ## Response to the first review (2026-09-12)
 
@@ -19,7 +19,7 @@ Engineering contract: [Issue #34](https://github.com/Earth2509/toktickit/issues/
 
 Also completed error-code enumeration, switched discussion to newest-first/page1 after posting, repaired BR-15 wording and added the real PR links. Clarified that the last-active-Admin transaction uses an exclusive common advisory lock, so concurrent safety checks cannot both pass independently.
 
-Validation: documentation-only consistency and traceability checks; runtime tests remain Planned. No claim is made that the authentication, migration, UI or API changes have been implemented or executed.
+Validation: documentation-only consistency and traceability checks; runtime tests remained Planned when this contract PR was reviewed. No runtime test result is attributed to the reviewer.
 
 ## Required fields per completed review
 

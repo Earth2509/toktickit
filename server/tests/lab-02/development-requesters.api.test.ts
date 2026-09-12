@@ -6,7 +6,7 @@ const relatedSystemFindMany = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({
   getPrisma: () => ({
-    requester: { findMany: requesterFindMany },
+    user: { findMany: requesterFindMany },
     relatedSystem: { findMany: relatedSystemFindMany },
   }),
 }));
