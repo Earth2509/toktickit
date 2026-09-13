@@ -51,7 +51,7 @@ function mockApi(ticketHandler: (url: URL) => MockResponse = (url) => {
   return ticketResponse(requesterId === "2" ? [busabaTicket] : [ananTicket]);
 }) {
   const fetchMock = vi.fn((input: RequestInfo | URL) => {
-    const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url);
+    const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost");
 
     if (url.pathname === "/api/requesters") return Promise.resolve(response(requesters));
     if (url.pathname === "/api/categories") return Promise.resolve(response(categories));
@@ -84,7 +84,7 @@ describe("My Tickets", () => {
 
     await waitFor(() => {
       const ticketUrl = fetchMock.mock.calls
-        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url))
+        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost"))
         .find((url) => url.pathname === "/api/tickets");
       expect(ticketUrl?.searchParams.get("requesterId")).toBe("1");
       expect(ticketUrl?.searchParams.get("sortBy")).toBe("createdAt");
@@ -105,7 +105,7 @@ describe("My Tickets", () => {
 
     await waitFor(() => {
       const ticketUrls = fetchMock.mock.calls
-        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url))
+        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost"))
         .filter((url) => url.pathname === "/api/tickets");
       const latest = ticketUrls.at(-1)!;
       expect(latest.searchParams.get("search")).toBe("battery");
@@ -119,7 +119,7 @@ describe("My Tickets", () => {
     fireEvent.click(screen.getByRole("button", { name: "Clear filters" }));
     await waitFor(() => {
       const ticketUrls = fetchMock.mock.calls
-        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url))
+        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost"))
         .filter((url) => url.pathname === "/api/tickets");
       expect(ticketUrls.at(-1)?.searchParams.get("search")).toBeNull();
       expect(screen.getByLabelText("Search tickets")).toHaveValue("");
@@ -132,7 +132,7 @@ describe("My Tickets", () => {
     await openMyTickets();
     await screen.findByText("TT-2026-000042");
     const ticketCallCount = () => fetchMock.mock.calls
-      .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url))
+      .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost"))
       .filter((url) => url.pathname === "/api/tickets").length;
 
     fireEvent.change(screen.getByLabelText("Search tickets"), { target: { value: "l" } });
@@ -158,7 +158,7 @@ describe("My Tickets", () => {
 
     await waitFor(() => {
       const ticketUrls = fetchMock.mock.calls
-        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url))
+        .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost"))
         .filter((url) => url.pathname === "/api/tickets");
       expect(ticketUrls.at(-1)?.searchParams.get("sortBy")).toBe("createdAt");
       expect(ticketUrls.at(-1)?.searchParams.get("sortOrder")).toBe("desc");
@@ -203,7 +203,7 @@ describe("My Tickets", () => {
 
     expect(await screen.findByText("No Tickets have been created for this Requester yet.")).toBeInTheDocument();
     const ticketCallCount = () => fetchMock.mock.calls
-      .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url))
+      .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost"))
       .filter((url) => url.pathname === "/api/tickets").length;
     expect(ticketCallCount()).toBe(1);
 

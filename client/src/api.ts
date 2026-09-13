@@ -1,5 +1,3 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
-
 export type Category = {
   id: number;
   name: string;
@@ -108,10 +106,11 @@ export async function createTicket(input: CreateTicketInput): Promise<Ticket> {
   let response: Response;
 
   try {
-    response = await fetch(API_BASE_URL + "/api/tickets", {
+    response = await fetch("/api/tickets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
+      credentials: "same-origin",
     });
   } catch {
     throw new TicketApiError("Unable to create the Ticket. Please try again.");
@@ -150,7 +149,7 @@ export async function fetchTickets(query: TicketListQuery): Promise<TicketListRe
   let response: Response;
 
   try {
-    response = await fetch(`${API_BASE_URL}/api/tickets?${parameters.toString()}`);
+    response = await fetch(`/api/tickets?${parameters.toString()}`, { credentials: "same-origin" });
   } catch {
     throw new TicketApiError("Unable to load Tickets. Please retry.");
   }
@@ -191,7 +190,9 @@ export async function removeTicketAttachment(ticketId: number, attachmentId: num
 export async function downloadTicketAttachment(ticketId: number, attachmentId: number, requesterId: number, filename: string): Promise<void> {
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}/api/tickets/${ticketId}/attachments/${attachmentId}/download?requesterId=${requesterId}`);
+    response = await fetch(`/api/tickets/${ticketId}/attachments/${attachmentId}/download?requesterId=${requesterId}`, {
+      credentials: "same-origin",
+    });
   } catch {
     throw new TicketApiError("Unable to download the attachment. Please retry.");
   }
@@ -209,7 +210,7 @@ export async function downloadTicketAttachment(ticketId: number, attachmentId: n
 async function ticketRequest<T>(path: string, fallbackMessage: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(API_BASE_URL + path, init);
+    response = await fetch(path, { ...init, credentials: "same-origin" });
   } catch {
     throw new TicketApiError(fallbackMessage);
   }
@@ -228,7 +229,7 @@ async function fetchReferenceData<T>(path: string, errorMessage: string): Promis
   let response: Response;
 
   try {
-    response = await fetch(API_BASE_URL + path);
+    response = await fetch(path, { credentials: "same-origin" });
   } catch {
     throw new Error(errorMessage);
   }

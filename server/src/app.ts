@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -14,9 +13,17 @@ import {
 } from "./attachments.js";
 import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
+import {
+  changePassword,
+  currentUser,
+  login,
+  logout,
+  requireAuthenticatedUser,
+  requireCsrfToken,
+  requireTrustedOrigin,
+} from "./auth.js";
 
 export const app = express();
-app.use(cors());
 app.use(express.json());
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: maximumAttachmentBytes } });
@@ -38,6 +45,20 @@ const ticketDetailInclude = {
   attachments: { orderBy: { createdAt: "desc" as const }, select: attachmentSelect },
 };
 app.get("/api/health", (_req, res) => res.status(200).json({ status: "ok", service: "TokTickIT API" }));
+
+// These routes intentionally remain the only authenticated API surface in this
+// foundation change. Issue 3 moves the legacy Lab 2 resource routes to the
+// session identity at the same time as it replaces the requester selector UI.
+app.post("/api/auth/login", requireTrustedOrigin, asyncHandler(login));
+app.get("/api/auth/me", asyncHandler(requireAuthenticatedUser), asyncHandler(currentUser));
+app.post(
+  "/api/auth/change-password",
+  requireTrustedOrigin,
+  asyncHandler(requireAuthenticatedUser),
+  requireCsrfToken,
+  asyncHandler(changePassword),
+);
+app.post("/api/auth/logout", requireTrustedOrigin, asyncHandler(logout));
 
 app.get("/api/categories", async (_req, res) => {
   try {
@@ -67,8 +88,10 @@ app.get("/api/related-systems", async (_req, res) => {
 
 app.get("/api/requesters", async (_req, res) => {
   try {
-    const requesters = await getPrisma().requester.findMany({
-      where: { isActive: true },
+    const requesters = await getPrisma().user.findMany({
+      // Temporary Lab 2 compatibility only. The User table now also contains
+      // privileged accounts, so the legacy selector must never enumerate them.
+      where: { isActive: true, role: "REQUESTER" },
       orderBy: { displayName: "asc" },
       select: { id: true, displayName: true, email: true },
     });
@@ -110,7 +133,7 @@ app.post("/api/tickets", async (req, res) => {
     }
 
     const [requester, category, relatedSystem] = await Promise.all([
-      prisma.requester.findFirst({ where: { id: input.requesterId, isActive: true }, select: { id: true } }),
+      prisma.user.findFirst({ where: { id: input.requesterId, isActive: true }, select: { id: true } }),
       prisma.category.findFirst({ where: { id: input.categoryId, isActive: true }, select: { id: true } }),
       prisma.relatedSystem.findFirst({ where: { id: input.relatedSystemId, isActive: true }, select: { id: true } }),
     ]);
@@ -155,7 +178,7 @@ app.post("/api/tickets", async (req, res) => {
       return res.status(503).json({ message: "Ticket service is temporarily unavailable." });
     }
 
-    return res.status(500).json({ message: "Unable to complete the request" });
+    return res.status(500).json({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
   }
 });
 
@@ -169,7 +192,7 @@ app.get("/api/tickets", async (req, res) => {
   const prisma = getPrisma();
 
   try {
-    const requester = await prisma.requester.findFirst({
+    const requester = await prisma.user.findFirst({
       where: { id: query.requesterId, isActive: true },
       select: { id: true },
     });
@@ -374,11 +397,17 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
     return res.status(400).json({ message: "The attachment upload could not be processed." });
   }
 
-  return res.status(500).json({ message: "Unable to complete the request" });
+  return res.status(500).json({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
 });
 
 function isUniqueConstraintError(error: unknown): boolean {
   return errorCode(error) === "P2002";
+}
+
+function asyncHandler(handler: express.RequestHandler): express.RequestHandler {
+  return (req, res, next) => {
+    Promise.resolve(handler(req, res, next)).catch(next);
+  };
 }
 
 function isDependencyUnavailable(error: unknown): boolean {

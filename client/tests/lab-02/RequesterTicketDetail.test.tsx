@@ -54,7 +54,7 @@ function response(body: unknown, ok = true): MockResponse {
 
 function mockApi() {
   const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
-    const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url);
+    const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost");
     if (url.pathname === "/api/requesters") return Promise.resolve(response([requester]));
     if (url.pathname === "/api/categories") return Promise.resolve(response([{ id: 10, name: "Hardware" }]));
     if (url.pathname === "/api/related-systems") return Promise.resolve(response([{ id: 20, name: "Corporate Laptop" }]));

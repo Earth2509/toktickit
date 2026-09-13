@@ -7,7 +7,7 @@ const ticketFindMany = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({
   getPrisma: () => ({
-    requester: { findFirst: requesterFindFirst },
+    user: { findFirst: requesterFindFirst },
     ticket: { count: ticketCount, findMany: ticketFindMany },
   }),
 }));

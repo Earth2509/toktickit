@@ -11,7 +11,7 @@ const transaction = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({
   getPrisma: () => ({
-    requester: { findFirst: requesterFindFirst },
+    user: { findFirst: requesterFindFirst },
     category: { findFirst: categoryFindFirst },
     relatedSystem: { findFirst: relatedSystemFindFirst },
     ticket: { findUnique: ticketFindUnique },
@@ -179,7 +179,7 @@ describe("POST /api/tickets", () => {
     const response = await request(app).post("/api/tickets").send(requestBody);
 
     expect(response.status).toBe(500);
-    expect(response.body).toEqual({ message: "Unable to complete the request" });
+    expect(response.body).toEqual({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
   });
 
   it("returns 503 for an unavailable database dependency", async () => {

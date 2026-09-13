@@ -4,9 +4,12 @@ import path from "node:path";
 
 const e2eRuntimeDirectory = path.resolve("artifacts/lab-02/e2e-runtime");
 const e2eDatabaseUrl = isolatedE2eDatabaseUrl();
+const e2eApiPort = process.env.E2E_API_PORT ?? "3001";
+const e2eClientPort = process.env.E2E_CLIENT_PORT ?? "4173";
+const reuseE2eServers = process.env.E2E_REUSE_SERVERS === "true";
 
 export default defineConfig({
-  testDir: "./e2e/lab-02",
+  testDir: "./e2e",
   fullyParallel: false,
   workers: 1,
   timeout: 45_000,
@@ -14,31 +17,34 @@ export default defineConfig({
   outputDir: "artifacts/lab-02/test-results",
   reporter: [["line"], ["html", { outputFolder: "artifacts/lab-02/playwright-report", open: "never" }]],
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: `http://127.0.0.1:${e2eClientPort}`,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
   webServer: [
     {
       command: "npm run e2e:server --prefix server",
-      url: "http://127.0.0.1:3001/api/health",
+      url: `http://127.0.0.1:${e2eApiPort}/api/health`,
       timeout: 120_000,
-      reuseExistingServer: false,
+      reuseExistingServer: reuseE2eServers,
       env: {
         ...process.env,
-        PORT: "3001",
+        PORT: e2eApiPort,
         DATABASE_URL: e2eDatabaseUrl,
         ATTACHMENT_STORAGE_DIR: path.join(e2eRuntimeDirectory, "uploads"),
+        LAB3_SEED_MODE: "local",
+        AUTH_CSRF_SECRET: "lab3-e2e-only-secret-not-for-production",
+        TRUSTED_ORIGINS: `http://127.0.0.1:${e2eClientPort}`,
       },
     },
     {
-      command: "npm run dev --prefix client -- --host 127.0.0.1 --port 4173",
-      url: "http://127.0.0.1:4173",
+      command: `npm run dev --prefix client -- --host 127.0.0.1 --port ${e2eClientPort}`,
+      url: `http://127.0.0.1:${e2eClientPort}`,
       timeout: 120_000,
-      reuseExistingServer: false,
+      reuseExistingServer: reuseE2eServers,
       env: {
         ...process.env,
-        VITE_API_URL: "http://127.0.0.1:3001",
+        VITE_API_PROXY_TARGET: `http://127.0.0.1:${e2eApiPort}`,
       },
     },
   ],
@@ -51,7 +57,7 @@ function isolatedE2eDatabaseUrl() {
   }
 
   const url = new URL(configuredUrl);
-  url.searchParams.set("schema", "lab2_e2e");
+  url.searchParams.set("schema", "lab3_e2e");
   return url.toString();
 }
 

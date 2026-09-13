@@ -1,13 +1,13 @@
 # Lab 3 Planned Tests and Traceability
 
-Status: Planned before implementation. Baseline main: 30da3f2. No Lab 3 tests have run or passed in this contract PR. Paths below are intended deliverables, not claims that files already exist.
+Status: The engineering contract was merged to `lab3-staging` at `d819957`. On the authentication-foundation branch, the password/API suites and Lab 2 regressions passed, and the migration/provisioning/seed integration suite passed against the dedicated `lab3_migration_test` schema. Rows for later backlog items remain planned work, not claims that files already exist.
 
 ## Planned-test table
 
 | ID | Type | AC | What it tests and expected result | Planned automated file | Final |
 |---|---|---|---|---|---|
-| UNIT-01 | Unit | AC-01,AC-02 | Password 11/12/128/129-code-point boundaries, whitespace, Unicode, confirmation, current-password reuse; correct accept/reject and salted hash verification | server/tests/lab-03/password.test.ts | Planned |
-| API-01 | API | AC-01 | Active valid login returns safe user/cookie; unknown/null-hash/wrong password identical 401; verify dummy scrypt path uses equivalent work for unknown/null-hash; inactive wrong password generic 401, correct password 403 ACCOUNT_INACTIVE without session; no hash/token in JSON | server/tests/lab-03/auth.api.test.ts | Planned |
+| UNIT-01 | Unit | AC-01,AC-02 | Password 11/12/128/129-code-point boundaries, whitespace, Unicode, confirmation, current-password reuse; correct accept/reject and salted hash verification | server/tests/lab-03/password.test.ts | Passed |
+| API-01 | API | AC-01 | Active valid login returns safe user/cookie; unknown/null-hash/wrong password identical 401; verify dummy scrypt path uses equivalent work for unknown/null-hash; inactive wrong password generic 401, correct password 403 ACCOUNT_INACTIVE without session; no hash/token in JSON | server/tests/lab-03/auth.api.test.ts | Passed |
 | API-02 | API | AC-01 | Sixth email failure and address threshold return 429 with Retry-After; expiry restores attempts; unknown accounts counted | server/tests/lab-03/auth.api.test.ts | Planned |
 | API-03 | API | AC-02 | Pending sessions can use me/change/logout only; business routes deny until valid change; wrong current password returns 422 fieldErrors.currentPassword and preserves session/gate; 5 failures per user/30 per address across sessions then 429, expiry restores access | server/tests/lab-03/auth.api.test.ts | Planned |
 | API-04 | API/integration | AC-03 | Expiry/logout/reset/role change/deactivation revoke sessions; password change rotates token; cookie clearing alone is not sufficient | server/tests/lab-03/auth.api.test.ts | Planned |
@@ -16,7 +16,7 @@ Status: Planned before implementation. Baseline main: 30da3f2. No Lab 3 tests ha
 | API-07 | API | AC-04,AC-07 | Lab 2 creation/numbering/reference validation/idempotency remain correct under login; reused key by other owner returns 409 without data | server/tests/lab-03/requester-regression.api.test.ts | Planned |
 | API-08 | API/integration | AC-07 | Valid upload/download/removal; MIME,size,count,association,removed download; upload/removal allowed on RESOLVED but denied CLOSED/CANCELLED per status table; file/metadata consistency | server/tests/lab-03/requester-regression.api.test.ts | Planned |
 | DB-01 | Migration/integration | AC-06 | Migrate disposable populated Lab 2 DB: same IDs/numbers/ownership/removal references/file checksums, copied IT priority, no data loss | server/tests/lab-03/migration.test.ts | Planned |
-| DB-02 | Migration/integration | AC-06 | Email collision preflight stops safely; provision/seed twice does not duplicate or overwrite passwords/edits; documented demo accounts/default and environment override work on new fixtures only; reject production defaults; never apply demo default to migrated users | server/tests/lab-03/migration.test.ts | Planned |
+| DB-02 | Migration/integration | AC-06 | Email collision preflight stops safely; provision/seed twice does not duplicate or overwrite passwords/edits; documented demo accounts/default and environment override work on new fixtures only; reject production defaults; never apply demo default to migrated users | server/tests/lab-03/migration.test.ts | Passed |
 | API-09 | API | AC-08 | Search match/no match; each/combined filter; severity/status/tie ordering; page1/last/beyond; totals and invalid parameters | server/tests/lab-03/staff-queue.api.test.ts | Planned |
 | API-10 | API/integration | AC-09 | Parameterize owner/claim policy for all statuses: null only NEW/REOPENED, active-work manual null denied, terminal edits denied; repair BR-20 unassigned exception; inactive/wrong-role rejection; concurrent claims one winner/event | server/tests/lab-03/staff-ticket-detail.api.test.ts | Planned |
 | API-11 | API | AC-10 | IT priority backfill/create equality, immutable requested priority; edit in each nonterminal status and deny RESOLVED/CLOSED/CANCELLED per status table; role denial | server/tests/lab-03/staff-ticket-detail.api.test.ts | Planned |
@@ -34,11 +34,13 @@ Status: Planned before implementation. Baseline main: 30da3f2. No Lab 3 tests ha
 | UI-06 | UI | AC-07,AC-12,AC-13 | Requester regression, public comments, indication confirmation and no internal note DOM/content | client/tests/lab-03/RequesterRegression.test.tsx | Planned |
 | UI-07 | UI | AC-14,AC-15,AC-16 | Users create/edit/search/role-filter/reset; All roles omits parameter, combine search/role, clear both, no matches; validation/safety/forbidden/success, retained fields after failure | client/tests/lab-03/UserManagement.test.tsx | Planned |
 | STYLE-01 | UI style | AC-16 | Shared tokens, badges, readable read-only fields, focus/error placement | client/tests/lab-03/ZenGreen.test.tsx | Planned |
-| E2E-01 | E2E | AC-01,AC-02,AC-03 | Real login initial change, role landing, mutation/logout and direct route/API denial through relative /api proxy; local localhost:5173->3000 and E2E 127.0.0.1:4173->3001 cookie/Origin forwarding verified; no direct VITE_API_URL fallback | e2e/lab-03/authentication.spec.ts | Planned |
+| E2E-01 | E2E | AC-01,AC-02,AC-03 | Real login initial change, role landing, mutation/logout and direct route/API denial through relative /api proxy; local localhost:5173->3000 and E2E 127.0.0.1:4173->3001 cookie/Origin forwarding verified; no direct VITE_API_URL fallback | e2e/lab-03/authentication-foundation.spec.ts, followed by the Issue 3 UI flow | Planned |
 | E2E-02 | E2E | AC-08,AC-09,AC-10,AC-11,AC-12,AC-13 | Real staff claim/priority/progress/public/internal exchange; Requester indication becomes visible with author/time in Staff Detail and queue marker before explicit staff resolution/close | e2e/lab-03/staff-ticket-flow.spec.ts | Planned |
 | E2E-03 | E2E | AC-14,AC-15 | Admin create/edit/reset; target must change password; non-Admin forbidden and safety rejection | e2e/lab-03/user-administration.spec.ts | Planned |
 | E2E-04 | E2E/regression | AC-04,AC-05,AC-07 | Authenticated Requester create/attachments/search/detail; second Requester direct ticket/file denial, no internal notes | e2e/lab-03/requester-regression.spec.ts | Planned |
 | E2E-05 | Responsive/accessibility | AC-16 | All major screens at 1440x900,820x1180,390x844; keyboard, focus, labels, long data, no overflow/overlap; screenshots | e2e/lab-03/responsive.spec.ts | Planned |
+
+The Final column deliberately contains only `Planned` or `Passed`. The foundation run on commit `f99687e` completed UNIT-01, API-01 and DB-02. It also passed the already-implemented subsets of API-02 through API-04, DB-01 and E2E-01, but those rows remain `Planned` until every scenario named in the row is implemented and executed. The correction for PR #37 adds a real-database requester-directory assertion to the separately invoked migration suite; its result is recorded in the PR rather than retroactively changing the earlier commit evidence.
 
 ## AC-to-test matrix
 
@@ -65,6 +67,21 @@ Status: Planned before implementation. Baseline main: 30da3f2. No Lab 3 tests ha
 
 Use TDD for meaningful security/workflow changes: establish failing test, implement, refactor, record the actual commands/outcomes in its PR. Run database/transaction/migration tests against an explicitly disposable test database, never development data. Mocked service tests alone cannot prove migration/concurrency guarantees. Keep existing Lab 1/2 regression suites; replace only tests specific to deliberately retired development identity with authenticated equivalents and explain changes.
 
-Existing commands: `npm test` in server and client; `npm run e2e` at repository root. Add migration/integration runner configuration in the foundation issue so the required DB tests are included or have an explicit additional command. Final main evidence includes every command, commit SHA, branch, exit code, full raw output and actual discovered file/test totals. Do not infer counts from planned rows, transcribe fake terminal output, or mark Planned as Passed before execution. No test totals are asserted here.
+Existing commands: `npm test` in server and client; `npm run e2e` at repository root. The foundation adds `npm run test:migration` in `server`; it requires `MIGRATION_TEST_DATABASE_URL` whose PostgreSQL URL explicitly names only the disposable `lab3_migration_test` schema. Final main evidence includes every command, commit SHA, branch, exit code, full raw output and actual discovered file/test totals. Do not infer counts from planned rows, transcribe fake terminal output, or mark Planned as Passed before execution. No test totals are asserted here.
+
+## Authentication-foundation execution evidence
+
+Executed on `feature/lab3-auth-foundation` immediately before the correction commit:
+
+| Command | Actual result |
+|---|---|
+| `cd server && npm run build` | Passed |
+| `cd server && npm test` | 12 test files passed; 51 tests passed; the separately invoked migration file was skipped in this command |
+| `cd server && npm run test:migration` | 1 file and 2 integration tests passed against only `lab3_migration_test` |
+| `cd client && npm test` | 6 files and 20 tests passed |
+| `cd client && npm run build` | TypeScript and Vite production build passed |
+| `npm run e2e` | 6 browser tests passed using the isolated `lab3_e2e` schema: 5 Lab 2 regressions and 1 Lab 3 same-origin authentication-foundation scenario |
+
+The E2E result proves that the foundation did not break the existing requester flow and relative `/api` proxy. It does not replace the planned Lab 3 authentication E2E tests, which belong to the next dependent backlog work.
 
 Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store output in artifacts/lab-03/test-output and screenshots in the UI contract folders. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include all relevant output, not just a summary count.

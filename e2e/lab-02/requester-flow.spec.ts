@@ -1,6 +1,6 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
-const requesterA = "Anan Chaiyasit";
+const requesterA = "Aree Chaiyasit";
 const requesterB = "Busaba Wattanakul";
 
 test("Requester can create, find, inspect, and soft-remove a real attachment", async ({ page }) => {
@@ -106,7 +106,7 @@ async function completeTicketForm(page: Page, summary: string) {
 
 async function openTicketDetail(page: Page, summary: string) {
   await expect(page.getByText(summary, { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "View details" }).click();
+  await page.getByRole("row").filter({ hasText: summary }).getByRole("button", { name: "View details" }).click();
   await expect(page.getByRole("heading", { name: "Ticket Detail" })).toBeVisible();
   await expect(page.getByText(summary, { exact: true })).toBeVisible();
 }
