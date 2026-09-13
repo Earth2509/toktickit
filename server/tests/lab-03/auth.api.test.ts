@@ -206,7 +206,7 @@ describe("Lab 3 authentication API", () => {
       .get("/api/auth/me")
       .set("Cookie", "toktickit_session=opaque-test-token")
       .expect(500)
-      .expect({ message: "Unable to complete the request" });
+      .expect({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
   });
 });
 

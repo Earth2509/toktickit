@@ -1,8 +1,10 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { PrismaClient } from "@prisma/client";
+import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
 import { seedDatabase } from "../../prisma/seed-data.js";
+import { app } from "../../src/app.js";
 import { verifyPassword } from "../../src/auth.js";
 import { provisionMigratedUser } from "../../src/provisioning.js";
 
@@ -72,6 +74,22 @@ describe.skipIf(!testUrl)("Lab 3 requester-to-user migration", () => {
     const seededFixture = await prisma.user.findUnique({ where: { email: "requester1@example.test" } });
     expect(seededFixture).toMatchObject({ mustChangePassword: true, role: "REQUESTER", isActive: true });
     expect((await prisma.user.findUnique({ where: { id: 41 } }))?.passwordHash).toBe(originalProvisionedHash);
+
+    process.env.DATABASE_URL = testUrl!;
+    const requesterDirectory = await request(app).get("/api/requesters");
+    expect(requesterDirectory.status).toBe(200);
+    expect(requesterDirectory.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ email: "migrated@example.test" }),
+        expect.objectContaining({ email: "requester1@example.test" }),
+      ]),
+    );
+    expect(requesterDirectory.body).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ email: "staff1@example.test" }),
+        expect.objectContaining({ email: "admin@example.test" }),
+      ]),
+    );
 
     await prisma.user.update({ where: { id: seededFixture!.id }, data: { isActive: false, passwordHash: "preserved-local-test-hash" } });
     await runSeed(prisma);

@@ -5,7 +5,7 @@ Intended peer reviewer: SITTIJED JANTARATAEME, 67070501046, @Nuggetkub.
 
 ## Current record
 
-Engineering contract: [Issue #34](https://github.com/Earth2509/toktickit/issues/34), [PR #35](https://github.com/Earth2509/toktickit/pull/35), feature/lab3-engineering-contract -> lab3-staging. Reviewer @Nuggetkub requested changes on commit 6392536 in [review 5181355623](https://github.com/Earth2509/toktickit/pull/35), reviewed the correction commit `cf87b96`, approved it, and merged it into `lab3-staging` as `d819957` on 2026-09-12. The linked GitHub timeline is authoritative for the exact review and merge timestamps. The next dependent feature requires its own Issue, PR, approval and merge; this acceptance does not pre-approve later implementation work.
+Engineering contract: [Issue #34](https://github.com/Earth2509/toktickit/issues/34), [PR #35](https://github.com/Earth2509/toktickit/pull/35), feature/lab3-engineering-contract -> lab3-staging. Reviewer @Nuggetkub requested changes on commit 6392536 in [review 5181355623](https://github.com/Earth2509/toktickit/pull/35#pullrequestreview-5181355623), reviewed the correction commit `cf87b96`, approved it, and merged it into `lab3-staging` as `d819957` on 2026-09-12. The linked GitHub timeline is authoritative for the exact review and merge timestamps. The next dependent feature requires its own Issue, PR, approval and merge; this acceptance does not pre-approve later implementation work.
 
 ## Response to the first review (2026-09-12)
 
@@ -20,6 +20,16 @@ Engineering contract: [Issue #34](https://github.com/Earth2509/toktickit/issues/
 Also completed error-code enumeration, switched discussion to newest-first/page1 after posting, repaired BR-15 wording and added the real PR links. Clarified that the last-active-Admin transaction uses an exclusive common advisory lock, so concurrent safety checks cannot both pass independently.
 
 Validation: documentation-only consistency and traceability checks; runtime tests remained Planned when this contract PR was reviewed. No runtime test result is attributed to the reviewer.
+
+## Response to the authentication-foundation review (2026-09-13)
+
+1. Restricted the temporary Lab 2 `GET /api/requesters` compatibility route to active `REQUESTER` users, preventing anonymous enumeration of IT Staff and Administrator accounts.
+2. Added a real-Prisma, disposable-schema regression assertion after migration and seed; it proves privileged fixture accounts are absent from the endpoint response.
+3. Reconciled `api-spec.md` with the intentionally short-lived compatibility boundary; the following login/UI increment removes the route entirely.
+4. Added startup validation that names missing `DATABASE_URL` and `AUTH_CSRF_SECRET` values before the server begins listening.
+5. Aligned unexpected 500 responses with the documented `{ code, message }` error DTO.
+6. Restored `tests.md` Final values to only `Planned` or `Passed`, and moved partial-run qualifications into a commit-specific note.
+7. Corrected the engineering-contract review anchor and the recorded AI-prompt count.
 
 ## Required fields per completed review
 

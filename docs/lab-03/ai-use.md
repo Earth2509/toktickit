@@ -11,8 +11,9 @@ Status: Living record started before implementation. Tool: OpenAI Codex. This se
 | P-03 | "มีแก้ไข" ("There are requested changes") | Read @Nuggetkub's actual PR #35 review and revise role filtering, status policy, staff indication visibility, authentication feedback/limits, proxy transport and reproducible demo provisioning across the contract. |
 | P-04 | "Approve และ Mergeแล้ว" ("Approved and merged") | Confirm that the reviewed engineering contract is accepted into `lab3-staging` before starting its dependent authentication foundation. |
 | P-05 | "เริ่มทำส่วนถัดไปได้" ("You can start the next part") | Implement the scoped User migration, session/auth API, local-only fixtures, same-origin proxy transport and initial automated tests on a separate feature branch. |
+| P-06 | "มีแก้ไข" ("There are requested changes") | Inspect the substantive review on PR #37, prevent the legacy requester directory from exposing privileged accounts, add real-database regression coverage, and reconcile runtime safeguards and documentation. |
 
-English translations above describe the actual Thai prompts; they are not presented as original English quotations. The final submission requires 6-10 selected real prompts. Only three are recorded so far. Add genuine later implementation/review/verification prompts as the sprint progresses; do not fabricate historical prompts to meet the count.
+English translations above describe the actual Thai prompts; they are not presented as original English quotations. Six genuine prompts are recorded so far, which meets the required 6-10 example range. Add only genuine later prompts when they materially improve the final evidence; do not fabricate historical prompts.
 
 ## Specification-agent contribution
 

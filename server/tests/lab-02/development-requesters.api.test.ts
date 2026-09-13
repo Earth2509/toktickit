@@ -31,7 +31,7 @@ describe("Lab 2 active reference APIs", () => {
     expect(response.body).toHaveLength(2);
     expect(response.body[0]).not.toHaveProperty("isActive");
     expect(requesterFindMany).toHaveBeenCalledWith({
-      where: { isActive: true },
+      where: { isActive: true, role: "REQUESTER" },
       orderBy: { displayName: "asc" },
       select: { id: true, displayName: true, email: true },
     });

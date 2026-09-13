@@ -89,7 +89,9 @@ app.get("/api/related-systems", async (_req, res) => {
 app.get("/api/requesters", async (_req, res) => {
   try {
     const requesters = await getPrisma().user.findMany({
-      where: { isActive: true },
+      // Temporary Lab 2 compatibility only. The User table now also contains
+      // privileged accounts, so the legacy selector must never enumerate them.
+      where: { isActive: true, role: "REQUESTER" },
       orderBy: { displayName: "asc" },
       select: { id: true, displayName: true, email: true },
     });
@@ -176,7 +178,7 @@ app.post("/api/tickets", async (req, res) => {
       return res.status(503).json({ message: "Ticket service is temporarily unavailable." });
     }
 
-    return res.status(500).json({ message: "Unable to complete the request" });
+    return res.status(500).json({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
   }
 });
 
@@ -395,7 +397,7 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
     return res.status(400).json({ message: "The attachment upload could not be processed." });
   }
 
-  return res.status(500).json({ message: "Unable to complete the request" });
+  return res.status(500).json({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
 });
 
 function isUniqueConstraintError(error: unknown): boolean {
