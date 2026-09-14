@@ -98,6 +98,30 @@ export const requireAuthenticatedUser: RequestHandler = async (req, res, next) =
   next();
 };
 
+export const requirePasswordChangeComplete: RequestHandler = (_req, res, next) => {
+  const context = res.locals.auth as AuthContext | undefined;
+  if (!context) return sendError(res, 401, "UNAUTHENTICATED", "Your session is no longer valid.");
+  if (context.user.mustChangePassword) {
+    return sendError(res, 403, "PASSWORD_CHANGE_REQUIRED", "Change your initial password before continuing.");
+  }
+  next();
+};
+
+export function requireRole(...roles: UserRole[]): RequestHandler {
+  return (_req, res, next) => {
+    const context = res.locals.auth as AuthContext | undefined;
+    if (!context) return sendError(res, 401, "UNAUTHENTICATED", "Your session is no longer valid.");
+    if (!roles.includes(context.user.role)) {
+      return sendError(res, 403, "FORBIDDEN", "You do not have permission to perform this action.");
+    }
+    next();
+  };
+}
+
+export function authenticatedUser(res: Response): SafeUser {
+  return (res.locals.auth as AuthContext).user;
+}
+
 export const requireCsrfToken: RequestHandler = (req, res, next) => {
   const context = res.locals.auth as AuthContext | undefined;
   if (!context || !isValidCsrfToken(req.get("x-csrf-token"), context.tokenHash)) {

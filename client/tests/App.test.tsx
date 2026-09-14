@@ -7,11 +7,11 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-function mockRequesterResponse(body: unknown, ok = true) {
+function mockSessionResponse(body: unknown, ok = true) {
   vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
 
-    if (url.endsWith("/api/requesters")) {
+    if (url.endsWith("/api/auth/me")) {
       return Promise.resolve({ ok, json: async () => body });
     }
 
@@ -20,11 +20,12 @@ function mockRequesterResponse(body: unknown, ok = true) {
 }
 
 describe("TokTickIT application shell", () => {
-  it("renders the Development Requester selector", async () => {
-    mockRequesterResponse([]);
+  it("renders the public Login without the retired Development Requester selector", async () => {
+    mockSessionResponse({ code: "UNAUTHENTICATED" }, false);
     render(<App />);
 
-    expect(screen.getByRole("heading", { name: "Development Requester Selection" })).toBeInTheDocument();
-    expect(await screen.findByText("No active Development Requesters are available.")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Sign in to TokTickIT" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("Development Requester")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Email address")).toHaveAttribute("autocomplete", "username");
   });
 });

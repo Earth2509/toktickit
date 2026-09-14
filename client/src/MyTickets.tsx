@@ -82,7 +82,6 @@ export default function MyTickets({ requester, onCreateTicket, onViewTicket }: M
     setResults(null);
 
     void fetchTickets({
-      requesterId: requester.id,
       search: filters.search,
       categoryId: filters.categoryId ? Number(filters.categoryId) : undefined,
       relatedSystemId: filters.relatedSystemId ? Number(filters.relatedSystemId) : undefined,

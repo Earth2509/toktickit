@@ -1,6 +1,6 @@
 # Lab 3 Planned Tests and Traceability
 
-Status: The engineering contract was merged to `lab3-staging` at `d819957`. On the authentication-foundation branch, the password/API suites and Lab 2 regressions passed, and the migration/provisioning/seed integration suite passed against the dedicated `lab3_migration_test` schema. Rows for later backlog items remain planned work, not claims that files already exist.
+Status: The engineering contract and authentication foundation are merged into `lab3-staging`. Issue #38 adds authenticated resource authorization, Login/change-password UI, removal of the development Requester selector and authenticated Lab 2 regression coverage. Verified subsets are recorded below; rows that include later Staff/Admin behavior remain Planned.
 
 ## Planned-test table
 
@@ -69,19 +69,19 @@ Use TDD for meaningful security/workflow changes: establish failing test, implem
 
 Existing commands: `npm test` in server and client; `npm run e2e` at repository root. The foundation adds `npm run test:migration` in `server`; it requires `MIGRATION_TEST_DATABASE_URL` whose PostgreSQL URL explicitly names only the disposable `lab3_migration_test` schema. Final main evidence includes every command, commit SHA, branch, exit code, full raw output and actual discovered file/test totals. Do not infer counts from planned rows, transcribe fake terminal output, or mark Planned as Passed before execution. No test totals are asserted here.
 
-## Authentication-foundation execution evidence
+## Issue #38 feature-branch execution evidence
 
-Executed on `feature/lab3-auth-foundation` immediately before the correction commit:
+Executed on `feature/lab3-auth-requester-regression` before the review commit. Database runs used only the named disposable schemas.
 
 | Command | Actual result |
 |---|---|
-| `cd server && npm run build` | Passed |
-| `cd server && npm test` | 12 test files passed; 51 tests passed; the separately invoked migration file was skipped in this command |
+| `cd server && npm run build` | Passed; TypeScript also compiles the E2E preparation script |
+| `cd server && npm test` | 9 files passed and 1 migration file skipped; 32 tests passed and 2 migration tests skipped |
 | `cd server && npm run test:migration` | 1 file and 2 integration tests passed against only `lab3_migration_test` |
-| `cd client && npm test` | 6 files and 20 tests passed |
+| `cd client && npm test` | 6 files and 22 tests passed |
 | `cd client && npm run build` | TypeScript and Vite production build passed |
-| `npm run e2e` | 6 browser tests passed using the isolated `lab3_e2e` schema: 5 Lab 2 regressions and 1 Lab 3 same-origin authentication-foundation scenario |
+| `npx playwright test` with the isolated server/client already running | 6 browser tests passed in 10.6 seconds against `lab3_e2e`: five authenticated Requester regressions and one same-origin authentication scenario |
 
-The E2E result proves that the foundation did not break the existing requester flow and relative `/api` proxy. It does not replace the planned Lab 3 authentication E2E tests, which belong to the next dependent backlog work.
+The E2E result proves the real Login and mandatory initial-password flow, session-derived Requester ownership, ticket/attachment regression, responsive screens, same-origin cookie/CSRF transport and logout revocation. The Windows runner required prestarted servers because its supervised child-process cleanup did not terminate reliably; the application assertions themselves completed with exit code 0. Later Staff/Admin E2E rows remain Planned.
 
 Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store output in artifacts/lab-03/test-output and screenshots in the UI contract folders. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include all relevant output, not just a summary count.

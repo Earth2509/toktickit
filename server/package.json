@@ -6,13 +6,13 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "prisma:validate": "prisma validate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:provision-user": "tsx scripts/provision-user.ts",
-    "e2e:prepare": "tsx scripts/prepare-e2e.ts",
-    "e2e:server": "npm run e2e:prepare && tsx src/index.ts",
+    "e2e:prepare": "npm run build --silent && node dist/scripts/prepare-e2e.js",
+    "e2e:server": "npm run e2e:prepare && node dist/src/index.js",
     "test": "vitest run",
     "test:migration": "vitest run tests/lab-03/migration.test.ts"
   },

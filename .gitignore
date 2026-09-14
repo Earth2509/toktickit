@@ -21,6 +21,7 @@ artifacts/lab-02/playwright-report/
 artifacts/lab-03/e2e-runtime/
 artifacts/lab-03/test-results/
 artifacts/lab-03/playwright-report/
+test-results/
 # logs & OS
 *.log
 .DS_Store

@@ -3,8 +3,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App";
 
 const requesters = [
-  { id: 1, displayName: "Anan Chaiyasit", email: "anan.chaiyasit@toktickit.local" },
-  { id: 2, displayName: "Busaba Wattanakul", email: "busaba.wattanakul@toktickit.local" },
+  { id: 1, displayName: "Anan Chaiyasit", email: "anan.chaiyasit@toktickit.local", role: "REQUESTER", isActive: true, mustChangePassword: false },
+  { id: 2, displayName: "Busaba Wattanakul", email: "busaba.wattanakul@toktickit.local", role: "REQUESTER", isActive: true, mustChangePassword: false },
 ];
 
 const categories = [{ id: 10, name: "Hardware" }];
@@ -46,14 +46,11 @@ function ticketResponse(items: unknown[], page = 1, totalPages = 1, totalItems =
   return response({ items, page, pageSize: 10, totalItems, totalPages });
 }
 
-function mockApi(ticketHandler: (url: URL) => MockResponse = (url) => {
-  const requesterId = url.searchParams.get("requesterId");
-  return ticketResponse(requesterId === "2" ? [busabaTicket] : [ananTicket]);
-}) {
+function mockApi(ticketHandler: (url: URL) => MockResponse = () => ticketResponse([ananTicket])) {
   const fetchMock = vi.fn((input: RequestInfo | URL) => {
     const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost");
 
-    if (url.pathname === "/api/requesters") return Promise.resolve(response(requesters));
+    if (url.pathname === "/api/auth/me") return Promise.resolve(response({ user: requesters[0], csrfToken: "csrf", expiresAt: "2026-09-14T00:00:00.000Z" }));
     if (url.pathname === "/api/categories") return Promise.resolve(response(categories));
     if (url.pathname === "/api/related-systems") return Promise.resolve(response(relatedSystems));
     if (url.pathname === "/api/tickets") return Promise.resolve(ticketHandler(url));
@@ -64,10 +61,8 @@ function mockApi(ticketHandler: (url: URL) => MockResponse = (url) => {
   return fetchMock;
 }
 
-async function openMyTickets(requesterId = "1") {
+async function openMyTickets() {
   render(<App />);
-  fireEvent.change(await screen.findByLabelText("Development Requester"), { target: { value: requesterId } });
-  fireEvent.click(screen.getByRole("button", { name: "Continue" }));
   await screen.findByRole("heading", { name: "My Tickets" });
 }
 
@@ -86,7 +81,7 @@ describe("My Tickets", () => {
       const ticketUrl = fetchMock.mock.calls
         .map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost"))
         .find((url) => url.pathname === "/api/tickets");
-      expect(ticketUrl?.searchParams.get("requesterId")).toBe("1");
+      expect(ticketUrl?.searchParams.get("requesterId")).toBeNull();
       expect(ticketUrl?.searchParams.get("sortBy")).toBe("createdAt");
       expect(ticketUrl?.searchParams.get("sortOrder")).toBe("desc");
     });
@@ -183,18 +178,13 @@ describe("My Tickets", () => {
     expect(screen.getByText("Showing 1–10 of 15 tickets · Page 1 of 2")).toBeInTheDocument();
   });
 
-  it("clears the old requester's visible data before loading a new requester", async () => {
-    mockApi();
+  it("uses only the authenticated identity and does not expose requester switching", async () => {
+    const fetchMock = mockApi();
     await openMyTickets();
     expect(await screen.findByText("TT-2026-000042")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Change Requester" }));
-    fireEvent.change(await screen.findByLabelText("Development Requester"), { target: { value: "2" } });
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-    fireEvent.click(await screen.findByRole("button", { name: "My Tickets" }));
-
-    expect(await screen.findByText("TT-2026-000043")).toBeInTheDocument();
-    expect(screen.queryByText("TT-2026-000042")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Change Requester" })).not.toBeInTheDocument();
+    const ticketUrl = fetchMock.mock.calls.map(([input]) => new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost")).find((url) => url.pathname === "/api/tickets");
+    expect(ticketUrl?.searchParams.has("requesterId")).toBe(false);
   });
 
   it("shows the empty requester state and refreshes the current list", async () => {
@@ -212,9 +202,7 @@ describe("My Tickets", () => {
   });
 
   it("offers a safe retry message when the Ticket API is unavailable", async () => {
-    mockApi((url) => url.searchParams.get("requesterId") === "1"
-      ? { ok: false, json: async () => ({ message: "database connection failed" }) }
-      : ticketResponse([]));
+    mockApi(() => ({ ok: false, json: async () => ({ message: "database connection failed" }) }));
     await openMyTickets();
 
     const alert = await screen.findByRole("alert");

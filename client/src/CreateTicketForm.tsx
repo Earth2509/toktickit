@@ -108,7 +108,6 @@ export default function CreateTicketForm({ requester, onViewMyTickets }: CreateT
     setSubmitting(true);
     try {
       const ticket = await createTicket({
-        requesterId: requester.id,
         categoryId: Number(values.categoryId),
         relatedSystemId: Number(values.relatedSystemId),
         summary: values.summary.trim(),

@@ -21,6 +21,10 @@ Also completed error-code enumeration, switched discussion to newest-first/page1
 
 Validation: documentation-only consistency and traceability checks; runtime tests remained Planned when this contract PR was reviewed. No runtime test result is attributed to the reviewer.
 
+## Authorization and authenticated Requester regression
+
+[Issue #38](https://github.com/Earth2509/toktickit/issues/38) is implemented on `feature/lab3-auth-requester-regression` for review into `lab3-staging`. The change removes the development Requester directory/selector, derives ownership only from the authenticated session, adds role/CSRF/origin/password-completion guards, restores Login and password-change screens, and runs the existing Requester workflow through real authentication. Review evidence, requested changes, approval and merge identifiers must be appended only after they occur on GitHub.
+
 ## Response to the authentication-foundation review (2026-09-13)
 
 1. Restricted the temporary Lab 2 `GET /api/requesters` compatibility route to active `REQUESTER` users, preventing anonymous enumeration of IT Staff and Administrator accounts.

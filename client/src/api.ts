@@ -8,18 +8,29 @@ export type RelatedSystem = {
   name: string;
 };
 
-export type Requester = {
+export type UserRole = "REQUESTER" | "IT_STAFF" | "ADMINISTRATOR";
+
+export type AuthUser = {
   id: number;
   displayName: string;
   email: string;
+  role: UserRole;
+  isActive: boolean;
+  mustChangePassword: boolean;
 };
+
+export type Requester = AuthUser;
+
+export type AuthSession = { user: AuthUser; csrfToken: string; expiresAt: string };
+
+let csrfToken = "";
+export const sessionExpiredEvent = "toktickit:session-expired";
 
 export const requestedPriorities = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
 
 export type RequestedPriority = (typeof requestedPriorities)[number];
 
 export type CreateTicketInput = {
-  requesterId: number;
   categoryId: number;
   relatedSystemId: number;
   summary: string;
@@ -37,7 +48,7 @@ export type Ticket = {
   summary: string;
   description: string;
   requestedPriority: RequestedPriority;
-  currentStatus: "NEW";
+  currentStatus: "NEW" | "OPEN" | "IN_PROGRESS" | "WAITING_FOR_REQUESTER" | "RESOLVED" | "CLOSED" | "REOPENED" | "CANCELLED";
   createdAt: string;
   updatedAt: string;
 };
@@ -61,7 +72,6 @@ export type TicketDetail = Ticket & {
 export type TicketListItem = Omit<Ticket, "description">;
 
 export type TicketListQuery = {
-  requesterId: number;
   search?: string;
   categoryId?: number;
   relatedSystemId?: number;
@@ -82,12 +92,43 @@ export type TicketListResponse = {
 
 export class TicketApiError extends Error {
   fieldErrors?: Record<string, string>;
+  code?: string;
+  status?: number;
+  retryAfter?: number;
 
-  constructor(message: string, fieldErrors?: Record<string, string>) {
+  constructor(message: string, fieldErrors?: Record<string, string>, code?: string, status?: number, retryAfter?: number) {
     super(message);
     this.name = "TicketApiError";
     this.fieldErrors = fieldErrors;
+    this.code = code;
+    this.status = status;
+    this.retryAfter = retryAfter;
   }
+}
+
+export async function login(email: string, password: string): Promise<AuthSession> {
+  return authRequest("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+}
+
+export async function fetchCurrentUser(): Promise<AuthSession> {
+  return authRequest("/api/auth/me");
+}
+
+export async function changePassword(currentPassword: string, newPassword: string, confirmPassword: string): Promise<AuthSession> {
+  return authRequest("/api/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+  });
+}
+
+export async function logout(): Promise<void> {
+  const response = await fetch("/api/auth/logout", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: csrfHeaders(),
+  });
+  csrfToken = "";
+  if (!response.ok) throw await apiError(response, "Unable to sign out. Please retry.");
 }
 
 export async function fetchCategories(): Promise<Category[]> {
@@ -98,17 +139,13 @@ export async function fetchRelatedSystems(): Promise<RelatedSystem[]> {
   return fetchReferenceData<RelatedSystem[]>("/api/related-systems", "Unable to load related systems");
 }
 
-export async function fetchRequesters(): Promise<Requester[]> {
-  return fetchReferenceData<Requester[]>("/api/requesters", "Unable to load Development Requesters");
-}
-
 export async function createTicket(input: CreateTicketInput): Promise<Ticket> {
   let response: Response;
 
   try {
     response = await fetch("/api/tickets", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...csrfHeaders() },
       body: JSON.stringify(input),
       credentials: "same-origin",
     });
@@ -122,20 +159,14 @@ export async function createTicket(input: CreateTicketInput): Promise<Ticket> {
   } | null;
 
   if (!response.ok) {
-    const message = typeof payload?.message === "string"
-      ? payload.message
-      : "Unable to create the Ticket. Please try again.";
-    const fieldErrors = payload?.fieldErrors && typeof payload.fieldErrors === "object" && !Array.isArray(payload.fieldErrors)
-      ? Object.fromEntries(Object.entries(payload.fieldErrors).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
-      : undefined;
-    throw new TicketApiError(message, fieldErrors);
+    throw errorFromPayload(response, payload, "Unable to create the Ticket. Please try again.");
   }
 
   return payload as Ticket;
 }
 
 export async function fetchTickets(query: TicketListQuery): Promise<TicketListResponse> {
-  const parameters = new URLSearchParams({ requesterId: String(query.requesterId) });
+  const parameters = new URLSearchParams();
 
   if (query.search?.trim()) parameters.set("search", query.search.trim());
   if (query.categoryId) parameters.set("categoryId", String(query.categoryId));
@@ -157,21 +188,18 @@ export async function fetchTickets(query: TicketListQuery): Promise<TicketListRe
   const payload = await response.json().catch(() => null) as { message?: unknown } | null;
 
   if (!response.ok) {
-    throw new TicketApiError(
-      typeof payload?.message === "string" ? payload.message : "Unable to load Tickets. Please retry.",
-    );
+    throw errorFromPayload(response, payload, "Unable to load Tickets. Please retry.");
   }
 
   return payload as TicketListResponse;
 }
 
-export async function fetchTicket(ticketId: number, requesterId: number): Promise<TicketDetail> {
-  return ticketRequest<TicketDetail>(`/api/tickets/${ticketId}?requesterId=${requesterId}`, "Unable to load the Ticket. Please retry.");
+export async function fetchTicket(ticketId: number): Promise<TicketDetail> {
+  return ticketRequest<TicketDetail>(`/api/tickets/${ticketId}`, "Unable to load the Ticket. Please retry.");
 }
 
-export async function uploadTicketAttachment(ticketId: number, requesterId: number, file: File): Promise<Attachment> {
+export async function uploadTicketAttachment(ticketId: number, file: File): Promise<Attachment> {
   const formData = new FormData();
-  formData.set("requesterId", String(requesterId));
   formData.set("file", file);
   return ticketRequest<Attachment>(`/api/tickets/${ticketId}/attachments`, "Unable to upload the attachment. Please retry.", {
     method: "POST",
@@ -179,25 +207,25 @@ export async function uploadTicketAttachment(ticketId: number, requesterId: numb
   });
 }
 
-export async function removeTicketAttachment(ticketId: number, attachmentId: number, requesterId: number, reason: string): Promise<Attachment> {
+export async function removeTicketAttachment(ticketId: number, attachmentId: number, reason: string): Promise<Attachment> {
   return ticketRequest<Attachment>(`/api/tickets/${ticketId}/attachments/${attachmentId}/remove`, "Unable to remove the attachment. Please retry.", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ requesterId, reason }),
+    body: JSON.stringify({ reason }),
   });
 }
 
-export async function downloadTicketAttachment(ticketId: number, attachmentId: number, requesterId: number, filename: string): Promise<void> {
+export async function downloadTicketAttachment(ticketId: number, attachmentId: number, filename: string): Promise<void> {
   let response: Response;
   try {
-    response = await fetch(`/api/tickets/${ticketId}/attachments/${attachmentId}/download?requesterId=${requesterId}`, {
+    response = await fetch(`/api/tickets/${ticketId}/attachments/${attachmentId}/download`, {
       credentials: "same-origin",
     });
   } catch {
     throw new TicketApiError("Unable to download the attachment. Please retry.");
   }
 
-  if (!response.ok) throw new TicketApiError("Unable to download the attachment. Please retry.");
+  if (!response.ok) throw await apiError(response, "Unable to download the attachment. Please retry.");
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -210,19 +238,65 @@ export async function downloadTicketAttachment(ticketId: number, attachmentId: n
 async function ticketRequest<T>(path: string, fallbackMessage: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(path, { ...init, credentials: "same-origin" });
+    response = await fetch(path, { ...init, credentials: "same-origin", headers: { ...init?.headers, ...(init?.method && init.method !== "GET" ? csrfHeaders() : {}) } });
   } catch {
     throw new TicketApiError(fallbackMessage);
   }
 
   const payload = await response.json().catch(() => null) as { message?: unknown; fieldErrors?: unknown } | null;
   if (!response.ok) {
-    const fieldErrors = payload?.fieldErrors && typeof payload.fieldErrors === "object" && !Array.isArray(payload.fieldErrors)
-      ? Object.fromEntries(Object.entries(payload.fieldErrors).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
-      : undefined;
-    throw new TicketApiError(typeof payload?.message === "string" ? payload.message : fallbackMessage, fieldErrors);
+    throw errorFromPayload(response, payload, fallbackMessage);
   }
   return payload as T;
+}
+
+async function authRequest(path: string, init?: RequestInit): Promise<AuthSession> {
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      ...init,
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", ...init?.headers, ...(path.includes("change-password") ? csrfHeaders() : {}) },
+    });
+  } catch {
+    throw new TicketApiError("Authentication is temporarily unavailable.");
+  }
+  if (!response.ok) throw await apiError(response, "Unable to complete authentication.");
+  const session = await response.json() as AuthSession;
+  csrfToken = session.csrfToken;
+  return session;
+}
+
+async function apiError(response: Response, fallback: string): Promise<TicketApiError> {
+  const payload = await response.json().catch(() => null) as { code?: unknown; message?: unknown; fieldErrors?: unknown } | null;
+  return errorFromPayload(response, payload, fallback);
+}
+
+function errorFromPayload(
+  response: Response,
+  payload: { code?: unknown; message?: unknown; fieldErrors?: unknown } | null,
+  fallback: string,
+): TicketApiError {
+  const fieldErrors = payload?.fieldErrors && typeof payload.fieldErrors === "object" && !Array.isArray(payload.fieldErrors)
+    ? Object.fromEntries(Object.entries(payload.fieldErrors).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
+    : undefined;
+  const retryAfter = Number(response.headers?.get?.("Retry-After") ?? Number.NaN);
+  const error = new TicketApiError(
+    typeof payload?.message === "string" ? payload.message : fallback,
+    fieldErrors,
+    typeof payload?.code === "string" ? payload.code : undefined,
+    response.status,
+    Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : undefined,
+  );
+  if (error.status === 401 && error.code === "UNAUTHENTICATED") {
+    csrfToken = "";
+    if (typeof window !== "undefined") window.dispatchEvent(new Event(sessionExpiredEvent));
+  }
+  return error;
+}
+
+function csrfHeaders(): Record<string, string> {
+  return csrfToken ? { "X-CSRF-Token": csrfToken } : {};
 }
 
 async function fetchReferenceData<T>(path: string, errorMessage: string): Promise<T> {
@@ -234,9 +308,7 @@ async function fetchReferenceData<T>(path: string, errorMessage: string): Promis
     throw new Error(errorMessage);
   }
 
-  if (!response.ok) {
-    throw new Error(errorMessage);
-  }
+  if (!response.ok) throw await apiError(response, errorMessage);
 
   return response.json() as Promise<T>;
 }

@@ -81,12 +81,12 @@ The browser uses the same-origin `/api` path. Vite proxies it to
 or use a wildcard CORS policy. Set `VITE_API_PROXY_TARGET` only when testing a
 different local API target.
 
-The Lab 3 foundation provides `POST /api/auth/login`, `GET /api/auth/me`,
-`POST /api/auth/change-password`, and `POST /api/auth/logout`. Login and every
-browser mutation require an allowed Origin. Authenticated mutations also
-require the `X-CSRF-Token` returned by login/me. The next Lab 3 feature moves
-the existing Lab 2 ticket routes and frontend selector onto this session
-identity.
+The Lab 3 authenticated Requester workflow provides `POST /api/auth/login`,
+`GET /api/auth/me`, `POST /api/auth/change-password`, and `POST /api/auth/logout`.
+Login and every browser mutation require an allowed Origin. Authenticated
+mutations also require the `X-CSRF-Token` returned by login/me. Ticket and
+attachment ownership comes only from the authenticated session; the former
+development Requester selector and `/api/requesters` directory are removed.
 
 ## Test commands
 
