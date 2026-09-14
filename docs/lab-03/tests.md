@@ -76,7 +76,7 @@ Executed on `feature/lab3-auth-requester-regression` before the review commit. D
 | Command | Actual result |
 |---|---|
 | `cd server && npm run build` | Passed; TypeScript also compiles the E2E preparation script |
-| `cd server && npm test` | 9 files passed and 1 migration file skipped; 32 tests passed and 2 migration tests skipped |
+| `cd server && npm test` | Superseded by the authenticated regression correction: the Lab 2 categories, ticket creation, My Tickets, and attachment suites are no longer excluded. Re-run this command and record the actual discovered file/test totals before merging. The deliberately retired Development Requester directory suite was removed because the route no longer exists. |
 | `cd server && npm run test:migration` | 1 file and 2 integration tests passed against only `lab3_migration_test` |
 | `cd client && npm test` | 6 files and 22 tests passed |
 | `cd client && npm run build` | TypeScript and Vite production build passed |
