@@ -37,7 +37,7 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
     setError("");
     setTicket(null);
 
-    void fetchTicket(ticketId, requester.id)
+    void fetchTicket(ticketId)
       .then((loadedTicket) => {
         if (active) setTicket(loadedTicket);
       })
@@ -73,7 +73,7 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
 
     setUploading(true);
     try {
-      const attachment = await uploadTicketAttachment(ticket.id, requester.id, file);
+      const attachment = await uploadTicketAttachment(ticket.id, file);
       setTicket((current) => current ? { ...current, attachments: [attachment, ...current.attachments] } : current);
       setUploadMessage(`${attachment.originalFilename} was uploaded successfully.`);
       setFileInputKey((current) => current + 1);
@@ -89,7 +89,7 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
     setUploadMessage("");
     setDownloadingId(attachment.id);
     try {
-      await downloadTicketAttachment(ticket.id, attachment.id, requester.id, attachment.originalFilename);
+      await downloadTicketAttachment(ticket.id, attachment.id, attachment.originalFilename);
     } catch {
       setUploadMessage("Unable to download the attachment. Please retry.");
     } finally {
@@ -107,7 +107,7 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
 
     setRemovalError("");
     try {
-      const removed = await removeTicketAttachment(ticket.id, attachment.id, requester.id, trimmedReason);
+      const removed = await removeTicketAttachment(ticket.id, attachment.id, trimmedReason);
       setTicket((current) => current
         ? { ...current, attachments: current.attachments.map((item) => item.id === removed.id ? removed : item) }
         : current);

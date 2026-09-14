@@ -1,6 +1,6 @@
 # Sprint 3 Work Breakdown and Review Gates
 
-Status: First issue created as [#34](https://github.com/Earth2509/toktickit/issues/34), under review in [PR #35](https://github.com/Earth2509/toktickit/pull/35). Remaining rows are proposed backlog, not claims of GitHub Issue creation or completion.
+Status: The engineering contract and authentication foundation were peer-reviewed and merged through PRs #35 and #37. Order 3 is active as [Issue #38](https://github.com/Earth2509/toktickit/issues/38) on `feature/lab3-auth-requester-regression`; later rows remain proposed backlog and are not completion claims.
 
 | Order | Issue title | Deliverable | Depends on |
 |---|---|---|---|

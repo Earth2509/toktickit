@@ -2,6 +2,12 @@ import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
 const requesterA = "Aree Chaiyasit";
 const requesterB = "Busaba Wattanakul";
+const requesterEmails: Record<string, string> = {
+  [requesterA]: "requester1@example.test",
+  [requesterB]: "requester2@example.test",
+};
+const initialPassword = "Lab3-Demo-Only!2026";
+const privatePassword = "Lab3-E2E-Private!2026";
 
 test("Requester can create, find, inspect, and soft-remove a real attachment", async ({ page }) => {
   const summary = uniqueSummary("Attachment lifecycle");
@@ -29,16 +35,15 @@ test("Requester can create, find, inspect, and soft-remove a real attachment", a
   await expect(page.getByRole("button", { name: "Download" })).toHaveCount(0);
 });
 
-test("Requester switching keeps the integrated ticket list owner-scoped", async ({ page }) => {
+test("Authenticated Requester sessions keep the integrated ticket list owner-scoped", async ({ page }) => {
   const summary = uniqueSummary("Requester ownership");
 
   await chooseRequester(page, requesterA);
   await openCreateTicket(page);
   await completeTicketForm(page, summary);
 
-  await page.getByRole("button", { name: "Change Requester" }).click();
-  await selectRequesterOnCurrentPage(page, requesterB);
-  await page.getByRole("button", { name: "My Tickets" }).click();
+  await page.getByRole("button", { name: "Logout" }).click();
+  await signInRequester(page, requesterB);
   await page.getByLabel("Search tickets").fill(summary);
 
   await expect(page.getByText("No Tickets match your search or filters.")).toBeVisible();
@@ -69,17 +74,36 @@ for (const viewport of [
 
 async function chooseRequester(page: Page, requesterName: string) {
   await page.goto("/");
-  await selectRequesterOnCurrentPage(page, requesterName);
+  await signInRequester(page, requesterName);
 }
 
-async function selectRequesterOnCurrentPage(page: Page, requesterName: string) {
-  const requesterSelect = page.getByLabel("Development Requester", { exact: true });
-  await expect(requesterSelect).toBeVisible();
-  const requesterValue = await requesterSelect.locator("option", { hasText: requesterName }).getAttribute("value");
-  if (!requesterValue) throw new Error(`Requester ${requesterName} is not available in the E2E seed.`);
-  await requesterSelect.selectOption(requesterValue);
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();
+async function signInRequester(page: Page, requesterName: string) {
+  const email = requesterEmails[requesterName];
+  if (!email) throw new Error(`No E2E account is configured for ${requesterName}.`);
+  await expect(page.getByRole("heading", { name: "Sign in to TokTickIT" })).toBeVisible();
+  await page.getByLabel("Email address").fill(email);
+  await page.getByLabel("Password").fill(privatePassword);
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  const loginError = page.getByRole("alert");
+  const passwordChange = page.getByRole("heading", { name: "Change your initial password" });
+  const myTickets = page.getByRole("heading", { name: "My Tickets" });
+  await expect(loginError.or(passwordChange).or(myTickets)).toBeVisible();
+  if (await loginError.isVisible()) {
+    await page.getByLabel("Password").fill(initialPassword);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(passwordChange.or(myTickets)).toBeVisible();
+  }
+
+  if (await passwordChange.isVisible()) {
+    await page.getByLabel("Current password").fill(initialPassword);
+    await page.getByLabel("New password", { exact: true }).fill(privatePassword);
+    await page.getByLabel("Confirm new password").fill(privatePassword);
+    await page.getByRole("button", { name: "Save password" }).click();
+  }
+
+  await expect(myTickets).toBeVisible();
+  await expect(page.getByText(requesterName).first()).toBeVisible();
 }
 
 async function openCreateTicket(page: Page) {

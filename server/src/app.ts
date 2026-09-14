@@ -14,12 +14,15 @@ import {
 import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
 import {
+  authenticatedUser,
   changePassword,
   currentUser,
   login,
   logout,
   requireAuthenticatedUser,
   requireCsrfToken,
+  requirePasswordChangeComplete,
+  requireRole,
   requireTrustedOrigin,
 } from "./auth.js";
 
@@ -46,9 +49,7 @@ const ticketDetailInclude = {
 };
 app.get("/api/health", (_req, res) => res.status(200).json({ status: "ok", service: "TokTickIT API" }));
 
-// These routes intentionally remain the only authenticated API surface in this
-// foundation change. Issue 3 moves the legacy Lab 2 resource routes to the
-// session identity at the same time as it replaces the requester selector UI.
+// Authentication is established before every protected business route below.
 app.post("/api/auth/login", requireTrustedOrigin, asyncHandler(login));
 app.get("/api/auth/me", asyncHandler(requireAuthenticatedUser), asyncHandler(currentUser));
 app.post(
@@ -59,6 +60,13 @@ app.post(
   asyncHandler(changePassword),
 );
 app.post("/api/auth/logout", requireTrustedOrigin, asyncHandler(logout));
+
+const protectedResource = [asyncHandler(requireAuthenticatedUser), requirePasswordChangeComplete];
+// Resource authentication is already applied by the prefix middleware above.
+// Mutation routes add only the browser-origin and session-bound CSRF checks.
+const protectedMutation = [requireTrustedOrigin, requireCsrfToken];
+
+app.use(["/api/categories", "/api/related-systems", "/api/tickets"], ...protectedResource);
 
 app.get("/api/categories", async (_req, res) => {
   try {
@@ -86,27 +94,17 @@ app.get("/api/related-systems", async (_req, res) => {
   }
 });
 
-app.get("/api/requesters", async (_req, res) => {
-  try {
-    const requesters = await getPrisma().user.findMany({
-      // Temporary Lab 2 compatibility only. The User table now also contains
-      // privileged accounts, so the legacy selector must never enumerate them.
-      where: { isActive: true, role: "REQUESTER" },
-      orderBy: { displayName: "asc" },
-      select: { id: true, displayName: true, email: true },
-    });
-    res.status(200).json(requesters);
-  } catch {
-    res.status(503).json({ message: "Unable to load Development Requesters" });
-  }
-});
-
-app.post("/api/tickets", async (req, res) => {
+app.post("/api/tickets", ...protectedMutation, requireRole("REQUESTER"), async (req, res) => {
   if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
     return res.status(400).json({ message: "A JSON object is required." });
   }
 
-  const validation = validateTicketCreate(req.body);
+  if ("requesterId" in req.body) {
+    return res.status(400).json({ code: "LEGACY_IDENTITY_UNSUPPORTED", message: "Requester identity comes from the authenticated session." });
+  }
+
+  const requesterId = authenticatedUser(res).id;
+  const validation = validateTicketCreate({ ...req.body, requesterId });
   if (!validation.value) {
     return res.status(422).json({ message: "Ticket validation failed", fieldErrors: validation.fieldErrors });
   }
@@ -133,7 +131,7 @@ app.post("/api/tickets", async (req, res) => {
     }
 
     const [requester, category, relatedSystem] = await Promise.all([
-      prisma.user.findFirst({ where: { id: input.requesterId, isActive: true }, select: { id: true } }),
+      prisma.user.findFirst({ where: { id: requesterId, isActive: true, role: "REQUESTER" }, select: { id: true } }),
       prisma.category.findFirst({ where: { id: input.categoryId, isActive: true }, select: { id: true } }),
       prisma.relatedSystem.findFirst({ where: { id: input.relatedSystemId, isActive: true }, select: { id: true } }),
     ]);
@@ -182,8 +180,12 @@ app.post("/api/tickets", async (req, res) => {
   }
 });
 
-app.get("/api/tickets", async (req, res) => {
-  const validation = validateTicketListQuery(req.query);
+app.get("/api/tickets", requireRole("REQUESTER"), async (req, res) => {
+  if ("requesterId" in req.query) {
+    return res.status(400).json({ code: "LEGACY_IDENTITY_UNSUPPORTED", message: "Requester identity comes from the authenticated session." });
+  }
+  const requesterId = authenticatedUser(res).id;
+  const validation = validateTicketListQuery({ ...req.query, requesterId: String(requesterId) });
   if (!validation.value) {
     return res.status(400).json({ message: "Ticket list query validation failed", fieldErrors: validation.fieldErrors });
   }
@@ -192,15 +194,6 @@ app.get("/api/tickets", async (req, res) => {
   const prisma = getPrisma();
 
   try {
-    const requester = await prisma.user.findFirst({
-      where: { id: query.requesterId, isActive: true },
-      select: { id: true },
-    });
-
-    if (!requester) {
-      return res.status(404).json({ message: "Requester is unavailable." });
-    }
-
     const where = ticketListWhere(query);
     const [totalItems, items] = await Promise.all([
       prisma.ticket.count({ where }),
@@ -244,14 +237,17 @@ app.get("/api/tickets", async (req, res) => {
 
 app.get("/api/tickets/:ticketId", async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
-  const requesterId = requestId(req.query.requesterId);
-  if (!ticketId || !requesterId) {
-    return res.status(400).json({ message: "Ticket and requester identifiers must be positive whole numbers." });
+  if ("requesterId" in req.query) {
+    return res.status(400).json({ code: "LEGACY_IDENTITY_UNSUPPORTED", message: "Requester identity comes from the authenticated session." });
+  }
+  if (!ticketId) {
+    return res.status(400).json({ message: "Ticket identifier must be a positive whole number." });
   }
 
   try {
+    const user = authenticatedUser(res);
     const ticket = await getPrisma().ticket.findFirst({
-      where: { id: ticketId, requesterId },
+      where: user.role === "REQUESTER" ? { id: ticketId, requesterId: user.id } : { id: ticketId },
       include: ticketDetailInclude,
     });
     if (!ticket) return res.status(404).json({ message: "Ticket not found." });
@@ -263,13 +259,16 @@ app.get("/api/tickets/:ticketId", async (req, res) => {
 
 app.get("/api/tickets/:ticketId/attachments", async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
-  const requesterId = requestId(req.query.requesterId);
-  if (!ticketId || !requesterId) {
-    return res.status(400).json({ message: "Ticket and requester identifiers must be positive whole numbers." });
+  if ("requesterId" in req.query) {
+    return res.status(400).json({ code: "LEGACY_IDENTITY_UNSUPPORTED", message: "Requester identity comes from the authenticated session." });
+  }
+  if (!ticketId) {
+    return res.status(400).json({ message: "Ticket identifier must be a positive whole number." });
   }
 
   try {
-    const ownedTicket = await getPrisma().ticket.findFirst({ where: { id: ticketId, requesterId }, select: { id: true } });
+    const user = authenticatedUser(res);
+    const ownedTicket = await getPrisma().ticket.findFirst({ where: user.role === "REQUESTER" ? { id: ticketId, requesterId: user.id } : { id: ticketId }, select: { id: true } });
     if (!ownedTicket) return res.status(404).json({ message: "Ticket not found." });
 
     const attachments = await getPrisma().attachment.findMany({
@@ -283,11 +282,14 @@ app.get("/api/tickets/:ticketId/attachments", async (req, res) => {
   }
 });
 
-app.post("/api/tickets/:ticketId/attachments", upload.single("file"), async (req, res) => {
+app.post("/api/tickets/:ticketId/attachments", ...protectedMutation, requireRole("REQUESTER"), upload.single("file"), async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
-  const requesterId = requestId(req.body?.requesterId);
-  if (!ticketId || !requesterId || !req.file) {
-    return res.status(400).json({ message: "An owned Ticket, requesterId, and one attachment file are required." });
+  if (req.body && "requesterId" in req.body) {
+    return res.status(400).json({ code: "LEGACY_IDENTITY_UNSUPPORTED", message: "Requester identity comes from the authenticated session." });
+  }
+  const requesterId = authenticatedUser(res).id;
+  if (!ticketId || !req.file) {
+    return res.status(400).json({ message: "An owned Ticket and one attachment file are required." });
   }
 
   const validation = isPermittedAttachment(req.file);
@@ -295,8 +297,11 @@ app.post("/api/tickets/:ticketId/attachments", upload.single("file"), async (req
 
   const prisma = getPrisma();
   try {
-    const ownedTicket = await prisma.ticket.findFirst({ where: { id: ticketId, requesterId }, select: { id: true } });
+    const ownedTicket = await prisma.ticket.findFirst({ where: { id: ticketId, requesterId }, select: { id: true, currentStatus: true } });
     if (!ownedTicket) return res.status(404).json({ message: "Ticket not found." });
+    if (["CLOSED", "CANCELLED"].includes(ownedTicket.currentStatus)) {
+      return res.status(409).json({ code: "CONFLICT", message: "Attachments cannot be uploaded in this Ticket status." });
+    }
 
     const storageKey = randomUUID();
     const storagePath = path.join(attachmentDirectory, storageKey);
@@ -327,14 +332,17 @@ app.post("/api/tickets/:ticketId/attachments", upload.single("file"), async (req
 app.get("/api/tickets/:ticketId/attachments/:attachmentId/download", async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
   const attachmentId = requestId(req.params.attachmentId);
-  const requesterId = requestId(req.query.requesterId);
-  if (!ticketId || !attachmentId || !requesterId) {
-    return res.status(400).json({ message: "Ticket, attachment, and requester identifiers must be positive whole numbers." });
+  if ("requesterId" in req.query) {
+    return res.status(400).json({ code: "LEGACY_IDENTITY_UNSUPPORTED", message: "Requester identity comes from the authenticated session." });
+  }
+  if (!ticketId || !attachmentId) {
+    return res.status(400).json({ message: "Ticket and attachment identifiers must be positive whole numbers." });
   }
 
   try {
+    const user = authenticatedUser(res);
     const attachment = await getPrisma().attachment.findFirst({
-      where: { id: attachmentId, ticketId, removedAt: null, ticket: { requesterId } },
+      where: { id: attachmentId, ticketId, removedAt: null, ...(user.role === "REQUESTER" ? { ticket: { requesterId: user.id } } : {}) },
       select: { storageKey: true, originalFilename: true, mimeType: true },
     });
     if (!attachment) return res.status(404).json({ message: "Attachment not found." });
@@ -349,10 +357,14 @@ app.get("/api/tickets/:ticketId/attachments/:attachmentId/download", async (req,
   }
 });
 
-app.patch("/api/tickets/:ticketId/attachments/:attachmentId/remove", async (req, res) => {
+app.patch("/api/tickets/:ticketId/attachments/:attachmentId/remove", ...protectedMutation, requireRole("REQUESTER"), async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
   const attachmentId = requestId(req.params.attachmentId);
-  const validation = validateAttachmentRemoval(req.body);
+  if (req.body && typeof req.body === "object" && "requesterId" in req.body) {
+    return res.status(400).json({ code: "LEGACY_IDENTITY_UNSUPPORTED", message: "Requester identity comes from the authenticated session." });
+  }
+  const requesterId = authenticatedUser(res).id;
+  const validation = validateAttachmentRemoval({ ...req.body, requesterId });
   if (!ticketId || !attachmentId) {
     return res.status(400).json({ message: "Ticket and attachment identifiers must be positive whole numbers." });
   }
@@ -360,14 +372,17 @@ app.patch("/api/tickets/:ticketId/attachments/:attachmentId/remove", async (req,
     return res.status(422).json({ message: "Attachment removal validation failed", fieldErrors: validation.fieldErrors });
   }
 
-  const { requesterId, reason } = validation.value;
+  const { reason } = validation.value;
   try {
     const attachment = await getPrisma().attachment.findFirst({
       where: { id: attachmentId, ticketId, ticket: { requesterId } },
-      select: { id: true, removedAt: true },
+      select: { id: true, removedAt: true, ticket: { select: { currentStatus: true } } },
     });
     if (!attachment) return res.status(404).json({ message: "Attachment not found." });
     if (attachment.removedAt) return res.status(409).json({ message: "This attachment has already been removed." });
+    if (["CLOSED", "CANCELLED"].includes(attachment.ticket.currentStatus)) {
+      return res.status(409).json({ code: "CONFLICT", message: "Attachments cannot be removed in this Ticket status." });
+    }
 
     const removedAttachment = await getPrisma().attachment.update({
       where: { id: attachment.id },

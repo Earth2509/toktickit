@@ -9,7 +9,7 @@ test("same-origin proxy preserves the authentication cookie, Origin, CSRF, and l
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email: "requester1@example.test",
+        email: "requester4@example.test",
         password: "Lab3-Demo-Only!2026",
       }),
     });
@@ -18,7 +18,7 @@ test("same-origin proxy preserves the authentication cookie, Origin, CSRF, and l
 
   expect(login.status).toBe(200);
   expect(login.body).toMatchObject({
-    user: { email: "requester1@example.test", role: "REQUESTER", mustChangePassword: true },
+    user: { email: "requester4@example.test", role: "REQUESTER", mustChangePassword: true },
   });
   expect(login.body.csrfToken).toEqual(expect.any(String));
 
@@ -30,7 +30,7 @@ test("same-origin proxy preserves the authentication cookie, Origin, CSRF, and l
     const response = await fetch("/api/auth/me", { credentials: "same-origin" });
     return { status: response.status, body: await response.json() };
   });
-  expect(me).toMatchObject({ status: 200, body: { user: { email: "requester1@example.test" } } });
+  expect(me).toMatchObject({ status: 200, body: { user: { email: "requester4@example.test" } } });
 
   const logoutStatus = await page.evaluate(async (csrfToken) => {
     const response = await fetch("/api/auth/logout", {

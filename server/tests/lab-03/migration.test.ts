@@ -76,20 +76,10 @@ describe.skipIf(!testUrl)("Lab 3 requester-to-user migration", () => {
     expect((await prisma.user.findUnique({ where: { id: 41 } }))?.passwordHash).toBe(originalProvisionedHash);
 
     process.env.DATABASE_URL = testUrl!;
+    // Lab 3 preserves requester data in User while removing the public
+    // development identity picker entirely.
     const requesterDirectory = await request(app).get("/api/requesters");
-    expect(requesterDirectory.status).toBe(200);
-    expect(requesterDirectory.body).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ email: "migrated@example.test" }),
-        expect.objectContaining({ email: "requester1@example.test" }),
-      ]),
-    );
-    expect(requesterDirectory.body).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ email: "staff1@example.test" }),
-        expect.objectContaining({ email: "admin@example.test" }),
-      ]),
-    );
+    expect(requesterDirectory.status).toBe(404);
 
     await prisma.user.update({ where: { id: seededFixture!.id }, data: { isActive: false, passwordHash: "preserved-local-test-hash" } });
     await runSeed(prisma);

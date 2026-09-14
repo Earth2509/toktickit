@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App";
 
-const requesters = [{ id: 1, displayName: "Anan Chaiyasit", email: "anan.chaiyasit@toktickit.local" }];
+const requesters = [{ id: 1, displayName: "Anan Chaiyasit", email: "anan.chaiyasit@toktickit.local", role: "REQUESTER", isActive: true, mustChangePassword: false }];
 const categories = [{ id: 10, name: "Hardware" }];
 const relatedSystems = [{ id: 20, name: "Corporate Laptop" }];
 
@@ -21,7 +21,7 @@ function mockApi(createResponses: MockResponse[] = [response(createdTicket)]) {
   let createAttempt = 0;
   const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-    if (url.endsWith("/api/requesters")) return Promise.resolve(response(requesters));
+    if (url.endsWith("/api/auth/me")) return Promise.resolve(response({ user: requesters[0], csrfToken: "csrf", expiresAt: "2026-09-14T00:00:00.000Z" }));
     if (url.endsWith("/api/categories")) return Promise.resolve(response(categories));
     if (url.endsWith("/api/related-systems")) return Promise.resolve(response(relatedSystems));
     if (url.endsWith("/api/tickets") && init?.method === "POST") {
@@ -35,8 +35,6 @@ function mockApi(createResponses: MockResponse[] = [response(createdTicket)]) {
 
 async function openCreateTicket() {
   render(<App />);
-  fireEvent.change(await screen.findByLabelText("Development Requester"), { target: { value: "1" } });
-  fireEvent.click(screen.getByRole("button", { name: "Continue" }));
   await screen.findByRole("heading", { name: "My Tickets" });
   fireEvent.click(screen.getAllByRole("button", { name: "Create Ticket" })[1]);
   await screen.findByRole("heading", { name: "Create Ticket" });
@@ -90,7 +88,8 @@ describe("Create Ticket", () => {
     const postCall = fetchMock.mock.calls.find(([, init]) => (init as RequestInit | undefined)?.method === "POST");
     expect(postCall).toBeDefined();
     const postedBody = JSON.parse((postCall![1] as RequestInit).body as string);
-    expect(postedBody).toMatchObject({ requesterId: 1, categoryId: 10, relatedSystemId: 20, requestedPriority: "HIGH" });
+    expect(postedBody).toMatchObject({ categoryId: 10, relatedSystemId: 20, requestedPriority: "HIGH" });
+    expect(postedBody).not.toHaveProperty("requesterId");
     expect(postedBody.idempotencyKey).toMatch(/^[0-9a-f-]{36}$/i);
   });
 

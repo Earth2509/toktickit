@@ -1,202 +1,121 @@
-import { useEffect, useState } from "react";
-import { fetchRequesters, type Requester } from "./api";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { changePassword, fetchCurrentUser, login, logout, sessionExpiredEvent, TicketApiError, type AuthSession, type AuthUser } from "./api";
 import CreateTicketForm from "./CreateTicketForm";
 import MyTickets from "./MyTickets";
 import TicketDetail from "./TicketDetail";
 
-const REQUESTER_STORAGE_KEY = "toktickit.lab2.developmentRequesterId";
-
 function BrandClockIcon() {
   return <svg className="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M15 7.5A19 19 0 1 1 7.2 17" /><path d="M7 7v10h10" /><path d="M24 13v12h9" /></svg>;
 }
-
 function TicketsIcon() {
   return <svg className="header-nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 8h6M9 12h6M9 16h4" /></svg>;
 }
-
 function AddTicketIcon() {
   return <svg className="header-nav-icon header-add-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg>;
 }
-
 function ProfileIcon() {
   return <svg className="profile-avatar" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" /><circle cx="14" cy="10" r="4" /><path d="M6.5 23c.7-4 3.5-6.2 7.5-6.2s6.8 2.2 7.5 6.2" /></svg>;
 }
 
-function ChevronDownIcon() {
-  return <svg className="profile-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>;
-}
-
-function HomeIcon() {
-  return <svg className="breadcrumb-home" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10.5V20h13v-9.5M10 20v-6h4v6" /></svg>;
-}
-
-function ShieldIcon() {
-  return <span className="auth-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5.2c0 4.5-2.7 8.1-7 9.8-4.3-1.7-7-5.3-7-9.8V6l7-3Z" /></svg></span>;
-}
-
 export default function App() {
-  const [requesters, setRequesters] = useState<Requester[]>([]);
-  const [selectedRequesterId, setSelectedRequesterId] = useState("");
-  const [activeRequester, setActiveRequester] = useState<Requester | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  async function loadRequesters(restoreStoredRequester = true) {
-    setLoading(true);
-    setError("");
-
-    try {
-      const loadedRequesters = await fetchRequesters();
-      setRequesters(loadedRequesters);
-
-      if (restoreStoredRequester) {
-        const storedRequesterId = window.localStorage.getItem(REQUESTER_STORAGE_KEY);
-        const storedRequester = loadedRequesters.find((requester) => requester.id === Number(storedRequesterId));
-        if (storedRequester) {
-          setActiveRequester(storedRequester);
-        } else {
-          window.localStorage.removeItem(REQUESTER_STORAGE_KEY);
-        }
-      }
-    } catch {
-      setError("Unable to load Development Requesters. Please retry.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [session, setSession] = useState<AuthSession | null>(null);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    void loadRequesters();
+    let active = true;
+    void fetchCurrentUser().then((current) => { if (active) setSession(current); }).catch(() => { if (active) setSession(null); }).finally(() => { if (active) setCheckingSession(false); });
+    return () => { active = false; };
   }, []);
 
-  function continueWithRequester() {
-    const requester = requesters.find((item) => item.id === Number(selectedRequesterId));
-    if (!requester) return;
+  useEffect(() => {
+    const expireSession = () => setSession(null);
+    window.addEventListener(sessionExpiredEvent, expireSession);
+    return () => window.removeEventListener(sessionExpiredEvent, expireSession);
+  }, []);
 
-    window.localStorage.setItem(REQUESTER_STORAGE_KEY, String(requester.id));
-    setActiveRequester(requester);
-  }
-
-  function changeRequester() {
-    window.localStorage.removeItem(REQUESTER_STORAGE_KEY);
-    setSelectedRequesterId("");
-    setActiveRequester(null);
-    void loadRequesters(false);
-  }
-
-  if (activeRequester) {
-    return <RequesterWorkspace requester={activeRequester} onChangeRequester={changeRequester} />;
-  }
-
-  return (
-    <main className="app-page application-page selector-page">
-      <header className="application-header">
-        <div className="application-brand"><BrandClockIcon /><div><p className="application-product">TokTickIT</p><p className="application-title">IT Service Desk</p></div></div>
-        <nav className="application-navigation selector-navigation" aria-label="Requester workspace preview">
-          <span className="header-nav-button header-nav-static"><TicketsIcon />My Tickets</span>
-          <span className="header-nav-button header-nav-static"><AddTicketIcon />Create Ticket</span>
-        </nav>
-        <div className="requester-context" aria-label="Profile unavailable until a Requester is selected"><span className="header-change-requester header-profile-static"><ProfileIcon /><span>Profile</span><ChevronDownIcon /></span></div>
-      </header>
-      <div className="selector-breadcrumb" aria-label="Current page"><HomeIcon /><span aria-hidden="true">›</span><strong>Development Requester Selection</strong></div>
-      <section className="selector-card" aria-labelledby="requester-selection-heading">
-        <div className="selector-card-header">
-          <span className="selector-user-icon" aria-hidden="true" />
-          <h1 id="requester-selection-heading" aria-label="Development Requester Selection">Select Development Requester</h1>
-          <p className="selector-intro">Choose a development requester to simulate the current requester context for Lab 2.</p>
-          <p className="selector-testing-note">This is not a login screen. It is provided for testing only.</p>
-        </div>
-        <div className="selector-card-body">
-
-        {loading && <p role="status" className="status-message">Loading Development Requesters...</p>}
-
-          {error && (
-          <div className="error-panel" role="alert">
-            <p>{error}</p>
-            <button className="button button-secondary" onClick={() => void loadRequesters()}>Retry</button>
-          </div>
-          )}
-
-          {!loading && !error && requesters.length === 0 && (
-          <div className="empty-panel" role="status">No active Development Requesters are available.</div>
-          )}
-
-          {!loading && !error && requesters.length > 0 && (
-          <>
-            <label htmlFor="development-requester">Development Requester <span className="required-marker" aria-hidden="true">*</span></label>
-            <select
-              id="development-requester"
-              aria-label="Development Requester"
-              value={selectedRequesterId}
-              onChange={(event) => setSelectedRequesterId(event.target.value)}
-            >
-              <option value="">Choose a requester</option>
-              {requesters.map((requester) => (
-                <option key={requester.id} value={requester.id}>
-                  {requester.displayName} ({requester.email})
-                </option>
-              ))}
-            </select>
-            <div className="selector-info-callout"><span className="callout-icon" aria-hidden="true">i</span>Only active development requesters are shown.</div>
-          </>
-        )}
-          <div className="selector-auth-callout"><ShieldIcon /><div><strong>Authentication coming in Lab 3</strong><p>In Lab 3, this selection will be replaced with secure authentication so you can access the system with your own account.</p></div></div>
-        </div>
-        <div className="selector-card-actions">
-          <button className="button button-secondary selector-cancel" type="button" onClick={() => setSelectedRequesterId("")} disabled={!selectedRequesterId}>Cancel</button>
-        <button
-          className="button button-primary"
-          onClick={continueWithRequester}
-          disabled={loading || Boolean(error) || !selectedRequesterId}
-        >
-          <span aria-hidden="true">→</span> Continue
-        </button>
-        </div>
-      </section>
-    </main>
-  );
+  if (checkingSession) return <PublicFrame><section className="auth-card"><p className="status-message" role="status">Checking your session...</p></section></PublicFrame>;
+  if (!session) return <PublicFrame><LoginScreen onAuthenticated={setSession} /></PublicFrame>;
+  if (session.user.mustChangePassword) return <PublicFrame><ChangePasswordScreen mandatory user={session.user} onChanged={setSession} onLogout={() => setSession(null)} /></PublicFrame>;
+  return <AuthenticatedWorkspace session={session} onSessionChanged={setSession} onLoggedOut={() => setSession(null)} />;
 }
 
-type RequesterWorkspaceProps = {
-  requester: Requester;
-  onChangeRequester: () => void;
-};
+function PublicFrame({ children }: { children: ReactNode }) {
+  return <main className="app-page application-page auth-page"><header className="application-header public-header"><div className="application-brand"><BrandClockIcon /><div><p className="application-product">TokTickIT</p><p className="application-title">IT Service Desk</p></div></div></header>{children}</main>;
+}
 
-function RequesterWorkspace({ requester, onChangeRequester }: RequesterWorkspaceProps) {
-  const [view, setView] = useState<"home" | "create" | "tickets" | "detail">("tickets");
-  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+function LoginScreen({ onAuthenticated }: { onAuthenticated: (session: AuthSession) => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function showTicketDetail(ticketId: number) {
-    setSelectedTicketId(ticketId);
-    setView("detail");
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    const errors: Record<string, string> = {};
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) errors.email = "Enter a valid email address.";
+    if (!password) errors.password = "Enter your password.";
+    setFieldErrors(errors); setError("");
+    if (Object.keys(errors).length) return;
+    setSubmitting(true);
+    try { onAuthenticated(await login(email, password)); setPassword(""); }
+    catch (caught) {
+      const apiError = caught instanceof TicketApiError ? caught : undefined;
+      setFieldErrors(apiError?.fieldErrors ?? {});
+      if (apiError?.code === "ACCOUNT_INACTIVE") setError("This account is deactivated. Contact your administrator.");
+      else if (apiError?.status === 429) setError(`Too many attempts. Try again in ${apiError.retryAfter ?? "a few"} seconds.`);
+      else if (apiError?.status === 401) setError("Unable to sign in. Check your credentials or contact your administrator.");
+      else setError("Unable to sign in right now. Please try again.");
+    } finally { setPassword(""); setSubmitting(false); }
   }
 
-  return (
-    <main className="app-page application-page">
-      <header className="application-header">
-        <div className="application-brand"><BrandClockIcon /><div><p className="application-product">TokTickIT</p><p className="application-title">IT Service Desk</p></div></div>
-        <nav className="application-navigation" aria-label="Requester workspace">
-          <button className={`button header-nav-button ${view === "tickets" || view === "detail" ? "header-nav-button-active" : ""}`} onClick={() => setView("tickets")}><TicketsIcon />My Tickets</button>
-          <button className={`button header-nav-button ${view === "create" ? "header-nav-button-active" : ""}`} onClick={() => setView("create")}><AddTicketIcon />Create Ticket</button>
-        </nav>
-        <div className="requester-context">
-          <button aria-label="Change Requester" className="button header-change-requester" onClick={onChangeRequester} title={`Development Requester: ${requester.displayName}. Change requester.`}><ProfileIcon /><span>Profile</span><ChevronDownIcon /></button>
-        </div>
-      </header>
+  return <section className="auth-card" aria-labelledby="login-heading"><p className="section-kicker">Secure access</p><h1 id="login-heading">Sign in to TokTickIT</h1><p>Use the account provided by your system administrator.</p>{error && <div className="error-panel" role="alert"><p>{error}</p></div>}<form className="auth-form" onSubmit={submit} noValidate><label htmlFor="login-email">Email address</label><input id="login-email" type="email" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? "login-email-error" : undefined} disabled={submitting} />{fieldErrors.email && <p id="login-email-error" className="field-error">{fieldErrors.email}</p>}<label htmlFor="login-password">Password</label><input id="login-password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} aria-invalid={Boolean(fieldErrors.password)} aria-describedby={fieldErrors.password ? "login-password-error" : undefined} disabled={submitting} />{fieldErrors.password && <p id="login-password-error" className="field-error">{fieldErrors.password}</p>}<button className="button button-primary" type="submit" disabled={submitting}>{submitting ? "Signing in..." : "Sign in"}</button></form></section>;
+}
 
-      {view === "home" && (
-        <section className="workspace-card" aria-labelledby="workspace-heading">
-          <h1 id="workspace-heading">Requester Workspace</h1>
-          <p>You are testing the requester context for <strong>{requester.displayName}</strong>. Create a new request or view your requester-owned Tickets.</p>
-          <button className="button button-primary" onClick={() => setView("create")}>Create Ticket</button>
-        </section>
-      )}
+function ChangePasswordScreen({ user, mandatory = false, onChanged, onCancel, onLogout }: { user: AuthUser; mandatory?: boolean; onChanged: (session: AuthSession) => void; onCancel?: () => void; onLogout: () => void }) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-      {view === "create" && <CreateTicketForm requester={requester} onViewMyTickets={() => setView("tickets")} />}
+  async function signOut() { setError(""); try { await logout(); onLogout(); } catch { setError("Unable to sign out. Please retry."); } }
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    const errors: Record<string, string> = {};
+    const length = Array.from(newPassword).length;
+    if (!currentPassword) errors.currentPassword = "Enter your current password.";
+    if (length < 12 || length > 128 || !newPassword.trim()) errors.newPassword = "Use 12 to 128 characters and not only whitespace.";
+    if (confirmPassword !== newPassword) errors.confirmPassword = "The confirmation does not match the new password.";
+    setFieldErrors(errors); setError("");
+    if (Object.keys(errors).length) return;
+    setSaving(true);
+    try { onChanged(await changePassword(currentPassword, newPassword, confirmPassword)); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }
+    catch (caught) { const apiError = caught instanceof TicketApiError ? caught : undefined; setFieldErrors(apiError?.fieldErrors ?? {}); setError(apiError?.status === 429 ? `Too many attempts. Try again in ${apiError.retryAfter ?? "a few"} seconds.` : apiError?.message ?? "Unable to change your password. Please retry."); }
+    finally { setSaving(false); }
+  }
 
-      {view === "tickets" && <MyTickets key={requester.id} requester={requester} onCreateTicket={() => setView("create")} onViewTicket={showTicketDetail} />}
+  return <section className="auth-card" aria-labelledby="change-password-heading"><p className="section-kicker">{mandatory ? "Required security step" : "Account security"}</p><h1 id="change-password-heading">{mandatory ? "Change your initial password" : "Change password"}</h1><p>Signed in as <strong>{user.displayName}</strong> ({roleLabel(user.role)}).</p>{mandatory && <div className="info-panel" role="status">You must choose a private password before opening TokTickIT.</div>}<p className="field-hint">Use 12–128 characters. The password cannot contain only whitespace and must differ from your current password.</p>{error && <div className="error-panel" role="alert"><p>{error}</p></div>}<form className="auth-form" onSubmit={submit} noValidate><PasswordField id="current-password" label="Current password" value={currentPassword} onChange={setCurrentPassword} error={fieldErrors.currentPassword} disabled={saving} autoComplete="current-password" /><PasswordField id="new-password" label="New password" value={newPassword} onChange={setNewPassword} error={fieldErrors.newPassword} disabled={saving} autoComplete="new-password" /><PasswordField id="confirm-password" label="Confirm new password" value={confirmPassword} onChange={setConfirmPassword} error={fieldErrors.confirmPassword} disabled={saving} autoComplete="new-password" /><div className="auth-actions"><button className="button button-primary" type="submit" disabled={saving}>{saving ? "Saving password..." : "Save password"}</button>{onCancel && <button className="button button-secondary" type="button" onClick={onCancel} disabled={saving}>Cancel</button>}<button className="button button-secondary" type="button" onClick={() => void signOut()} disabled={saving}>Logout</button></div></form></section>;
+}
 
-      {view === "detail" && selectedTicketId !== null && <TicketDetail requester={requester} ticketId={selectedTicketId} onBack={() => setView("tickets")} />}
-    </main>
-  );
+function PasswordField({ id, label, value, onChange, error, disabled, autoComplete }: { id: string; label: string; value: string; onChange: (value: string) => void; error?: string; disabled: boolean; autoComplete: string }) {
+  return <><label htmlFor={id}>{label}</label><input id={id} type="password" value={value} onChange={(event) => onChange(event.target.value)} disabled={disabled} autoComplete={autoComplete} aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined} />{error && <p id={`${id}-error`} className="field-error">{error}</p>}</>;
+}
+
+function AuthenticatedWorkspace({ session, onSessionChanged, onLoggedOut }: { session: AuthSession; onSessionChanged: (session: AuthSession) => void; onLoggedOut: () => void }) {
+  const [view, setView] = useState<"create" | "tickets" | "detail" | "password">("tickets");
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+  const [logoutError, setLogoutError] = useState("");
+  async function signOut() { setLogoutError(""); try { await logout(); onLoggedOut(); } catch { setLogoutError("Unable to sign out. Please retry."); } }
+  if (view === "password") return <PublicFrame><ChangePasswordScreen user={session.user} onChanged={onSessionChanged} onCancel={() => setView("tickets")} onLogout={onLoggedOut} /></PublicFrame>;
+
+  const isRequester = session.user.role === "REQUESTER";
+  return <main className="app-page application-page"><header className="application-header"><div className="application-brand"><BrandClockIcon /><div><p className="application-product">TokTickIT</p><p className="application-title">IT Service Desk</p></div></div><nav className="application-navigation" aria-label={`${roleLabel(session.user.role)} workspace`}>{isRequester && <><button className={`button header-nav-button ${view === "tickets" || view === "detail" ? "header-nav-button-active" : ""}`} onClick={() => setView("tickets")}><TicketsIcon />My Tickets</button><button className={`button header-nav-button ${view === "create" ? "header-nav-button-active" : ""}`} onClick={() => setView("create")}><AddTicketIcon />Create Ticket</button></>}{session.user.role === "IT_STAFF" && <span className="header-nav-button header-nav-button-active"><TicketsIcon />Ticket Queue</span>}{session.user.role === "ADMINISTRATOR" && <span className="header-nav-button header-nav-button-active"><ProfileIcon />Users</span>}</nav><div className="authenticated-profile"><ProfileIcon /><span><strong>{session.user.displayName}</strong><small>{roleLabel(session.user.role)}</small></span><button className="button header-account-action" type="button" onClick={() => setView("password")}>Change Password</button><button className="button header-account-action" type="button" onClick={() => void signOut()}>Logout</button></div></header>{logoutError && <div className="error-panel global-alert" role="alert"><p>{logoutError}</p></div>}{isRequester && view === "create" && <CreateTicketForm requester={session.user} onViewMyTickets={() => setView("tickets")} />}{isRequester && view === "tickets" && <MyTickets requester={session.user} onCreateTicket={() => setView("create")} onViewTicket={(id) => { setSelectedTicketId(id); setView("detail"); }} />}{isRequester && view === "detail" && selectedTicketId !== null && <TicketDetail requester={session.user} ticketId={selectedTicketId} onBack={() => setView("tickets")} />}{!isRequester && <section className="workspace-card" aria-labelledby="role-landing-heading"><p className="section-kicker">{roleLabel(session.user.role)} workspace</p><h1 id="role-landing-heading">{session.user.role === "IT_STAFF" ? "Ticket Queue" : "User Management"}</h1><p>This secure role landing is ready. Its operational screens are delivered in the next focused Lab 3 issue.</p></section>}</main>;
+}
+
+function roleLabel(role: AuthUser["role"]): string {
+  if (role === "IT_STAFF") return "IT Staff";
+  if (role === "ADMINISTRATOR") return "Administrator";
+  return "Requester";
 }

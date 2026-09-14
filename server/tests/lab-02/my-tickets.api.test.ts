@@ -1,18 +1,37 @@
+import { createHash } from "node:crypto";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const requesterFindFirst = vi.fn();
 const ticketCount = vi.fn();
 const ticketFindMany = vi.fn();
+const sessionFindUnique = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({
   getPrisma: () => ({
-    user: { findFirst: requesterFindFirst },
+    session: { findUnique: sessionFindUnique },
     ticket: { count: ticketCount, findMany: ticketFindMany },
   }),
 }));
 
 import { app } from "../../src/app.js";
+
+const token = "my-tickets-test-session";
+const tokenHash = createHash("sha256").update(token).digest("base64url");
+const user = {
+  id: 1,
+  displayName: "Authenticated Requester",
+  email: "requester@example.test",
+  role: "REQUESTER",
+  isActive: true,
+  mustChangePassword: false,
+  credentialVersion: 1,
+};
+
+function getTickets(query = "") {
+  return request(app)
+    .get(`/api/tickets${query}`)
+    .set("Cookie", `toktickit_session=${token}`);
+}
 
 const listedTicket = {
   id: 42,
@@ -32,13 +51,19 @@ const listedTicket = {
 describe("GET /api/tickets", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    requesterFindFirst.mockResolvedValue({ id: 1 });
+    sessionFindUnique.mockResolvedValue({
+      tokenHash,
+      userId: user.id,
+      credentialVersion: user.credentialVersion,
+      expiresAt: new Date(Date.now() + 60_000),
+      user,
+    });
     ticketCount.mockResolvedValue(1);
     ticketFindMany.mockResolvedValue([listedTicket]);
   });
 
   it("returns only owned Tickets using the documented default order and pagination", async () => {
-    const response = await request(app).get("/api/tickets?requesterId=1");
+    const response = await getTickets();
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({ page: 1, pageSize: 10, totalItems: 1, totalPages: 1 });
@@ -51,7 +76,6 @@ describe("GET /api/tickets", () => {
       relatedSystem: { id: 3, name: "Campus Wi-Fi" },
     });
     expect(response.body.items[0]).not.toHaveProperty("description");
-    expect(requesterFindFirst).toHaveBeenCalledWith({ where: { id: 1, isActive: true }, select: { id: true } });
     expect(ticketCount).toHaveBeenCalledWith({ where: { requesterId: 1 } });
     expect(ticketFindMany).toHaveBeenCalledWith(expect.objectContaining({
       where: { requesterId: 1 },
@@ -66,8 +90,8 @@ describe("GET /api/tickets", () => {
     ticketCount.mockResolvedValue(23);
     ticketFindMany.mockResolvedValue([listedTicket]);
 
-    const response = await request(app).get(
-      "/api/tickets?requesterId=1&search=wifi&categoryId=2&relatedSystemId=3&requestedPriority=HIGH&currentStatus=NEW&sortBy=requestedPriority&sortOrder=asc&page=2&pageSize=20",
+    const response = await getTickets(
+      "?search=wifi&categoryId=2&relatedSystemId=3&requestedPriority=HIGH&currentStatus=NEW&sortBy=requestedPriority&sortOrder=asc&page=2&pageSize=20",
     );
 
     expect(response.status).toBe(200);
@@ -96,54 +120,29 @@ describe("GET /api/tickets", () => {
     ticketCount.mockResolvedValue(0);
     ticketFindMany.mockResolvedValue([]);
 
-    const response = await request(app).get("/api/tickets?requesterId=1&search=unmatched");
+    const response = await getTickets("?search=unmatched");
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 });
-  });
-
-  it("keeps ticket data owner-scoped when the Development Requester changes", async () => {
-    requesterFindFirst.mockImplementation(({ where }: { where: { id: number } }) => Promise.resolve({ id: where.id }));
-    ticketCount.mockImplementation(({ where }: { where: { requesterId: number } }) => Promise.resolve(where.requesterId === 1 ? 1 : 0));
-    ticketFindMany.mockImplementation(({ where }: { where: { requesterId: number } }) => Promise.resolve(where.requesterId === 1 ? [listedTicket] : []));
-
-    const response = await request(app).get("/api/tickets?requesterId=2");
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 });
-    expect(ticketFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: { requesterId: 2 } }));
-  });
-
-  it("returns a safe not-found response before querying Tickets for an inactive or unknown requester", async () => {
-    requesterFindFirst.mockResolvedValue(null);
-
-    const response = await request(app).get("/api/tickets?requesterId=99");
-
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual({ message: "Requester is unavailable." });
-    expect(ticketCount).not.toHaveBeenCalled();
-    expect(ticketFindMany).not.toHaveBeenCalled();
   });
 
   it("returns field-safe 400 errors for malformed list queries", async () => {
-    const response = await request(app).get("/api/tickets?requesterId=0&pageSize=25&sortBy=summary");
+    const response = await getTickets("?pageSize=25&sortBy=summary");
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({
       message: "Ticket list query validation failed",
       fieldErrors: {
-        requesterId: "Provide a positive whole number.",
         sortBy: "Choose one of: createdAt, updatedAt, ticketNumber, requestedPriority.",
         pageSize: "Choose 10, 20, or 50.",
       },
     });
-    expect(requesterFindFirst).not.toHaveBeenCalled();
   });
 
   it("returns a safe service error when Ticket storage is unavailable", async () => {
     ticketCount.mockRejectedValue(Object.assign(new Error("database unavailable"), { code: "P1001" }));
 
-    const response = await request(app).get("/api/tickets?requesterId=1");
+    const response = await getTickets();
 
     expect(response.status).toBe(503);
     expect(response.body).toEqual({ message: "Ticket service is temporarily unavailable." });
