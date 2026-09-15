@@ -30,8 +30,17 @@ export function validateStaffQueueQuery(query: Record<string, unknown>): { value
   if (!staffQueuePageSizes.includes(pageSizeRaw as 10 | 20 | 50)) errors.pageSize = "Choose 10, 20 or 50.";
   const sortBy = enumValue("sortBy", staffQueueSortFields) ?? "updatedAt";
   const sortOrder = enumValue("sortOrder", staffQueueSortOrders) ?? "desc";
+  // Resolve every filter before deciding whether validation failed.  Keeping
+  // these calls in the returned object would make them unreachable whenever
+  // another field has already populated `errors`, silently dropping a bad
+  // filter instead of returning the required 400 response.
+  const categoryId = positive("categoryId");
+  const relatedSystemId = positive("relatedSystemId");
+  const requestedPriority = enumValue("requestedPriority", staffQueuePriorities) as RequestedPriority | undefined;
+  const itPriority = enumValue("itPriority", staffQueuePriorities) as RequestedPriority | undefined;
+  const currentStatus = enumValue("currentStatus", staffQueueStatuses) as TicketStatus | undefined;
   if (Object.keys(errors).length) return { fieldErrors: errors };
-  return { value: { search, categoryId: positive("categoryId"), relatedSystemId: positive("relatedSystemId"), requestedPriority: enumValue("requestedPriority", staffQueuePriorities) as RequestedPriority | undefined, itPriority: enumValue("itPriority", staffQueuePriorities) as RequestedPriority | undefined, currentStatus: enumValue("currentStatus", staffQueueStatuses) as TicketStatus | undefined, ownerId, sortBy, sortOrder, page, pageSize: pageSizeRaw as 10 | 20 | 50 } };
+  return { value: { search, categoryId, relatedSystemId, requestedPriority, itPriority, currentStatus, ownerId, sortBy, sortOrder, page, pageSize: pageSizeRaw as 10 | 20 | 50 } };
 }
 
 export function staffQueueWhere(query: StaffQueueQuery): Prisma.TicketWhereInput {

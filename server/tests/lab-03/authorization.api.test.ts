@@ -188,4 +188,21 @@ describe("Lab 3 resource authorization and requester identity", () => {
     expect(response.status).toBe(400);
     expect(response.body.fieldErrors).toEqual(expect.objectContaining({ page: expect.any(String), pageSize: expect.any(String), currentStatus: expect.any(String) }));
   });
+
+  it.each([
+    ["categoryId", "not-a-number"],
+    ["relatedSystemId", "not-a-number"],
+    ["requestedPriority", "NOW"],
+    ["itPriority", "NOW"],
+    ["currentStatus", "unknown"],
+  ])("rejects an invalid %s filter on its own", async (parameter, value) => {
+    const staff = { ...requester, id: 77, role: "IT_STAFF" as const };
+    sessionFindUnique.mockResolvedValue(sessionFor(staff));
+
+    const response = await authenticated(`/api/staff/tickets?${parameter}=${value}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.fieldErrors).toEqual(expect.objectContaining({ [parameter]: expect.any(String) }));
+    expect(ticketCount).not.toHaveBeenCalled();
+  });
 });

@@ -400,26 +400,8 @@ app.patch("/api/tickets/:ticketId/attachments/:attachmentId/remove", ...protecte
   }
 });
 
-app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  if (error instanceof SyntaxError && "body" in error) {
-    return res.status(400).json({ message: "Malformed JSON body." });
-  }
-
-  if (statusCode(error) === 413) {
-    return res.status(413).json({ message: "Request payload is too large." });
-  }
-
-  if (isMulterFileLimitError(error)) {
-    return res.status(413).json({ message: "Each attachment must be 5 MB or smaller." });
-  }
-
-  if (error instanceof multer.MulterError) {
-    return res.status(400).json({ message: "The attachment upload could not be processed." });
-  }
-
-  return res.status(500).json({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
-});
-
+// Keep normal routes before the terminal error handler so future route work is
+// not visually mistaken for unreachable middleware.
 app.get("/api/staff/tickets", async (req, res) => {
   const validation = validateStaffQueueQuery(req.query);
   if (!("value" in validation)) {
@@ -454,6 +436,26 @@ app.get("/api/staff/tickets", async (req, res) => {
     if (isDependencyUnavailable(error)) return res.status(503).json({ message: "Ticket queue is temporarily unavailable." });
     return res.status(500).json({ message: "Unable to load the Ticket queue." });
   }
+});
+
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (error instanceof SyntaxError && "body" in error) {
+    return res.status(400).json({ message: "Malformed JSON body." });
+  }
+
+  if (statusCode(error) === 413) {
+    return res.status(413).json({ message: "Request payload is too large." });
+  }
+
+  if (isMulterFileLimitError(error)) {
+    return res.status(413).json({ message: "Each attachment must be 5 MB or smaller." });
+  }
+
+  if (error instanceof multer.MulterError) {
+    return res.status(400).json({ message: "The attachment upload could not be processed." });
+  }
+
+  return res.status(500).json({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
 });
 
 function isUniqueConstraintError(error: unknown): boolean {

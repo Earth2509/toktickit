@@ -84,4 +84,14 @@ Executed on `feature/lab3-auth-requester-regression` before the review commit. D
 
 The E2E result proves the real Login and mandatory initial-password flow, session-derived Requester ownership, ticket/attachment regression, responsive screens, same-origin cookie/CSRF transport and logout revocation. The Windows runner required prestarted servers because its supervised child-process cleanup did not terminate reliably; the application assertions themselves completed with exit code 0. Later Staff/Admin E2E rows remain Planned.
 
+## Issue #40 staff queue execution evidence
+
+Executed on `feature/lab3-it-staff-queue` after correcting queue-filter validation. The server suite confirms that invalid filters are rejected rather than silently discarded; the migration integration suite remains skipped because it requires the explicitly configured disposable migration database.
+
+| Command | Actual result |
+|---|---|
+| `cd server && npm test` | **13 test files and 65 tests passed; 1 file and 2 migration tests skipped**. The run includes `tests/lab-03/authorization.api.test.ts` with 16 passing tests, including individual invalid-filter cases for category, related system, requested priority, IT priority, and status. Duration: 8.63 seconds. |
+| `cd server && npm run build` | Passed; TypeScript compilation completed successfully. |
+| `git diff --check` | Passed; no whitespace errors were reported. |
+
 Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store output in artifacts/lab-03/test-output and screenshots in the UI contract folders. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include all relevant output, not just a summary count.
