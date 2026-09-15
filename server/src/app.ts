@@ -48,6 +48,7 @@ const ticketDetailInclude = {
   category: { select: { id: true, name: true } },
   relatedSystem: { select: { id: true, name: true } },
   attachments: { orderBy: { createdAt: "desc" as const }, select: attachmentSelect },
+  owner: { select: { id: true, displayName: true, role: true, isActive: true } },
 };
 app.get("/api/health", (_req, res) => res.status(200).json({ status: "ok", service: "TokTickIT API" }));
 
@@ -439,6 +440,19 @@ app.get("/api/staff/tickets", async (req, res) => {
   }
 });
 
+app.get("/api/staff/assignees", async (_req, res) => {
+  try {
+    return res.status(200).json(await getPrisma().user.findMany({
+      where: { isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
+      orderBy: [{ displayName: "asc" }, { id: "asc" }],
+      select: { id: true, displayName: true, role: true },
+    }));
+  } catch (error) {
+    if (isDependencyUnavailable(error)) return res.status(503).json({ message: "Assignees are temporarily unavailable." });
+    return res.status(500).json({ message: "Unable to load assignees." });
+  }
+});
+
 app.post("/api/staff/tickets/:id/claim", ...protectedMutation, async (req, res) => {
   const version = workflowVersion(req.body?.version);
   const ticketId = positiveAttachmentInteger(req.params.id);
@@ -532,7 +546,11 @@ async function mutateWorkflow(
     if (ticket.version !== version) return { kind: "conflict" as const, message: "This Ticket changed. Reload it before trying again." };
     const decision = await decide(ticket);
     if ("conflict" in decision) return { kind: "conflict" as const, message: decision.conflict };
-    const updated = await transaction.ticket.update({ where: { id: ticketId }, data: { ...decision.data, version: { increment: 1 } }, select: { id: true, ticketNumber: true, ownerId: true, itPriority: true, currentStatus: true, version: true, resolutionSummary: true, updatedAt: true } });
+    // Compare the version in the update itself: two staff actions that read the
+    // same version cannot both succeed between the read and write.
+    const write = await transaction.ticket.updateMany({ where: { id: ticketId, version }, data: { ...decision.data, version: { increment: 1 } } });
+    if (write.count !== 1) return { kind: "conflict" as const, message: "This Ticket changed. Reload it before trying again." };
+    const updated = await transaction.ticket.findUniqueOrThrow({ where: { id: ticketId }, select: { id: true, ticketNumber: true, ownerId: true, itPriority: true, currentStatus: true, version: true, resolutionSummary: true, updatedAt: true } });
     await transaction.ticketEvent.create({ data: { ticketId, actorId, type, before: ticket, after: updated, reason: typeof reason === "string" ? reason.trim() : null } });
     return { kind: "updated" as const, ticket: updated };
   });

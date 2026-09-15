@@ -156,6 +156,15 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 .ticket-pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.25rem; }
 .ticket-pagination .button { margin-top: 0; }
 .ticket-pagination p { margin: 0; color: #40564a; font-weight: 700; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.workflow-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.workflow-grid section, .workflow-section { display: grid; gap: .65rem; padding: 1.1rem; border: 1px solid #d8e3db; border-radius: 10px; background: #fbfdfb; }
+.workflow-grid h2, .workflow-section h2 { margin: 0; color: #1f3428; font-size: 1.18rem; }
+.workflow-grid p { margin: 0; color: #40564a; }
+.workflow-grid label, .workflow-section label { color: #1f3428; font-weight: 700; }
+.workflow-grid select, .workflow-section select, .workflow-section textarea { width: 100%; min-height: 2.7rem; padding: .55rem .65rem; color: #1f3428; background: #fff; border: 1px solid #789180; border-radius: 8px; }
+.workflow-section { margin-top: 1rem; }
+.workflow-section textarea { min-height: 5rem; resize: vertical; }
 
 .page-breadcrumb { width: min(100%, 1180px); display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: .8rem auto 0; padding: 0 .1rem; }
 .page-breadcrumb p { display: flex; gap: .45rem; margin: 0; color: #52685a; font-size: .86rem; }
@@ -219,6 +228,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
   .ticket-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .search-filter { grid-column: 1 / -1; }
   .ticket-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workflow-grid { grid-template-columns: 1fr; }
   .authenticated-profile { width: 100%; order: 2; justify-content: flex-end; }
 }
 
