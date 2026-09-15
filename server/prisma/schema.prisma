@@ -16,6 +16,13 @@ enum RequestedPriority {
 
 enum TicketStatus {
   NEW
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_REQUESTER
+  RESOLVED
+  CLOSED
+  REOPENED
+  CANCELLED
 }
 
 enum UserRole {
@@ -47,6 +54,7 @@ model User {
   tickets           Ticket[]   @relation("RequesterTickets")
   removedAttachments Attachment[] @relation("AttachmentRemovedBy")
   sessions          Session[]
+  ownedTickets      Ticket[]   @relation("OwnedTickets")
 }
 
 model Session {
@@ -81,11 +89,16 @@ model Ticket {
   description       String
   requestedPriority RequestedPriority
   currentStatus     TicketStatus      @default(NEW)
+  // IT priority starts equal to the requester's stated priority. Workflow
+  // changes are deliberately deferred to Issue #41.
+  itPriority        RequestedPriority
+  ownerId           Int?
   idempotencyKey    String            @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
   requester     User          @relation("RequesterTickets", fields: [requesterId], references: [id])
+  owner         User?         @relation("OwnedTickets", fields: [ownerId], references: [id])
   category      Category      @relation(fields: [categoryId], references: [id])
   relatedSystem RelatedSystem @relation(fields: [relatedSystemId], references: [id])
   attachments   Attachment[]
@@ -93,6 +106,8 @@ model Ticket {
   @@index([requesterId, createdAt])
   @@index([categoryId])
   @@index([relatedSystemId])
+  @@index([ownerId])
+  @@index([currentStatus, updatedAt])
 }
 
 model Attachment {
