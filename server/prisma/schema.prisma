@@ -55,6 +55,7 @@ model User {
   removedAttachments Attachment[] @relation("AttachmentRemovedBy")
   sessions          Session[]
   ownedTickets      Ticket[]   @relation("OwnedTickets")
+  ticketEvents      TicketEvent[]
 }
 
 model Session {
@@ -93,6 +94,8 @@ model Ticket {
   // changes are deliberately deferred to Issue #41.
   itPriority        RequestedPriority
   ownerId           Int?
+  version           Int               @default(1)
+  resolutionSummary String?
   idempotencyKey    String            @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -102,12 +105,29 @@ model Ticket {
   category      Category      @relation(fields: [categoryId], references: [id])
   relatedSystem RelatedSystem @relation(fields: [relatedSystemId], references: [id])
   attachments   Attachment[]
+  events        TicketEvent[]
 
   @@index([requesterId, createdAt])
   @@index([categoryId])
   @@index([relatedSystemId])
   @@index([ownerId])
   @@index([currentStatus, updatedAt])
+}
+
+model TicketEvent {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  actorId   Int
+  type      String
+  before    Json?
+  after     Json?
+  reason    String?
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  actor  User   @relation(fields: [actorId], references: [id])
+
+  @@index([ticketId, createdAt, id])
 }
 
 model Attachment {

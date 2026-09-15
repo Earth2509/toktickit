@@ -13,6 +13,7 @@ import {
 } from "./attachments.js";
 import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
 import { staffQueueOrderBy, staffQueueWhere, validateStaffQueueQuery } from "./staff-queue.js";
+import { editableOperationalFields, workflowValidation } from "./ticket-workflow.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
 import {
   authenticatedUser,
@@ -438,6 +439,62 @@ app.get("/api/staff/tickets", async (req, res) => {
   }
 });
 
+app.post("/api/staff/tickets/:id/claim", ...protectedMutation, async (req, res) => {
+  const version = workflowVersion(req.body?.version);
+  const ticketId = positiveAttachmentInteger(req.params.id);
+  if (!ticketId || version === undefined) return res.status(422).json({ message: "Ticket id and version are required." });
+  const actor = authenticatedUser(res);
+  const result = await mutateWorkflow(ticketId, version, actor.id, "CLAIM", async (ticket) => {
+    if (ticket.ownerId !== null) return { conflict: "This Ticket is already assigned." };
+    if (!editableOperationalFields(ticket.currentStatus)) return { conflict: "Ownership cannot be changed in this Ticket status." };
+    return { data: { ownerId: actor.id } };
+  });
+  return workflowResponse(res, result);
+});
+
+app.patch("/api/staff/tickets/:id/owner", ...protectedMutation, async (req, res) => {
+  const version = workflowVersion(req.body?.version);
+  const ticketId = positiveAttachmentInteger(req.params.id);
+  const ownerId = req.body?.ownerId;
+  if (!ticketId || version === undefined || !(ownerId === null || (Number.isSafeInteger(ownerId) && ownerId > 0))) return res.status(422).json({ message: "Ticket id, owner and version are required." });
+  const actor = authenticatedUser(res);
+  if (ownerId !== null) {
+    const assignee = await getPrisma().user.findFirst({ where: { id: ownerId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } }, select: { id: true } });
+    if (!assignee) return res.status(422).json({ message: "Choose an active IT Staff member or Administrator." });
+  }
+  const result = await mutateWorkflow(ticketId, version, actor.id, "OWNER_CHANGED", async (ticket) => {
+    if (!editableOperationalFields(ticket.currentStatus)) return { conflict: "Ownership cannot be changed in this Ticket status." };
+    if (ownerId === null && ticket.currentStatus !== "NEW" && ticket.currentStatus !== "REOPENED") return { conflict: "Active-work Tickets cannot be manually unassigned." };
+    return { data: { ownerId } };
+  });
+  return workflowResponse(res, result);
+});
+
+app.patch("/api/staff/tickets/:id/priority", ...protectedMutation, async (req, res) => {
+  const version = workflowVersion(req.body?.version);
+  const ticketId = positiveAttachmentInteger(req.params.id);
+  const itPriority = req.body?.itPriority;
+  if (!ticketId || version === undefined || !["LOW", "MEDIUM", "HIGH", "URGENT"].includes(itPriority)) return res.status(422).json({ message: "Ticket id, IT priority and version are required." });
+  const result = await mutateWorkflow(ticketId, version, authenticatedUser(res).id, "IT_PRIORITY_CHANGED", async (ticket) => {
+    if (!editableOperationalFields(ticket.currentStatus)) return { conflict: "IT Priority cannot be changed in this Ticket status." };
+    return { data: { itPriority } };
+  });
+  return workflowResponse(res, result);
+});
+
+app.patch("/api/staff/tickets/:id/status", ...protectedMutation, async (req, res) => {
+  const version = workflowVersion(req.body?.version);
+  const ticketId = positiveAttachmentInteger(req.params.id);
+  const currentStatus = req.body?.currentStatus;
+  if (!ticketId || version === undefined || !["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"].includes(currentStatus)) return res.status(422).json({ message: "Ticket id, status and version are required." });
+  const result = await mutateWorkflow(ticketId, version, authenticatedUser(res).id, "STATUS_CHANGED", async (ticket) => {
+    const error = workflowValidation({ from: ticket.currentStatus, to: currentStatus, ownerId: ticket.ownerId, reason: req.body?.reason, resolutionSummary: req.body?.resolutionSummary });
+    if (error) return { conflict: error };
+    return { data: { currentStatus, ...(currentStatus === "RESOLVED" ? { resolutionSummary: req.body.resolutionSummary.trim() } : {}) } };
+  }, req.body?.reason);
+  return workflowResponse(res, result);
+});
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (error instanceof SyntaxError && "body" in error) {
     return res.status(400).json({ message: "Malformed JSON body." });
@@ -457,6 +514,39 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
 
   return res.status(500).json({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
 });
+
+type WorkflowTicket = { id: number; version: number; ownerId: number | null; currentStatus: import("@prisma/client").TicketStatus; itPriority: import("@prisma/client").RequestedPriority };
+type WorkflowMutation = { data: Record<string, unknown> } | { conflict: string };
+
+async function mutateWorkflow(
+  ticketId: number,
+  version: number,
+  actorId: number,
+  type: string,
+  decide: (ticket: WorkflowTicket) => Promise<WorkflowMutation>,
+  reason?: unknown,
+) {
+  return getPrisma().$transaction(async (transaction) => {
+    const ticket = await transaction.ticket.findUnique({ where: { id: ticketId }, select: { id: true, version: true, ownerId: true, currentStatus: true, itPriority: true } });
+    if (!ticket) return { kind: "missing" as const };
+    if (ticket.version !== version) return { kind: "conflict" as const, message: "This Ticket changed. Reload it before trying again." };
+    const decision = await decide(ticket);
+    if ("conflict" in decision) return { kind: "conflict" as const, message: decision.conflict };
+    const updated = await transaction.ticket.update({ where: { id: ticketId }, data: { ...decision.data, version: { increment: 1 } }, select: { id: true, ticketNumber: true, ownerId: true, itPriority: true, currentStatus: true, version: true, resolutionSummary: true, updatedAt: true } });
+    await transaction.ticketEvent.create({ data: { ticketId, actorId, type, before: ticket, after: updated, reason: typeof reason === "string" ? reason.trim() : null } });
+    return { kind: "updated" as const, ticket: updated };
+  });
+}
+
+function workflowResponse(res: express.Response, result: Awaited<ReturnType<typeof mutateWorkflow>>) {
+  if (result.kind === "missing") return res.status(404).json({ message: "Ticket not found." });
+  if (result.kind === "conflict") return res.status(409).json({ code: "CONFLICT", message: result.message });
+  return res.status(200).json(result.ticket);
+}
+
+function workflowVersion(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isSafeInteger(value) && value > 0 ? value : undefined;
+}
 
 function isUniqueConstraintError(error: unknown): boolean {
   return errorCode(error) === "P2002";
