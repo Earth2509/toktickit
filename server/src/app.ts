@@ -12,6 +12,7 @@ import {
   validateAttachmentRemoval,
 } from "./attachments.js";
 import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
+import { staffQueueOrderBy, staffQueueWhere, validateStaffQueueQuery } from "./staff-queue.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
 import {
   authenticatedUser,
@@ -67,6 +68,9 @@ const protectedResource = [asyncHandler(requireAuthenticatedUser), requirePasswo
 const protectedMutation = [requireTrustedOrigin, requireCsrfToken];
 
 app.use(["/api/categories", "/api/related-systems", "/api/tickets"], ...protectedResource);
+// Queue reads are deliberately isolated from requester routes. Issue #40 has
+// no mutation controls: ownership, priority and status changes arrive in #41.
+app.use("/api/staff", ...protectedResource, requireRole("IT_STAFF", "ADMINISTRATOR"));
 
 app.get("/api/categories", async (_req, res) => {
   try {
@@ -146,6 +150,7 @@ app.post("/api/tickets", ...protectedMutation, requireRole("REQUESTER"), async (
           ...input,
           ticketNumber: `PENDING-${randomUUID()}`,
           currentStatus: "NEW",
+          itPriority: input.requestedPriority,
         },
         select: { id: true, createdAt: true },
       });
@@ -413,6 +418,42 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
   }
 
   return res.status(500).json({ code: "INTERNAL_ERROR", message: "Unable to complete the request" });
+});
+
+app.get("/api/staff/tickets", async (req, res) => {
+  const validation = validateStaffQueueQuery(req.query);
+  if (!("value" in validation)) {
+    return res.status(400).json({ message: "Staff queue query validation failed", fieldErrors: validation.fieldErrors });
+  }
+
+  const query = validation.value;
+  try {
+    const where = staffQueueWhere(query);
+    const [totalItems, items] = await Promise.all([
+      getPrisma().ticket.count({ where }),
+      getPrisma().ticket.findMany({
+        where,
+        orderBy: staffQueueOrderBy(query),
+        skip: (query.page - 1) * query.pageSize,
+        take: query.pageSize,
+        select: {
+          id: true, ticketNumber: true, summary: true, requestedPriority: true, itPriority: true,
+          currentStatus: true, createdAt: true, updatedAt: true,
+          category: { select: { id: true, name: true } },
+          relatedSystem: { select: { id: true, name: true } },
+          requester: { select: { id: true, displayName: true } },
+          owner: { select: { id: true, displayName: true, role: true } },
+        },
+      }),
+    ]);
+    return res.status(200).json({
+      items, page: query.page, pageSize: query.pageSize, totalItems,
+      totalPages: Math.max(1, Math.ceil(totalItems / query.pageSize)),
+    });
+  } catch (error) {
+    if (isDependencyUnavailable(error)) return res.status(503).json({ message: "Ticket queue is temporarily unavailable." });
+    return res.status(500).json({ message: "Unable to load the Ticket queue." });
+  }
 });
 
 function isUniqueConstraintError(error: unknown): boolean {

@@ -164,4 +164,28 @@ describe("Lab 3 resource authorization and requester identity", () => {
     expect(response.status).toBe(403);
     expect(ticketCreate).not.toHaveBeenCalled();
   });
+
+  it("keeps the queue private to IT Staff and Administrators", async () => {
+    expect((await request(app).get("/api/staff/tickets")).status).toBe(401);
+    expect((await authenticated("/api/staff/tickets")).status).toBe(403);
+
+    const staff = { ...requester, id: 77, role: "IT_STAFF" as const };
+    sessionFindUnique.mockResolvedValue(sessionFor(staff));
+    ticketCount.mockResolvedValue(1);
+    ticketFindMany.mockResolvedValue([{ id: 7, ticketNumber: "TT-2026-000007", summary: "Queue item", requestedPriority: "HIGH", itPriority: "HIGH", currentStatus: "NEW", requester: { id: requester.id, displayName: requester.displayName }, owner: null, category: { id: 1, name: "Hardware" }, relatedSystem: { id: 1, name: "Portal" }, createdAt: new Date(), updatedAt: new Date() }]);
+
+    const allowed = await authenticated("/api/staff/tickets?search=Queue&sortBy=updatedAt&sortOrder=desc&page=1&pageSize=10");
+    expect(allowed.status).toBe(200);
+    expect(allowed.body.totalItems).toBe(1);
+    expect(allowed.body.items[0].owner).toBeNull();
+    expect(ticketCount).toHaveBeenCalledWith({ where: expect.objectContaining({ OR: expect.any(Array) }) });
+  });
+
+  it("rejects invalid queue queries instead of silently changing them", async () => {
+    const staff = { ...requester, id: 77, role: "IT_STAFF" as const };
+    sessionFindUnique.mockResolvedValue(sessionFor(staff));
+    const response = await authenticated("/api/staff/tickets?page=0&pageSize=15&currentStatus=unknown");
+    expect(response.status).toBe(400);
+    expect(response.body.fieldErrors).toEqual(expect.objectContaining({ page: expect.any(String), pageSize: expect.any(String), currentStatus: expect.any(String) }));
+  });
 });

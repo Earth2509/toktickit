@@ -59,6 +59,44 @@ export async function seedDatabase(prisma: PrismaClient) {
       create: { name, isActive: true },
     });
   }
+
+  await seedQueueTickets(prisma);
+}
+
+/**
+ * Read-only queue fixtures for Lab 3. Stable idempotency keys make a second
+ * local seed safe and give the queue enough rows to exercise pagination.
+ */
+async function seedQueueTickets(prisma: PrismaClient) {
+  const [categories, systems, requesters, staff] = await Promise.all([
+    prisma.category.findMany({ orderBy: { id: "asc" } }),
+    prisma.relatedSystem.findMany({ orderBy: { id: "asc" } }),
+    prisma.user.findMany({ where: { role: "REQUESTER", isActive: true }, orderBy: { id: "asc" } }),
+    prisma.user.findMany({ where: { role: "IT_STAFF", isActive: true }, orderBy: { id: "asc" } }),
+  ]);
+  if (!categories.length || !systems.length || !requesters.length) return;
+  const priorities = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
+  const statuses = ["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"] as const;
+  for (let index = 1; index <= 28; index += 1) {
+    const priority = priorities[(index - 1) % priorities.length]!;
+    await prisma.ticket.upsert({
+      where: { idempotencyKey: `lab3-queue-fixture-${index}` },
+      update: {},
+      create: {
+        ticketNumber: `TT-2026-${String(index).padStart(6, "0")}`,
+        idempotencyKey: `lab3-queue-fixture-${index}`,
+        requesterId: requesters[(index - 1) % requesters.length]!.id,
+        categoryId: categories[(index - 1) % categories.length]!.id,
+        relatedSystemId: systems[(index - 1) % systems.length]!.id,
+        summary: `Lab 3 queue sample ${index}: service request`,
+        description: "Seeded local data for the IT Staff queue, search, filters and pagination evidence.",
+        requestedPriority: priority,
+        itPriority: priority,
+        currentStatus: statuses[(index - 1) % statuses.length]!,
+        ownerId: index % 3 === 0 ? null : staff.length ? staff[(index - 1) % staff.length]!.id : null,
+      },
+    });
+  }
 }
 
 function assertLocalFixtureSeed() {

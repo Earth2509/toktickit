@@ -90,6 +90,28 @@ export type TicketListResponse = {
   totalPages: number;
 };
 
+export type StaffQueueTicket = Omit<Ticket, "description" | "requesterId"> & {
+  itPriority: RequestedPriority;
+  requester: Pick<AuthUser, "id" | "displayName">;
+  owner: Pick<AuthUser, "id" | "displayName" | "role"> | null;
+};
+
+export type StaffQueueQuery = {
+  search?: string;
+  categoryId?: number;
+  relatedSystemId?: number;
+  requestedPriority?: RequestedPriority;
+  itPriority?: RequestedPriority;
+  currentStatus?: Ticket["currentStatus"];
+  ownerId?: number | "unassigned";
+  sortBy?: "createdAt" | "updatedAt" | "ticketNumber" | "itPriority" | "currentStatus";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  pageSize?: 10 | 20 | 50;
+};
+
+export type StaffQueueResponse = Omit<TicketListResponse, "items"> & { items: StaffQueueTicket[] };
+
 export class TicketApiError extends Error {
   fieldErrors?: Record<string, string>;
   code?: string;
@@ -196,6 +218,22 @@ export async function fetchTickets(query: TicketListQuery): Promise<TicketListRe
 
 export async function fetchTicket(ticketId: number): Promise<TicketDetail> {
   return ticketRequest<TicketDetail>(`/api/tickets/${ticketId}`, "Unable to load the Ticket. Please retry.");
+}
+
+export async function fetchStaffQueue(query: StaffQueueQuery): Promise<StaffQueueResponse> {
+  const parameters = new URLSearchParams();
+  if (query.search?.trim()) parameters.set("search", query.search.trim());
+  if (query.categoryId) parameters.set("categoryId", String(query.categoryId));
+  if (query.relatedSystemId) parameters.set("relatedSystemId", String(query.relatedSystemId));
+  if (query.requestedPriority) parameters.set("requestedPriority", query.requestedPriority);
+  if (query.itPriority) parameters.set("itPriority", query.itPriority);
+  if (query.currentStatus) parameters.set("currentStatus", query.currentStatus);
+  if (query.ownerId) parameters.set("ownerId", String(query.ownerId));
+  if (query.sortBy) parameters.set("sortBy", query.sortBy);
+  if (query.sortOrder) parameters.set("sortOrder", query.sortOrder);
+  if (query.page) parameters.set("page", String(query.page));
+  if (query.pageSize) parameters.set("pageSize", String(query.pageSize));
+  return ticketRequest<StaffQueueResponse>(`/api/staff/tickets?${parameters.toString()}`, "Unable to load the Ticket queue. Please retry.");
 }
 
 export async function uploadTicketAttachment(ticketId: number, file: File): Promise<Attachment> {
