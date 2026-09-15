@@ -455,7 +455,7 @@ app.get("/api/staff/assignees", async (_req, res) => {
 
 app.post("/api/staff/tickets/:id/claim", ...protectedMutation, async (req, res) => {
   const version = workflowVersion(req.body?.version);
-  const ticketId = positiveAttachmentInteger(req.params.id);
+  const ticketId = requestId(req.params.id);
   if (!ticketId || version === undefined) return res.status(422).json({ message: "Ticket id and version are required." });
   const actor = authenticatedUser(res);
   const result = await mutateWorkflow(ticketId, version, actor.id, "CLAIM", async (ticket) => {
@@ -468,7 +468,7 @@ app.post("/api/staff/tickets/:id/claim", ...protectedMutation, async (req, res) 
 
 app.patch("/api/staff/tickets/:id/owner", ...protectedMutation, async (req, res) => {
   const version = workflowVersion(req.body?.version);
-  const ticketId = positiveAttachmentInteger(req.params.id);
+  const ticketId = requestId(req.params.id);
   const ownerId = req.body?.ownerId;
   if (!ticketId || version === undefined || !(ownerId === null || (Number.isSafeInteger(ownerId) && ownerId > 0))) return res.status(422).json({ message: "Ticket id, owner and version are required." });
   const actor = authenticatedUser(res);
@@ -486,7 +486,7 @@ app.patch("/api/staff/tickets/:id/owner", ...protectedMutation, async (req, res)
 
 app.patch("/api/staff/tickets/:id/priority", ...protectedMutation, async (req, res) => {
   const version = workflowVersion(req.body?.version);
-  const ticketId = positiveAttachmentInteger(req.params.id);
+  const ticketId = requestId(req.params.id);
   const itPriority = req.body?.itPriority;
   if (!ticketId || version === undefined || !["LOW", "MEDIUM", "HIGH", "URGENT"].includes(itPriority)) return res.status(422).json({ message: "Ticket id, IT priority and version are required." });
   const result = await mutateWorkflow(ticketId, version, authenticatedUser(res).id, "IT_PRIORITY_CHANGED", async (ticket) => {
@@ -498,7 +498,7 @@ app.patch("/api/staff/tickets/:id/priority", ...protectedMutation, async (req, r
 
 app.patch("/api/staff/tickets/:id/status", ...protectedMutation, async (req, res) => {
   const version = workflowVersion(req.body?.version);
-  const ticketId = positiveAttachmentInteger(req.params.id);
+  const ticketId = requestId(req.params.id);
   const currentStatus = req.body?.currentStatus;
   if (!ticketId || version === undefined || !["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"].includes(currentStatus)) return res.status(422).json({ message: "Ticket id, status and version are required." });
   const result = await mutateWorkflow(ticketId, version, authenticatedUser(res).id, "STATUS_CHANGED", async (ticket) => {
