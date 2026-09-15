@@ -94,4 +94,15 @@ Executed on `feature/lab3-it-staff-queue` after correcting queue-filter validati
 | `cd server && npm run build` | Passed; TypeScript compilation completed successfully. |
 | `git diff --check` | Passed; no whitespace errors were reported. |
 
+## Issue #41 ticket workflow execution evidence
+
+Executed on `feature/lab3-ticket-workflow` after correcting URL Ticket-ID parsing in commit `1032411`. The workflow API coverage verifies an eligible claim, a stale conditional version write, and the owner requirement before opening a Ticket.
+
+| Command | Actual result |
+|---|---|
+| `cd server && npm test` | **15 test files and 71 tests passed; 1 file and 2 migration tests skipped**. Includes 3 passing `ticket-workflow.api.test.ts` cases and 3 passing workflow-policy unit cases. Duration: 4.32 seconds. |
+| `cd client && npm test` | **6 test files and 22 tests passed**. Duration: 14.98 seconds. |
+| `cd server && npm run build` | Passed; TypeScript compilation completed successfully. |
+| `cd client && npx tsc --noEmit` | Passed; client TypeScript compilation completed successfully. |
+
 Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store output in artifacts/lab-03/test-output and screenshots in the UI contract folders. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include all relevant output, not just a summary count.
