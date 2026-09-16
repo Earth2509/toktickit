@@ -18,9 +18,9 @@ Status: The engineering contract and authentication foundation are merged into `
 | DB-01 | Migration/integration | AC-06 | Migrate disposable populated Lab 2 DB: same IDs/numbers/ownership/removal references/file checksums, copied IT priority, no data loss | server/tests/lab-03/migration.test.ts | Planned |
 | DB-02 | Migration/integration | AC-06 | Email collision preflight stops safely; provision/seed twice does not duplicate or overwrite passwords/edits; documented demo accounts/default and environment override work on new fixtures only; reject production defaults; never apply demo default to migrated users | server/tests/lab-03/migration.test.ts | Passed |
 | API-09 | API | AC-08 | Search match/no match; each/combined filter; severity/status/tie ordering; page1/last/beyond; totals and invalid parameters | server/tests/lab-03/staff-queue.api.test.ts | Planned |
-| API-10 | API/integration | AC-09 | Parameterize owner/claim policy for all statuses: null only NEW/REOPENED, active-work manual null denied, terminal edits denied; repair BR-20 unassigned exception; inactive/wrong-role rejection; concurrent claims one winner/event | server/tests/lab-03/staff-ticket-detail.api.test.ts | Planned |
+| API-10 | API/integration | AC-09 | Claim uses a conditional version write and records one audit event; stale writes are rejected without an event; assignment policy remains covered by the workflow route suite. | server/tests/lab-03/ticket-workflow.api.test.ts | Implemented |
 | API-11 | API | AC-10 | IT priority backfill/create equality, immutable requested priority; edit in each nonterminal status and deny RESOLVED/CLOSED/CANCELLED per status table; role denial | server/tests/lab-03/staff-ticket-detail.api.test.ts | Planned |
-| API-12 | API/integration | AC-11 | Parameterize all 8x8 transitions with role/version/owner/reason/summary; NEW -> OPEN needs claim; historical inactive owner may close RESOLVED; reopen clears ineligible owner; BR-20 exception needs reassignment before any transition; failed update rolls back event | server/tests/lab-03/staff-ticket-detail.api.test.ts | Planned |
+| API-12 | API/unit + API | AC-11 | Covers every pair in the documented 8x8 transition matrix, required owner/evidence, malformed evidence (422), stale-write conflict (409), and clearing an inactive historical owner during reopen. | server/tests/lab-03/ticket-workflow.unit.test.ts; server/tests/lab-03/ticket-workflow.api.test.ts | Implemented |
 | API-13 | API | AC-05,AC-12 | Public/internal visibility matrix; author spoof rejection; empty/2000/2001 content; safe HTML rendering payload; no editing/deletion; creation allowed RESOLVED but denied CLOSED/CANCELLED per table; newest-first stable pagination | server/tests/lab-03/comments-notes.api.test.ts | Planned |
 | API-14 | API | AC-13 | Own indication records server actor/time without changing status; repeat stable; other owner/role/terminal denied; reopen clears marker and retains event | server/tests/lab-03/staff-ticket-detail.api.test.ts | Planned |
 | API-15 | API | AC-14 | Admin list/search/create/edit; each role alone and AND search, omitted role/all, no results, invalid/empty/repeated role query 400; normalized duplicate email; invalid mutation role/name/password 422; non-Admin denied; safe DTO | server/tests/lab-03/users-admin.api.test.ts | Planned |
@@ -93,5 +93,16 @@ Executed on `feature/lab3-it-staff-queue` after correcting queue-filter validati
 | `cd server && npm test` | **13 test files and 65 tests passed; 1 file and 2 migration tests skipped**. The run includes `tests/lab-03/authorization.api.test.ts` with 16 passing tests, including individual invalid-filter cases for category, related system, requested priority, IT priority, and status. Duration: 8.63 seconds. |
 | `cd server && npm run build` | Passed; TypeScript compilation completed successfully. |
 | `git diff --check` | Passed; no whitespace errors were reported. |
+
+## Issue #41 ticket workflow execution evidence
+
+Executed on `feature/lab3-ticket-workflow` after correcting URL Ticket-ID parsing in commit `1032411`. Follow-up review corrections add coverage for malformed transition evidence, clearing an ineligible owner during reopen, and all 64 status-pair decisions.
+
+| Command | Actual result |
+|---|---|
+| `cd server && npm test` | **15 test files and 71 tests passed; 1 file and 2 migration tests skipped**. Includes 3 passing `ticket-workflow.api.test.ts` cases and 3 passing workflow-policy unit cases. Duration: 4.32 seconds. |
+| `cd client && npm test` | **6 test files and 22 tests passed**. Duration: 14.98 seconds. |
+| `cd server && npm run build` | Passed; TypeScript compilation completed successfully. |
+| `cd client && npx tsc --noEmit` | Passed; client TypeScript compilation completed successfully. |
 
 Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store output in artifacts/lab-03/test-output and screenshots in the UI contract folders. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include all relevant output, not just a summary count.

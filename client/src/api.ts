@@ -67,6 +67,11 @@ export type Attachment = {
 export type TicketDetail = Ticket & {
   requester: Requester;
   attachments: Attachment[];
+  owner?: Pick<AuthUser, "id" | "displayName" | "role" | "isActive"> | null;
+  ownerId?: number | null;
+  itPriority?: RequestedPriority;
+  version?: number;
+  resolutionSummary?: string | null;
 };
 
 export type TicketListItem = Omit<Ticket, "description">;
@@ -234,6 +239,26 @@ export async function fetchStaffQueue(query: StaffQueueQuery): Promise<StaffQueu
   if (query.page) parameters.set("page", String(query.page));
   if (query.pageSize) parameters.set("pageSize", String(query.pageSize));
   return ticketRequest<StaffQueueResponse>(`/api/staff/tickets?${parameters.toString()}`, "Unable to load the Ticket queue. Please retry.");
+}
+
+export async function fetchStaffAssignees(): Promise<Array<Pick<AuthUser, "id" | "displayName" | "role">>> {
+  return ticketRequest("/api/staff/assignees", "Unable to load available assignees. Please retry.");
+}
+
+export async function claimTicket(ticketId: number, version: number): Promise<TicketDetail> {
+  return ticketRequest(`/api/staff/tickets/${ticketId}/claim`, "Unable to claim the Ticket. Please retry.", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version }) });
+}
+
+export async function updateTicketOwner(ticketId: number, ownerId: number | null, version: number): Promise<TicketDetail> {
+  return ticketRequest(`/api/staff/tickets/${ticketId}/owner`, "Unable to update the owner. Please retry.", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ownerId, version }) });
+}
+
+export async function updateTicketPriority(ticketId: number, itPriority: RequestedPriority, version: number): Promise<TicketDetail> {
+  return ticketRequest(`/api/staff/tickets/${ticketId}/priority`, "Unable to update IT Priority. Please retry.", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ itPriority, version }) });
+}
+
+export async function updateTicketStatus(ticketId: number, currentStatus: Ticket["currentStatus"], version: number, reason?: string, resolutionSummary?: string): Promise<TicketDetail> {
+  return ticketRequest(`/api/staff/tickets/${ticketId}/status`, "Unable to update the Ticket status. Please retry.", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ currentStatus, version, reason, resolutionSummary }) });
 }
 
 export async function uploadTicketAttachment(ticketId: number, file: File): Promise<Attachment> {
