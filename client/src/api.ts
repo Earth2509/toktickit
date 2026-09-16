@@ -72,7 +72,19 @@ export type TicketDetail = Ticket & {
   itPriority?: RequestedPriority;
   version?: number;
   resolutionSummary?: string | null;
+  requesterResolvedAt?: string | null;
+  requesterResolvedBy?: Pick<AuthUser, "id" | "displayName"> | null;
 };
+
+export type DiscussionEntry = {
+  id: number;
+  ticketId: number;
+  content: string;
+  createdAt: string;
+  author: Pick<AuthUser, "id" | "displayName" | "role">;
+};
+
+export type DiscussionPage = { items: DiscussionEntry[]; page: number; pageSize: number; totalItems: number; totalPages: number };
 
 export type TicketListItem = Omit<Ticket, "description">;
 
@@ -99,6 +111,7 @@ export type StaffQueueTicket = Omit<Ticket, "description" | "requesterId"> & {
   itPriority: RequestedPriority;
   requester: Pick<AuthUser, "id" | "displayName">;
   owner: Pick<AuthUser, "id" | "displayName" | "role"> | null;
+  requesterResolvedAt?: string | null;
 };
 
 export type StaffQueueQuery = {
@@ -223,6 +236,26 @@ export async function fetchTickets(query: TicketListQuery): Promise<TicketListRe
 
 export async function fetchTicket(ticketId: number): Promise<TicketDetail> {
   return ticketRequest<TicketDetail>(`/api/tickets/${ticketId}`, "Unable to load the Ticket. Please retry.");
+}
+
+export async function fetchComments(ticketId: number): Promise<DiscussionPage> {
+  return ticketRequest(`/api/tickets/${ticketId}/comments`, "Unable to load comments. Please retry.");
+}
+
+export async function createComment(ticketId: number, content: string): Promise<DiscussionEntry> {
+  return ticketRequest(`/api/tickets/${ticketId}/comments`, "Unable to save the comment. Please retry.", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content }) });
+}
+
+export async function fetchInternalNotes(ticketId: number): Promise<DiscussionPage> {
+  return ticketRequest(`/api/tickets/${ticketId}/internal-notes`, "Unable to load internal notes. Please retry.");
+}
+
+export async function createInternalNote(ticketId: number, content: string): Promise<DiscussionEntry> {
+  return ticketRequest(`/api/tickets/${ticketId}/internal-notes`, "Unable to save the internal note. Please retry.", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content }) });
+}
+
+export async function indicateResolution(ticketId: number, version: number): Promise<{ requesterResolvedAt: string; version: number }> {
+  return ticketRequest(`/api/tickets/${ticketId}/resolution-indication`, "Unable to record the resolution indication. Please retry.", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ version }) });
 }
 
 export async function fetchStaffQueue(query: StaffQueueQuery): Promise<StaffQueueResponse> {

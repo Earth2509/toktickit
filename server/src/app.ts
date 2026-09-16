@@ -15,6 +15,7 @@ import {
 import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
 import { staffQueueOrderBy, staffQueueWhere, validateStaffQueueQuery } from "./staff-queue.js";
 import { editableOperationalFields, workflowValidation } from "./ticket-workflow.js";
+import { canCreateDiscussion, canIndicateResolution, discussionPagination, validateDiscussionContent } from "./ticket-discussions.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
 import {
   authenticatedUser,
@@ -50,6 +51,14 @@ const ticketDetailInclude = {
   relatedSystem: { select: { id: true, name: true } },
   attachments: { orderBy: { createdAt: "desc" as const }, select: attachmentSelect },
   owner: { select: { id: true, displayName: true, role: true, isActive: true } },
+  requesterResolvedBy: { select: { id: true, displayName: true } },
+};
+const discussionEntrySelect = {
+  id: true,
+  ticketId: true,
+  content: true,
+  createdAt: true,
+  author: { select: { id: true, displayName: true, role: true } },
 };
 app.get("/api/health", (_req, res) => res.status(200).json({ status: "ok", service: "TokTickIT API" }));
 
@@ -424,6 +433,7 @@ app.get("/api/staff/tickets", async (req, res) => {
         select: {
           id: true, ticketNumber: true, summary: true, requestedPriority: true, itPriority: true,
           currentStatus: true, createdAt: true, updatedAt: true,
+          requesterResolvedAt: true,
           category: { select: { id: true, name: true } },
           relatedSystem: { select: { id: true, name: true } },
           requester: { select: { id: true, displayName: true } },
@@ -439,6 +449,83 @@ app.get("/api/staff/tickets", async (req, res) => {
     if (isDependencyUnavailable(error)) return res.status(503).json({ message: "Ticket queue is temporarily unavailable." });
     return res.status(500).json({ message: "Unable to load the Ticket queue." });
   }
+});
+
+// Discussion data is intentionally stored in separate tables. Requester ticket
+// scopes are applied before comments are queried; internal notes are role-gated
+// before their ticket lookup so they cannot become a requester side channel.
+app.get("/api/tickets/:ticketId/comments", async (req, res) => {
+  const ticketId = requestId(req.params.ticketId);
+  const pagination = discussionPagination(req.query);
+  if (!ticketId || !pagination) return res.status(400).json({ message: "Ticket id, page or page size is invalid." });
+  const user = authenticatedUser(res);
+  const ticket = await getPrisma().ticket.findFirst({ where: user.role === "REQUESTER" ? { id: ticketId, requesterId: user.id } : { id: ticketId }, select: { id: true } });
+  if (!ticket) return res.status(404).json({ message: "Ticket not found." });
+  const where = { ticketId };
+  const [totalItems, items] = await Promise.all([
+    getPrisma().publicComment.count({ where }),
+    getPrisma().publicComment.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "desc" }], skip: (pagination.page - 1) * pagination.pageSize, take: pagination.pageSize, select: discussionEntrySelect }),
+  ]);
+  return res.status(200).json({ items, ...pagination, totalItems, totalPages: Math.max(1, Math.ceil(totalItems / pagination.pageSize)) });
+});
+
+app.post("/api/tickets/:ticketId/comments", ...protectedMutation, async (req, res) => {
+  const ticketId = requestId(req.params.ticketId);
+  const content = validateDiscussionContent(req.body?.content);
+  if (!ticketId || !content || !onlyContent(req.body)) return res.status(422).json({ code: "VALIDATION_FAILED", message: "Comment content must contain 1 to 2000 non-whitespace characters." });
+  const user = authenticatedUser(res);
+  const ticket = await getPrisma().ticket.findFirst({ where: user.role === "REQUESTER" ? { id: ticketId, requesterId: user.id } : { id: ticketId }, select: { id: true, currentStatus: true } });
+  if (!ticket) return res.status(404).json({ message: "Ticket not found." });
+  if (!canCreateDiscussion(ticket.currentStatus)) return res.status(409).json({ code: "CONFLICT", message: "Comments cannot be created in this Ticket status." });
+  const entry = await getPrisma().publicComment.create({ data: { ticketId, authorId: user.id, content }, select: discussionEntrySelect });
+  return res.status(201).json(entry);
+});
+
+app.get("/api/tickets/:ticketId/internal-notes", requireRole("IT_STAFF", "ADMINISTRATOR"), async (req, res) => {
+  const ticketId = requestId(req.params.ticketId);
+  const pagination = discussionPagination(req.query);
+  if (!ticketId || !pagination) return res.status(400).json({ message: "Ticket id, page or page size is invalid." });
+  const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId }, select: { id: true } });
+  if (!ticket) return res.status(404).json({ message: "Ticket not found." });
+  const where = { ticketId };
+  const [totalItems, items] = await Promise.all([
+    getPrisma().internalNote.count({ where }),
+    getPrisma().internalNote.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "desc" }], skip: (pagination.page - 1) * pagination.pageSize, take: pagination.pageSize, select: discussionEntrySelect }),
+  ]);
+  return res.status(200).json({ items, ...pagination, totalItems, totalPages: Math.max(1, Math.ceil(totalItems / pagination.pageSize)) });
+});
+
+app.post("/api/tickets/:ticketId/internal-notes", ...protectedMutation, requireRole("IT_STAFF", "ADMINISTRATOR"), async (req, res) => {
+  const ticketId = requestId(req.params.ticketId);
+  const content = validateDiscussionContent(req.body?.content);
+  if (!ticketId || !content || !onlyContent(req.body)) return res.status(422).json({ code: "VALIDATION_FAILED", message: "Note content must contain 1 to 2000 non-whitespace characters." });
+  const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId }, select: { id: true, currentStatus: true } });
+  if (!ticket) return res.status(404).json({ message: "Ticket not found." });
+  if (!canCreateDiscussion(ticket.currentStatus)) return res.status(409).json({ code: "CONFLICT", message: "Internal notes cannot be created in this Ticket status." });
+  const entry = await getPrisma().internalNote.create({ data: { ticketId, authorId: authenticatedUser(res).id, content }, select: discussionEntrySelect });
+  return res.status(201).json(entry);
+});
+
+app.post("/api/tickets/:ticketId/resolution-indication", ...protectedMutation, requireRole("REQUESTER"), async (req, res) => {
+  const ticketId = requestId(req.params.ticketId);
+  const version = workflowVersion(req.body?.version);
+  if (!ticketId || version === undefined || !onlyVersion(req.body)) return res.status(422).json({ code: "VALIDATION_FAILED", message: "Ticket id and version are required." });
+  const user = authenticatedUser(res);
+  const result = await getPrisma().$transaction(async (transaction) => {
+    const ticket = await transaction.ticket.findFirst({ where: { id: ticketId, requesterId: user.id }, select: { id: true, version: true, currentStatus: true, requesterResolvedAt: true, requesterResolvedById: true } });
+    if (!ticket) return { kind: "missing" as const };
+    if (!canIndicateResolution(ticket.currentStatus)) return { kind: "conflict" as const, message: "A resolution indication is not allowed in this Ticket status." };
+    if (ticket.requesterResolvedAt) return { kind: "updated" as const, at: ticket.requesterResolvedAt, version: ticket.version };
+    if (ticket.version !== version) return { kind: "conflict" as const, message: "This Ticket changed. Reload it before trying again." };
+    const at = new Date();
+    const write = await transaction.ticket.updateMany({ where: { id: ticketId, requesterId: user.id, version }, data: { requesterResolvedAt: at, requesterResolvedById: user.id, version: { increment: 1 } } });
+    if (write.count !== 1) return { kind: "conflict" as const, message: "This Ticket changed. Reload it before trying again." };
+    await transaction.ticketEvent.create({ data: { ticketId, actorId: user.id, type: "REQUESTER_RESOLUTION_INDICATED", before: ticket, after: { requesterResolvedAt: at } } });
+    return { kind: "updated" as const, at, version: version + 1 };
+  });
+  if (result.kind === "missing") return res.status(404).json({ message: "Ticket not found." });
+  if (result.kind === "conflict") return res.status(409).json({ code: "CONFLICT", message: result.message });
+  return res.status(200).json({ requesterResolvedAt: result.at.toISOString(), version: result.version });
 });
 
 app.get("/api/staff/assignees", async (_req, res) => {
@@ -509,6 +596,12 @@ app.patch("/api/staff/tickets/:id/status", ...protectedMutation, async (req, res
     const data: Record<string, unknown> = { currentStatus, ...(currentStatus === "RESOLVED" ? { resolutionSummary: req.body.resolutionSummary.trim() } : {}) };
     // A reopened Ticket must not retain an owner who can no longer work on it.
     // Check and clear this in the same transaction as the versioned status write.
+    if (currentStatus === "REOPENED") {
+      // The history event retains the previous indication, but a reopened
+      // ticket must not display it as the current requester signal.
+      data.requesterResolvedAt = null;
+      data.requesterResolvedById = null;
+    }
     if (currentStatus === "REOPENED" && ticket.ownerId !== null) {
       const eligibleOwner = await transaction.user.findFirst({
         where: { id: ticket.ownerId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
@@ -578,6 +671,14 @@ function workflowResponse(res: express.Response, result: Awaited<ReturnType<type
 
 function workflowVersion(value: unknown): number | undefined {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0 ? value : undefined;
+}
+
+function onlyContent(value: unknown): value is { content: unknown } {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 1 && "content" in value;
+}
+
+function onlyVersion(value: unknown): value is { version: unknown } {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 1 && "version" in value;
 }
 
 function isUniqueConstraintError(error: unknown): boolean {

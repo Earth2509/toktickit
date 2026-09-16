@@ -56,6 +56,9 @@ model User {
   sessions          Session[]
   ownedTickets      Ticket[]   @relation("OwnedTickets")
   ticketEvents      TicketEvent[]
+  publicComments    PublicComment[]
+  internalNotes     InternalNote[]
+  resolutionIndications Ticket[] @relation("RequesterResolutionIndications")
 }
 
 model Session {
@@ -96,6 +99,8 @@ model Ticket {
   ownerId           Int?
   version           Int               @default(1)
   resolutionSummary String?
+  requesterResolvedAt DateTime?
+  requesterResolvedById Int?
   idempotencyKey    String            @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -106,12 +111,42 @@ model Ticket {
   relatedSystem RelatedSystem @relation(fields: [relatedSystemId], references: [id])
   attachments   Attachment[]
   events        TicketEvent[]
+  publicComments PublicComment[]
+  internalNotes  InternalNote[]
+  requesterResolvedBy User? @relation("RequesterResolutionIndications", fields: [requesterResolvedById], references: [id])
 
   @@index([requesterId, createdAt])
   @@index([categoryId])
   @@index([relatedSystemId])
   @@index([ownerId])
   @@index([currentStatus, updatedAt])
+  @@index([requesterResolvedById])
+}
+
+model PublicComment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  authorId  Int
+  content   String
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId, createdAt, id])
+}
+
+model InternalNote {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  authorId  Int
+  content   String
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId, createdAt, id])
 }
 
 model TicketEvent {
