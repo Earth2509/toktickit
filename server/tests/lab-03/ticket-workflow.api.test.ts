@@ -8,12 +8,13 @@ const ticketFindUniqueOrThrow = vi.fn();
 const ticketUpdateMany = vi.fn();
 const ticketEventCreate = vi.fn();
 const transaction = vi.fn();
+const userFindFirst = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({
   getPrisma: () => ({
     session: { findUnique: sessionFindUnique },
     ticket: {},
-    user: { findFirst: vi.fn() },
+    user: { findFirst: userFindFirst },
     $transaction: transaction,
   }),
 }));
@@ -40,7 +41,8 @@ describe("Lab 3 workflow mutation API", () => {
     ticketUpdateMany.mockResolvedValue({ count: 1 });
     ticketFindUniqueOrThrow.mockResolvedValue({ id: 9, ticketNumber: "TT-2026-000009", ownerId: staff.id, itPriority: "MEDIUM", currentStatus: "NEW", version: 5, resolutionSummary: null, updatedAt: new Date() });
     ticketEventCreate.mockResolvedValue({ id: 1 });
-    transaction.mockImplementation((callback: (client: unknown) => unknown) => callback({ ticket: { findUnique: ticketFindUnique, updateMany: ticketUpdateMany, findUniqueOrThrow: ticketFindUniqueOrThrow }, ticketEvent: { create: ticketEventCreate } }));
+    userFindFirst.mockResolvedValue({ id: staff.id });
+    transaction.mockImplementation((callback: (client: unknown) => unknown) => callback({ ticket: { findUnique: ticketFindUnique, updateMany: ticketUpdateMany, findUniqueOrThrow: ticketFindUniqueOrThrow }, ticketEvent: { create: ticketEventCreate }, user: { findFirst: userFindFirst } }));
   });
 
   it("claims an eligible Ticket using a conditional version write and records an event", async () => {
@@ -61,5 +63,23 @@ describe("Lab 3 workflow mutation API", () => {
     const response = await request(app).patch("/api/staff/tickets/9/status").set("Cookie", `toktickit_session=${token}`).set("Origin", "http://localhost:5173").set("X-CSRF-Token", csrf).send({ version: 4, currentStatus: "OPEN" });
     expect(response.status).toBe(409);
     expect(ticketUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("returns 422 for malformed transition evidence instead of a reload conflict", async () => {
+    ticketFindUnique.mockResolvedValue({ id: 9, version: 4, ownerId: staff.id, currentStatus: "OPEN", itPriority: "MEDIUM" });
+    const response = await request(app).patch("/api/staff/tickets/9/status").set("Cookie", `toktickit_session=${token}`).set("Origin", "http://localhost:5173").set("X-CSRF-Token", csrf).send({ version: 4, currentStatus: "CANCELLED", reason: "No" });
+    expect(response.status).toBe(422);
+    expect(ticketUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("clears an inactive historical owner atomically when reopening a terminal Ticket", async () => {
+    ticketFindUnique.mockResolvedValue({ id: 9, version: 4, ownerId: 44, currentStatus: "RESOLVED", itPriority: "MEDIUM" });
+    ticketFindUniqueOrThrow.mockResolvedValue({ id: 9, ticketNumber: "TT-2026-000009", ownerId: null, itPriority: "MEDIUM", currentStatus: "REOPENED", version: 5, resolutionSummary: "Resolved earlier", updatedAt: new Date() });
+    userFindFirst.mockResolvedValue(null);
+    const response = await request(app).patch("/api/staff/tickets/9/status").set("Cookie", `toktickit_session=${token}`).set("Origin", "http://localhost:5173").set("X-CSRF-Token", csrf).send({ version: 4, currentStatus: "REOPENED", reason: "The incident returned." });
+    expect(response.status).toBe(200);
+    expect(userFindFirst).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ id: 44, isActive: true }) }));
+    expect(ticketUpdateMany).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ currentStatus: "REOPENED", ownerId: null }) }));
+    expect(ticketEventCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: "STATUS_CHANGED" }) }));
   });
 });

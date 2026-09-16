@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import multer from "multer";
+import type { Prisma } from "@prisma/client";
 import { getPrisma } from "./prisma.js";
 import {
   isPermittedAttachment,
@@ -501,10 +502,21 @@ app.patch("/api/staff/tickets/:id/status", ...protectedMutation, async (req, res
   const ticketId = requestId(req.params.id);
   const currentStatus = req.body?.currentStatus;
   if (!ticketId || version === undefined || !["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"].includes(currentStatus)) return res.status(422).json({ message: "Ticket id, status and version are required." });
-  const result = await mutateWorkflow(ticketId, version, authenticatedUser(res).id, "STATUS_CHANGED", async (ticket) => {
-    const error = workflowValidation({ from: ticket.currentStatus, to: currentStatus, ownerId: ticket.ownerId, reason: req.body?.reason, resolutionSummary: req.body?.resolutionSummary });
-    if (error) return { conflict: error };
-    return { data: { currentStatus, ...(currentStatus === "RESOLVED" ? { resolutionSummary: req.body.resolutionSummary.trim() } : {}) } };
+  const result = await mutateWorkflow(ticketId, version, authenticatedUser(res).id, "STATUS_CHANGED", async (ticket, transaction) => {
+    const validation = workflowValidation({ from: ticket.currentStatus, to: currentStatus, ownerId: ticket.ownerId, reason: req.body?.reason, resolutionSummary: req.body?.resolutionSummary });
+    if (validation) return validation.kind === "validation" ? { validation: validation.message } : { conflict: validation.message };
+
+    const data: Record<string, unknown> = { currentStatus, ...(currentStatus === "RESOLVED" ? { resolutionSummary: req.body.resolutionSummary.trim() } : {}) };
+    // A reopened Ticket must not retain an owner who can no longer work on it.
+    // Check and clear this in the same transaction as the versioned status write.
+    if (currentStatus === "REOPENED" && ticket.ownerId !== null) {
+      const eligibleOwner = await transaction.user.findFirst({
+        where: { id: ticket.ownerId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
+        select: { id: true },
+      });
+      if (!eligibleOwner) data.ownerId = null;
+    }
+    return { data };
   }, req.body?.reason);
   return workflowResponse(res, result);
 });
@@ -530,22 +542,23 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
 });
 
 type WorkflowTicket = { id: number; version: number; ownerId: number | null; currentStatus: import("@prisma/client").TicketStatus; itPriority: import("@prisma/client").RequestedPriority };
-type WorkflowMutation = { data: Record<string, unknown> } | { conflict: string };
+type WorkflowMutation = { data: Record<string, unknown> } | { conflict: string } | { validation: string };
 
 async function mutateWorkflow(
   ticketId: number,
   version: number,
   actorId: number,
   type: string,
-  decide: (ticket: WorkflowTicket) => Promise<WorkflowMutation>,
+  decide: (ticket: WorkflowTicket, transaction: Prisma.TransactionClient) => Promise<WorkflowMutation>,
   reason?: unknown,
 ) {
   return getPrisma().$transaction(async (transaction) => {
     const ticket = await transaction.ticket.findUnique({ where: { id: ticketId }, select: { id: true, version: true, ownerId: true, currentStatus: true, itPriority: true } });
     if (!ticket) return { kind: "missing" as const };
     if (ticket.version !== version) return { kind: "conflict" as const, message: "This Ticket changed. Reload it before trying again." };
-    const decision = await decide(ticket);
+    const decision = await decide(ticket, transaction);
     if ("conflict" in decision) return { kind: "conflict" as const, message: decision.conflict };
+    if ("validation" in decision) return { kind: "validation" as const, message: decision.validation };
     // Compare the version in the update itself: two staff actions that read the
     // same version cannot both succeed between the read and write.
     const write = await transaction.ticket.updateMany({ where: { id: ticketId, version }, data: { ...decision.data, version: { increment: 1 } } });
@@ -559,6 +572,7 @@ async function mutateWorkflow(
 function workflowResponse(res: express.Response, result: Awaited<ReturnType<typeof mutateWorkflow>>) {
   if (result.kind === "missing") return res.status(404).json({ message: "Ticket not found." });
   if (result.kind === "conflict") return res.status(409).json({ code: "CONFLICT", message: result.message });
+  if (result.kind === "validation") return res.status(422).json({ code: "VALIDATION_FAILED", message: result.message });
   return res.status(200).json(result.ticket);
 }
 
