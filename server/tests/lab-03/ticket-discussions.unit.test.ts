@@ -12,6 +12,7 @@ describe("Lab 3 Ticket discussions rules", () => {
     expect(discussionPagination({})).toEqual({ page: 1, pageSize: 10 });
     expect(discussionPagination({ page: "2", pageSize: "50" })).toEqual({ page: 2, pageSize: 50 });
     expect(discussionPagination({ page: "0", pageSize: "25" })).toBeUndefined();
+    expect(discussionPagination({ pageSiz: "50" })).toBeUndefined();
   });
 
   it("allows discussion on RESOLVED but not CLOSED or CANCELLED", () => {

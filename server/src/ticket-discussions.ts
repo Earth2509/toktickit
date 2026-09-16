@@ -9,6 +9,10 @@ export function validateDiscussionContent(value: unknown): string | undefined {
 }
 
 export function discussionPagination(query: Record<string, unknown>) {
+  // A misspelled query parameter must not quietly turn into the default page.
+  // The queue endpoint follows the same rule, and it prevents clients from
+  // believing their requested pagination was applied when it was not.
+  if (!Object.keys(query).every((key) => key === "page" || key === "pageSize")) return undefined;
   const page = parsePositive(query.page) ?? 1;
   const pageSize = parsePositive(query.pageSize) ?? 10;
   return page > 0 && pageSizes.has(pageSize) ? { page, pageSize } : undefined;
