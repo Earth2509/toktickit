@@ -23,6 +23,20 @@ export type Requester = AuthUser;
 
 export type AuthSession = { user: AuthUser; csrfToken: string; expiresAt: string };
 
+export type AdminUser = AuthUser & {
+  credentialVersion: number;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminUserInput = {
+  displayName: string;
+  email: string;
+  role: UserRole;
+  isActive: boolean;
+};
+
 let csrfToken = "";
 export const sessionExpiredEvent = "toktickit:session-expired";
 
@@ -276,6 +290,25 @@ export async function fetchStaffQueue(query: StaffQueueQuery): Promise<StaffQueu
 
 export async function fetchStaffAssignees(): Promise<Array<Pick<AuthUser, "id" | "displayName" | "role">>> {
   return ticketRequest("/api/staff/assignees", "Unable to load available assignees. Please retry.");
+}
+
+export async function fetchAdminUsers(query: { search?: string; role?: UserRole }): Promise<{ items: AdminUser[] }> {
+  const parameters = new URLSearchParams();
+  if (query.search?.trim()) parameters.set("search", query.search.trim());
+  if (query.role) parameters.set("role", query.role);
+  return ticketRequest(`/api/admin/users?${parameters.toString()}`, "Unable to load users. Please retry.");
+}
+
+export async function createAdminUser(input: AdminUserInput & { initialPassword: string }): Promise<AdminUser> {
+  return ticketRequest("/api/admin/users", "Unable to create the user. Please retry.", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
+}
+
+export async function updateAdminUser(id: number, input: AdminUserInput & { version: number }): Promise<AdminUser> {
+  return ticketRequest(`/api/admin/users/${id}`, "Unable to update the user. Please retry.", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
+}
+
+export async function resetAdminUserInitialPassword(id: number, initialPassword: string, version: number): Promise<AdminUser> {
+  return ticketRequest(`/api/admin/users/${id}/initial-password`, "Unable to reset the initial password. Please retry.", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ initialPassword, version }) });
 }
 
 export async function claimTicket(ticketId: number, version: number): Promise<TicketDetail> {
