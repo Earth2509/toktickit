@@ -2,7 +2,9 @@ import { defineConfig } from "@playwright/test";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-const e2eRuntimeDirectory = path.resolve("artifacts/lab-02/e2e-runtime");
+// Lab 3 browser evidence is deliberately isolated from the earlier Lab 2 run.
+// The E2E database is always forced to the disposable `lab3_e2e` schema below.
+const e2eRuntimeDirectory = path.resolve("artifacts/lab-03/e2e-runtime");
 const e2eDatabaseUrl = isolatedE2eDatabaseUrl();
 const e2eApiPort = process.env.E2E_API_PORT ?? "3001";
 const e2eClientPort = process.env.E2E_CLIENT_PORT ?? "4173";
@@ -14,8 +16,8 @@ export default defineConfig({
   workers: 1,
   timeout: 45_000,
   expect: { timeout: 10_000 },
-  outputDir: "artifacts/lab-02/test-results",
-  reporter: [["line"], ["html", { outputFolder: "artifacts/lab-02/playwright-report", open: "never" }]],
+  outputDir: "artifacts/lab-03/test-results",
+  reporter: [["line"], ["html", { outputFolder: "artifacts/lab-03/playwright-report", open: "never" }]],
   use: {
     baseURL: `http://127.0.0.1:${e2eClientPort}`,
     trace: "retain-on-failure",

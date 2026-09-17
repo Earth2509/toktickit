@@ -35,10 +35,10 @@ Status: The engineering contract and authentication foundation are merged into `
 | UI-07 | UI | AC-14,AC-15,AC-16 | Users create/edit/search/role-filter/reset; All roles omits parameter, combine search/role, clear both, no matches; validation/safety/forbidden/success, retained fields after failure | client/tests/lab-03/UserManagement.test.tsx | Planned |
 | STYLE-01 | UI style | AC-16 | Shared tokens, badges, readable read-only fields, focus/error placement | client/tests/lab-03/ZenGreen.test.tsx | Planned |
 | E2E-01 | E2E | AC-01,AC-02,AC-03 | Real login initial change, role landing, mutation/logout and direct route/API denial through relative /api proxy; local localhost:5173->3000 and E2E 127.0.0.1:4173->3001 cookie/Origin forwarding verified; no direct VITE_API_URL fallback | e2e/lab-03/authentication-foundation.spec.ts, followed by the Issue 3 UI flow | Planned |
-| E2E-02 | E2E | AC-08,AC-09,AC-10,AC-11,AC-12,AC-13 | Real staff claim/priority/progress/public/internal exchange; Requester indication becomes visible with author/time in Staff Detail and queue marker before explicit staff resolution/close | e2e/lab-03/staff-ticket-flow.spec.ts | Planned |
-| E2E-03 | E2E | AC-14,AC-15 | Admin create/edit/reset; target must change password; non-Admin forbidden and safety rejection | e2e/lab-03/user-administration.spec.ts | Planned |
-| E2E-04 | E2E/regression | AC-04,AC-05,AC-07 | Authenticated Requester create/attachments/search/detail; second Requester direct ticket/file denial, no internal notes | e2e/lab-03/requester-regression.spec.ts | Planned |
-| E2E-05 | Responsive/accessibility | AC-16 | All major screens at 1440x900,820x1180,390x844; keyboard, focus, labels, long data, no overflow/overlap; screenshots | e2e/lab-03/responsive.spec.ts | Planned |
+| E2E-02 | E2E | AC-08,AC-09,AC-10,AC-11,AC-12,AC-13 | Real staff claim/priority/progress/public/internal exchange; Requester indication becomes visible with author/time in Staff Detail and queue marker before explicit staff resolution/close | e2e/lab-03/role-workflows.spec.ts | Planned |
+| E2E-03 | E2E | AC-14,AC-15 | Admin create/edit/reset; target must change password; non-Admin forbidden and safety rejection | e2e/lab-03/role-workflows.spec.ts | Planned |
+| E2E-04 | E2E/regression | AC-04,AC-05,AC-07 | Authenticated Requester create/attachments/search/detail; second Requester direct ticket/file denial, no internal notes | e2e/lab-02/requester-flow.spec.ts; e2e/lab-03/role-workflows.spec.ts | Planned |
+| E2E-05 | Responsive/accessibility | AC-16 | All major screens at 1440x900,820x1180,390x844; keyboard, focus, labels, long data, no overflow/overlap; screenshots | e2e/lab-02/requester-flow.spec.ts; e2e/lab-03/role-workflows.spec.ts | Planned |
 
 The Final column deliberately contains only `Planned` or `Passed`. The foundation run on commit `f99687e` completed UNIT-01, API-01 and DB-02. It also passed the already-implemented subsets of API-02 through API-04, DB-01 and E2E-01, but those rows remain `Planned` until every scenario named in the row is implemented and executed. The correction for PR #37 adds a real-database requester-directory assertion to the separately invoked migration suite; its result is recorded in the PR rather than retroactively changing the earlier commit evidence.
 
@@ -104,5 +104,28 @@ Executed on `feature/lab3-ticket-workflow` after correcting URL Ticket-ID parsin
 | `cd client && npm test` | **6 test files and 22 tests passed**. Duration: 14.98 seconds. |
 | `cd server && npm run build` | Passed; TypeScript compilation completed successfully. |
 | `cd client && npx tsc --noEmit` | Passed; client TypeScript compilation completed successfully. |
+
+## Issue #44 E2E and responsive evidence plan
+
+The final browser suite uses a resettable PostgreSQL schema named `lab3_e2e` only. It must never be pointed at a personal, shared, or production schema. Playwright starts the API on `127.0.0.1:3001` and the same-origin Vite client on `127.0.0.1:4173`; generated reports, traces, and screenshots are ignored under `artifacts/lab-03/`.
+
+Run from the repository root in PowerShell:
+
+```powershell
+$env:E2E_DATABASE_URL = 'postgresql://USER:PASSWORD@localhost:5432/toktickit?schema=lab3_e2e'
+npx playwright test
+```
+
+`role-workflows.spec.ts` captures the Staff queue, Staff Ticket Detail, Requester My Tickets, and Administrator User Management screens at desktop (1440x900), tablet (820x1180), and mobile (390x844). Its functional flows additionally prove: Requester resolution indication, public-comment visibility, Internal Note privacy, Staff claiming, Admin create/reset, and direct Users API denial for an IT Staff account. The existing authenticated Requester suite covers ticket creation, attachment upload/download/soft removal, owner scoping, and Requester Create/Detail responsive screens. Keep every E2E row as `Planned` until this command exits zero on the candidate commit and its actual terminal output is retained with the report.
+
+## Issue #44 E2E and responsive execution evidence
+
+Executed from `feature/lab3-e2e-evidence` using only the disposable `lab3_e2e` PostgreSQL schema. The suite reset and seeded that schema through the E2E server setup; it did not use the development schema.
+
+| Command | Actual result |
+|---|---|
+| `npx playwright test` with `E2E_DATABASE_URL` explicitly set to the `lab3_e2e` schema | **11 browser tests passed in 32.0 seconds**: 5 authenticated Requester regression/responsive tests, 1 same-origin authentication/cookie/CSRF/logout test, 2 Staff/Requester/Admin authorization and discussion flows, and 3 role-aware desktop/tablet/mobile overflow checks. HTML report, traces, and screenshot attachments were written under ignored `artifacts/lab-03/`. |
+
+This run is authentic execution evidence for the implemented browser coverage. The detailed E2E rows above remain `Planned` where their planned prose intentionally names additional scenarios that are not yet individually automated (for example, every priority/progress path, every Admin safety rejection, and keyboard/long-data accessibility checks). The 11 passing tests are not presented as evidence for those unimplemented cases.
 
 Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store output in artifacts/lab-03/test-output and screenshots in the UI contract folders. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include all relevant output, not just a summary count.
