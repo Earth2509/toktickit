@@ -18,9 +18,18 @@ import { editableOperationalFields, workflowValidation } from "./ticket-workflow
 import { canCreateDiscussion, canIndicateResolution, discussionPagination, validateDiscussionContent } from "./ticket-discussions.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
 import {
+  adminUserSelect,
+  operationalTicketStatuses,
+  validateInitialPasswordReset,
+  validateUserCreate,
+  validateUserEdit,
+  validateUserListQuery,
+} from "./admin-users.js";
+import {
   authenticatedUser,
   changePassword,
   currentUser,
+  hashPassword,
   login,
   logout,
   requireAuthenticatedUser,
@@ -83,6 +92,7 @@ app.use(["/api/categories", "/api/related-systems", "/api/tickets"], ...protecte
 // Queue reads are deliberately isolated from requester routes. Issue #40 has
 // no mutation controls: ownership, priority and status changes arrive in #41.
 app.use("/api/staff", ...protectedResource, requireRole("IT_STAFF", "ADMINISTRATOR"));
+app.use("/api/admin", ...protectedResource, requireRole("ADMINISTRATOR"));
 
 app.get("/api/categories", async (_req, res) => {
   try {
@@ -528,6 +538,107 @@ app.post("/api/tickets/:ticketId/resolution-indication", ...protectedMutation, r
   return res.status(200).json({ requesterResolvedAt: result.at.toISOString(), version: result.version });
 });
 
+app.get("/api/admin/users", async (req, res) => {
+  const query = validateUserListQuery(req.query);
+  if (!query.value) return res.status(400).json({ code: "BAD_REQUEST", message: "The user search or role filter is invalid." });
+  const { search, role } = query.value;
+  const where: Prisma.UserWhereInput = {
+    ...(role ? { role } : {}),
+    ...(search ? { OR: [{ displayName: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }] } : {}),
+  };
+  const items = await getPrisma().user.findMany({ where, orderBy: [{ displayName: "asc" }, { id: "asc" }], select: adminUserSelect });
+  return res.status(200).json({ items });
+});
+
+app.post("/api/admin/users", ...protectedMutation, async (req, res) => {
+  const input = validateUserCreate(req.body);
+  if (!input.value || !input.initialPassword) return res.status(422).json({ code: "VALIDATION_ERROR", message: "User input is invalid.", fieldErrors: input.fieldErrors });
+  try {
+    const passwordHash = await hashPassword(input.initialPassword);
+    const user = await getPrisma().user.create({
+      data: { ...input.value, passwordHash, mustChangePassword: true },
+      select: adminUserSelect,
+    });
+    return res.status(201).json(user);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) return res.status(409).json({ code: "CONFLICT", message: "An account already uses that email address." });
+    throw error;
+  }
+});
+
+app.patch("/api/admin/users/:id", ...protectedMutation, async (req, res) => {
+  const targetId = requestId(req.params.id);
+  const input = validateUserEdit(req.body);
+  if (!targetId) return res.status(404).json({ message: "User not found." });
+  if (!input.value || !input.version) return res.status(422).json({ code: "VALIDATION_ERROR", message: "User input is invalid.", fieldErrors: input.fieldErrors });
+  const userInput = input.value;
+  const requestedVersion = input.version;
+  const actor = authenticatedUser(res);
+  try {
+    const result = await getPrisma().$transaction(async (transaction) => {
+      // PostgreSQL transaction advisory lock serializes every change that could
+      // otherwise leave no active Administrator after concurrent requests.
+      await transaction.$executeRawUnsafe("SELECT pg_advisory_xact_lock(43003)");
+      const [currentActor, target] = await Promise.all([
+        transaction.user.findFirst({ where: { id: actor.id, isActive: true, role: "ADMINISTRATOR" }, select: { id: true } }),
+        transaction.user.findUnique({ where: { id: targetId }, select: { id: true, role: true, isActive: true, version: true } }),
+      ]);
+      if (!currentActor) return { kind: "forbidden" as const };
+      if (!target) return { kind: "missing" as const };
+      if (target.version !== requestedVersion) return { kind: "conflict" as const, message: "This user changed. Reload it before trying again." };
+      if (target.id === actor.id && !userInput.isActive) return { kind: "conflict" as const, message: "You cannot deactivate your own account." };
+
+      const removesLastAdmin = target.isActive && target.role === "ADMINISTRATOR" && (!userInput.isActive || userInput.role !== "ADMINISTRATOR");
+      if (removesLastAdmin) {
+        const activeAdminCount = await transaction.user.count({ where: { isActive: true, role: "ADMINISTRATOR" } });
+        if (activeAdminCount <= 1) return { kind: "conflict" as const, message: "At least one active Administrator must remain." };
+      }
+
+      const losesOperatorAccess = (target.role === "IT_STAFF" || target.role === "ADMINISTRATOR") && (!userInput.isActive || userInput.role === "REQUESTER");
+      const write = await transaction.user.updateMany({
+        where: { id: targetId, version: requestedVersion },
+        data: { ...userInput, version: { increment: 1 }, ...(target.role !== userInput.role || target.isActive !== userInput.isActive ? { credentialVersion: { increment: 1 } } : {}) },
+      });
+      if (write.count !== 1) return { kind: "conflict" as const, message: "This user changed. Reload it before trying again." };
+
+      if (target.role !== userInput.role || target.isActive !== userInput.isActive) await transaction.session.deleteMany({ where: { userId: targetId } });
+      if (losesOperatorAccess) await unassignActiveTickets(transaction, targetId, actor.id);
+      const user = await transaction.user.findUnique({ where: { id: targetId }, select: adminUserSelect });
+      return { kind: "updated" as const, user: user! };
+    });
+    return adminUserMutationResponse(res, result);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) return res.status(409).json({ code: "CONFLICT", message: "An account already uses that email address." });
+    throw error;
+  }
+});
+
+app.post("/api/admin/users/:id/initial-password", ...protectedMutation, async (req, res) => {
+  const targetId = requestId(req.params.id);
+  const input = validateInitialPasswordReset(req.body);
+  if (!targetId) return res.status(404).json({ message: "User not found." });
+  if (!input.value) return res.status(422).json({ code: "VALIDATION_ERROR", message: "The initial password is invalid.", fieldErrors: input.fieldErrors });
+  const resetInput = input.value;
+  const passwordHash = await hashPassword(resetInput.initialPassword);
+  const actor = authenticatedUser(res);
+  const result = await getPrisma().$transaction(async (transaction) => {
+    const currentActor = await transaction.user.findFirst({ where: { id: actor.id, isActive: true, role: "ADMINISTRATOR" }, select: { id: true } });
+    if (!currentActor) return { kind: "forbidden" as const };
+    const write = await transaction.user.updateMany({
+      where: { id: targetId, version: resetInput.version },
+      data: { passwordHash, mustChangePassword: true, credentialVersion: { increment: 1 }, version: { increment: 1 } },
+    });
+    if (write.count !== 1) {
+      const exists = await transaction.user.findUnique({ where: { id: targetId }, select: { id: true } });
+      return exists ? { kind: "conflict" as const, message: "This user changed. Reload it before trying again." } : { kind: "missing" as const };
+    }
+    await transaction.session.deleteMany({ where: { userId: targetId } });
+    const user = await transaction.user.findUnique({ where: { id: targetId }, select: adminUserSelect });
+    return { kind: "updated" as const, user: user! };
+  });
+  return adminUserMutationResponse(res, result);
+});
+
 app.get("/api/staff/assignees", async (_req, res) => {
   try {
     return res.status(200).json(await getPrisma().user.findMany({
@@ -636,6 +747,41 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
 
 type WorkflowTicket = { id: number; version: number; ownerId: number | null; currentStatus: import("@prisma/client").TicketStatus; itPriority: import("@prisma/client").RequestedPriority };
 type WorkflowMutation = { data: Record<string, unknown> } | { conflict: string } | { validation: string };
+type AdminMutation =
+  | { kind: "updated"; user: Record<string, unknown> }
+  | { kind: "missing" }
+  | { kind: "forbidden" }
+  | { kind: "conflict"; message: string };
+
+function adminUserMutationResponse(res: express.Response, result: AdminMutation) {
+  if (result.kind === "missing") return res.status(404).json({ message: "User not found." });
+  if (result.kind === "forbidden") return res.status(403).json({ code: "FORBIDDEN", message: "You do not have permission to perform this action." });
+  if (result.kind === "conflict") return res.status(409).json({ code: "CONFLICT", message: result.message });
+  return res.status(200).json(result.user);
+}
+
+async function unassignActiveTickets(transaction: Prisma.TransactionClient, userId: number, actorId: number) {
+  const tickets = await transaction.ticket.findMany({
+    where: { ownerId: userId, currentStatus: { in: [...operationalTicketStatuses] } },
+    select: { id: true, version: true, currentStatus: true, ownerId: true },
+  });
+  for (const ticket of tickets) {
+    const write = await transaction.ticket.updateMany({
+      where: { id: ticket.id, ownerId: userId, version: ticket.version },
+      data: { ownerId: null, version: { increment: 1 } },
+    });
+    if (write.count !== 1) continue;
+    await transaction.ticketEvent.create({
+      data: {
+        ticketId: ticket.id,
+        actorId,
+        type: "OWNER_UNASSIGNED_ACCOUNT_CHANGE",
+        before: { ownerId: userId, currentStatus: ticket.currentStatus, version: ticket.version },
+        after: { ownerId: null, version: ticket.version + 1 },
+      },
+    });
+  }
+}
 
 async function mutateWorkflow(
   ticketId: number,
