@@ -107,6 +107,17 @@ describe("Lab 3 comments, internal notes and resolution indication API", () => {
     expect(terminal.status).toBe(409);
   });
 
+  it("keeps discussion endpoints append-only by exposing no edit or deletion routes", async () => {
+    for (const method of ["put", "patch", "delete"] as const) {
+      const response = await request(app)[method]("/api/tickets/9/comments/3")
+        .set("Cookie", `toktickit_session=${token}`)
+        .set("Origin", "http://localhost:5173")
+        .set("X-CSRF-Token", csrf)
+        .send({ content: "Attempted edit" });
+      expect(response.status).toBe(404);
+    }
+  });
+
   it("records a requester indication once, returns the same indication on repeat, and refuses terminal status", async () => {
     const first = await post("/api/tickets/9/resolution-indication", { version: 4 });
     expect(first.status).toBe(200);
