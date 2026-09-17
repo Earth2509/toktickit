@@ -45,7 +45,14 @@ describe.skipIf(!testUrl)("Lab 3 Administrator user management integration", () 
       patchUser(secondSession, first, { isActive: false }),
     ]);
 
-    expect([deactivateSecond.status, deactivateFirst.status].sort()).toEqual([200, 403]);
+    // Either request may acquire the advisory lock first.  The losing request
+    // is forbidden once it re-checks the final-active-Administrator rule
+    // (403), or it can be unauthenticated (401) when the winning request has
+    // already revoked that Administrator's session.  In both cases the second
+    // deactivation is prevented; the database invariant below is the proof.
+    const statuses = [deactivateSecond.status, deactivateFirst.status];
+    expect(statuses).toContain(200);
+    expect(statuses.filter((status) => status === 401 || status === 403)).toHaveLength(1);
     expect(await requiredPrisma().user.count({ where: { role: "ADMINISTRATOR", isActive: true } })).toBe(1);
   });
 
