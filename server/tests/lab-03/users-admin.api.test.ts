@@ -10,6 +10,10 @@ const userFindUnique = vi.fn();
 const userUpdateMany = vi.fn();
 const userCount = vi.fn();
 const sessionDeleteMany = vi.fn();
+const ticketFindMany = vi.fn();
+const ticketUpdateMany = vi.fn();
+const ticketEventCreate = vi.fn();
+const advisoryLock = vi.fn();
 const transaction = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({
@@ -45,12 +49,15 @@ describe("Lab 3 Administrator user API", () => {
     userFindUnique.mockResolvedValue(safeUser);
     userUpdateMany.mockResolvedValue({ count: 1 });
     userCount.mockResolvedValue(2);
+    ticketFindMany.mockResolvedValue([]);
+    ticketUpdateMany.mockResolvedValue({ count: 1 });
+    ticketEventCreate.mockResolvedValue({ id: 1 });
     transaction.mockImplementation((callback: (client: unknown) => unknown) => callback({
-      $executeRawUnsafe: vi.fn(),
+      $executeRawUnsafe: advisoryLock,
       user: { findFirst: userFindFirst, findUnique: userFindUnique, updateMany: userUpdateMany, count: userCount },
       session: { deleteMany: sessionDeleteMany },
-      ticket: { findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn() },
-      ticketEvent: { create: vi.fn() },
+      ticket: { findMany: ticketFindMany, updateMany: ticketUpdateMany },
+      ticketEvent: { create: ticketEventCreate },
     }));
   });
 
@@ -90,5 +97,23 @@ describe("Lab 3 Administrator user API", () => {
     const response = await request(app).patch("/api/admin/users/9").set("Cookie", `toktickit_session=${token}`).set("Origin", "http://localhost:5173").set("X-CSRF-Token", csrf).send({ displayName: "Only Admin", email: "only@example.test", role: "ADMINISTRATOR", isActive: false, version: 3 });
     expect(response.status).toBe(409);
     expect(userUpdateMany).not.toHaveBeenCalled();
+  });
+
+  it("uses the shared advisory lock before counting Administrators", async () => {
+    userFindUnique.mockResolvedValueOnce({ id: 9, role: "ADMINISTRATOR", isActive: true, version: 3 });
+    const response = await request(app).patch("/api/admin/users/9").set("Cookie", `toktickit_session=${token}`).set("Origin", "http://localhost:5173").set("X-CSRF-Token", csrf).send({ displayName: "Second Admin", email: "second@example.test", role: "ADMINISTRATOR", isActive: false, version: 3 });
+    expect(response.status).toBe(200);
+    expect(advisoryLock).toHaveBeenCalledWith("SELECT pg_advisory_xact_lock(43003)");
+    expect(userCount).toHaveBeenCalledWith({ where: { isActive: true, role: "ADMINISTRATOR" } });
+  });
+
+  it("revokes sessions and unassigns active work with an audit event when a Staff account is deactivated", async () => {
+    userFindUnique.mockResolvedValueOnce({ id: 9, role: "IT_STAFF", isActive: true, version: 3 });
+    ticketFindMany.mockResolvedValue([{ id: 73, ownerId: 9, currentStatus: "OPEN", version: 8 }]);
+    const response = await request(app).patch("/api/admin/users/9").set("Cookie", `toktickit_session=${token}`).set("Origin", "http://localhost:5173").set("X-CSRF-Token", csrf).send({ displayName: "Departing Staff", email: "staff@example.test", role: "IT_STAFF", isActive: false, version: 3 });
+    expect(response.status).toBe(200);
+    expect(sessionDeleteMany).toHaveBeenCalledWith({ where: { userId: 9 } });
+    expect(ticketUpdateMany).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 73, ownerId: 9, version: 8 }, data: { ownerId: null, version: { increment: 1 } } }));
+    expect(ticketEventCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ ticketId: 73, actorId: admin.id, type: "OWNER_UNASSIGNED_ACCOUNT_CHANGE" }) }));
   });
 });

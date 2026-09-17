@@ -84,4 +84,19 @@ describe("Lab 3 authenticated shell", () => {
     expect(await screen.findByRole("heading", { name: "Sign in to TokTickIT" })).toBeInTheDocument();
     expect(screen.queryByText("Anan Chaiyasit")).not.toBeInTheDocument();
   });
+
+  it("does not expose the Administrator Users workspace to IT Staff", async () => {
+    const staffSession = { ...session, user: { ...requester, id: 7, displayName: "Kamon IT Support", email: "staff@example.test", role: "IT_STAFF" as const } };
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const url = new URL(typeof input === "string" ? input : input.toString(), "http://localhost");
+      if (url.pathname === "/api/auth/me") return Promise.resolve(response(staffSession));
+      if (url.pathname === "/api/categories" || url.pathname === "/api/related-systems") return Promise.resolve(response([]));
+      if (url.pathname === "/api/staff/tickets") return Promise.resolve(response({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 }));
+      return Promise.resolve(response({}, false));
+    }));
+    render(<App />);
+    expect(await screen.findByText("Kamon IT Support")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Users" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "User Management" })).not.toBeInTheDocument();
+  });
 });
