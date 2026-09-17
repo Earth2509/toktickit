@@ -148,6 +148,11 @@ describe("Ticket detail and attachment routes", () => {
     expect(response.body).toMatchObject({ ticketNumber: "TT-2026-000042", attachments: [{ id: 8, removedAt: null }] });
     expect(ticketFindFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 42, requesterId: 1 } }));
 
+    // A mocked record cannot reveal a relation accidentally added to the
+    // Prisma include, so protect the requester-facing query shape directly.
+    const detailQuery = ticketFindFirst.mock.calls[0]?.[0];
+    expect(detailQuery?.include).not.toHaveProperty("internalNotes");
+
     ticketFindFirst.mockResolvedValueOnce(null);
     const crossOwner = await getAsRequester("/api/tickets/42");
     expect(crossOwner.status).toBe(404);
