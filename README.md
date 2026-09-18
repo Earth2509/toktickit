@@ -1,6 +1,6 @@
 # TokTickIT
 
-TokTickIT is an IT service desk application. This repository is being built in four reviewed feature branches for CPE334 Lab 1.
+TokTickIT is an IT service desk application. This repository is being built through reviewed feature branches for CPE334 Labs 1–3.
 
 ## Foundation stack
 
