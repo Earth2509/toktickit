@@ -1,0 +1,127 @@
+=== Source === 
+0381a8d
+main
+=== Server: npm test === 
+
+> toktickit-server@1.0.0 test
+> vitest run
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/ASUS/Documents/Codex/2026-08-12/github/lab3-auth-foundation/server[39m
+
+ [32m✓[39m tests/lab-02/ticket-query.unit.test.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/lab-03/users-admin.integration.test.ts [2m([22m[2m2 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m
+ [32m✓[39m tests/lab-03/ticket-workflow.unit.test.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [2m[90m↓[39m[22m tests/lab-03/migration.test.ts [2m([22m[2m2 tests[22m[2m | [22m[33m2 skipped[39m[2m)[22m
+ [32m✓[39m tests/lab-02/my-tickets.api.test.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 73[2mms[22m[39m
+ [32m✓[39m tests/lab-03/ticket-workflow.api.test.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 97[2mms[22m[39m
+ [32m✓[39m tests/lab-02/create-ticket.api.test.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 132[2mms[22m[39m
+ [32m✓[39m tests/lab-03/comments-notes.api.test.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 158[2mms[22m[39m
+ [32m✓[39m tests/lab-02/attachment-validation.unit.test.ts [2m([22m[2m3 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m tests/lab-03/authorization.api.test.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 240[2mms[22m[39m
+ [32m✓[39m tests/lab-02/attachments.api.test.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 245[2mms[22m[39m
+ [32m✓[39m tests/lab-02/ticket-validation.unit.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m tests/lab-03/ticket-discussions.unit.test.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m tests/lab-02/ticket-number.unit.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m tests/lab-03/runtime-config.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m tests/lab-03/users-admin.api.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 647[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 3 Administrator user API[2m > [22mvalidates user creation and never returns the supplied password [33m318[2mms[22m[39m
+ [32m✓[39m tests/categories.test.ts [2m([22m[2m1 test[22m[2m)[22m[90m 30[2mms[22m[39m
+ [32m✓[39m tests/health.test.ts [2m([22m[2m1 test[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m tests/lab-03/password.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 800[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 3 password primitives[2m > [22mstores a versioned scrypt hash and verifies only the original password [33m798[2mms[22m[39m
+ [32m✓[39m tests/lab-03/auth.api.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 3504[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 3 authentication API[2m > [22mlogs in an active fixture user, exposes /me, and revokes the session on logout [33m621[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 3 authentication API[2m > [22muses safe failures for unknown credentials and only names inactive status after a matching password [33m754[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 3 authentication API[2m > [22mrotates all sessions only after a valid current-password change [33m977[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 3 authentication API[2m > [22mrejects untrusted mutation origins and throttles the sixth failed login [33m987[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m18 passed[39m[22m[2m | [22m[33m2 skipped[39m[90m (20)[39m
+[2m      Tests [22m [1m[32m92 passed[39m[22m[2m | [22m[33m4 skipped[39m[90m (96)[39m
+[2m   Start at [22m 00:15:44
+[2m   Duration [22m 4.46s[2m (transform 954ms, setup 0ms, collect 6.20s, tests 5.98s, environment 5ms, prepare 2.84s)[22m
+
+=== Server: npm run test:migration === 
+
+> toktickit-server@1.0.0 test:migration
+> vitest run tests/lab-03/migration.test.ts
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/ASUS/Documents/Codex/2026-08-12/github/lab3-auth-foundation/server[39m
+
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Error: ERROR: Requester emails collide after trim/lower normalization; resolve collisions before the Lab 3 migration.
+
+
+ [32m✓[39m tests/lab-03/migration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 8852[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 3 requester-to-user migration[2m > [22mretains an existing ID, Ticket ownership, and attachment removal attribution [33m5759[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 3 requester-to-user migration[2m > [22mstops before renaming tables when normalized requester emails collide [33m3059[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 00:15:50
+[2m   Duration [22m 9.48s[2m (transform 112ms, setup 0ms, collect 327ms, tests 8.85s, environment 0ms, prepare 101ms)[22m
+
+=== Client: npm test === 
+
+> toktickit-client@1.0.0 test
+> vitest run
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/ASUS/Documents/Codex/2026-08-12/github/lab3-auth-foundation/client[39m
+
+ [32m✓[39m tests/lab-03/UserManagement.test.tsx [2m([22m[2m1 test[22m[2m)[22m[90m 134[2mms[22m[39m
+ [32m✓[39m tests/App.test.tsx [2m([22m[2m1 test[22m[2m)[22m[90m 94[2mms[22m[39m
+ [32m✓[39m tests/lab-03/AuthenticatedShell.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 308[2mms[22m[39m
+ [32m✓[39m tests/lab-02/ZenGreen.styles.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 391[2mms[22m[39m
+   [33m[2m✓[22m[39m Zen Green UI style[2m > [22mkeeps the labelled, busy and focusable Ticket controls aligned with the Zen Green tokens [33m390[2mms[22m[39m
+ [32m✓[39m tests/lab-02/RequesterTicketDetail.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 459[2mms[22m[39m
+ [32m✓[39m tests/lab-02/CreateTicketForm.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 653[2mms[22m[39m
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 1472[2mms[22m[39m
+   [33m[2m✓[22m[39m My Tickets[2m > [22msends resettable search and filter controls to the Ticket API [33m416[2mms[22m[39m
+   [33m[2m✓[22m[39m My Tickets[2m > [22mdebounces search input so one completed term produces one Ticket request [33m406[2mms[22m[39m
+   [33m[2m✓[22m[39m My Tickets[2m > [22mshows a no-results state separately from an empty requester and returns to page one when filters change [33m380[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m24 passed[39m[22m[90m (24)[39m
+[2m   Start at [22m 00:16:00
+[2m   Duration [22m 3.08s[2m (transform 367ms, setup 997ms, collect 2.18s, tests 3.51s, environment 5.28s, prepare 921ms)[22m
+
+=== Root: npm run e2e === 
+
+> toktickit-lab-02@1.0.0 e2e
+> playwright test
+
+
+Running 11 tests using 1 worker
+
+[1/11] e2e\lab-02\requester-flow.spec.ts:12:5 › Requester can create, find, inspect, and soft-remove a real attachment
+[2/11] e2e\lab-02\requester-flow.spec.ts:38:5 › Authenticated Requester sessions keep the integrated ticket list owner-scoped
+[3/11] e2e\lab-02\requester-flow.spec.ts:58:7 › Requester screens remain usable at desktop width
+[4/11] e2e\lab-02\requester-flow.spec.ts:58:7 › Requester screens remain usable at tablet width
+[5/11] e2e\lab-02\requester-flow.spec.ts:58:7 › Requester screens remain usable at mobile width
+[6/11] e2e\lab-03\authentication-foundation.spec.ts:3:5 › same-origin proxy preserves the authentication cookie, Origin, CSRF, and logout revocation
+[7/11] e2e\lab-03\role-workflows.spec.ts:16:5 › Requester indication, Staff discussion, and note privacy work through the browser
+[8/11] e2e\lab-03\role-workflows.spec.ts:78:5 › Administrator creates and resets a user while IT Staff is denied the Users API and screen
+[9/11] e2e\lab-03\role-workflows.spec.ts:122:7 › major authenticated screens have no horizontal overflow at desktop
+[10/11] e2e\lab-03\role-workflows.spec.ts:122:7 › major authenticated screens have no horizontal overflow at tablet
+[11/11] e2e\lab-03\role-workflows.spec.ts:122:7 › major authenticated screens have no horizontal overflow at mobile
+  11 passed (31.9s)
+
+To open last HTML report run:
+[36m[39m
+[36m  npx playwright show-report artifacts\lab-03\playwright-report[39m
+[36m[39m
