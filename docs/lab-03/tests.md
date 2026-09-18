@@ -133,3 +133,16 @@ This run is authentic execution evidence for the implemented browser coverage. T
 After strengthening the Administrator reset flow so it asserts the mandatory password gate before completing it, `npx playwright test --config=playwright.config.ts e2e/lab-03/role-workflows.spec.ts` passed **5 tests in 27.9 seconds**. This focused rerun covers the corrected mandatory-password assertion plus the Requester/Staff discussion and responsive role-workflow coverage.
 
 Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store run output, traces, and screenshots in `artifacts/lab-03/test-results/`, with the HTML report in `artifacts/lab-03/playwright-report/`; both locations are generated and ignored. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include the relevant captured output, not just a summary count.
+
+## Final main verification evidence
+
+Executed from `main` at commit `0381a8d` (the merge commit for PR #52) before this documentation-only evidence branch was created. The complete, unedited terminal capture is retained in [`final-main-verification-20260919.txt`](./final-main-verification-20260919.txt). It contains the source SHA and branch, every invoked command, discovered test totals, and the full runner output. Each command completed successfully with exit code 0.
+
+| Command | Exit code | Actual result |
+|---|---:|---|
+| `cd server && npm test` | 0 | **18 files / 92 tests passed; 2 files / 4 tests skipped**. The skipped suites are the separately configured migration and Administrator integration suites. |
+| `cd server && npm run test:migration` with `MIGRATION_TEST_DATABASE_URL` set to the disposable `lab3_migration_test` schema | 0 | **1 file / 2 tests passed** in 9.48 seconds. The expected collision-preflight error appears in the output because that negative case is asserted by the test. |
+| `cd client && npm test` | 0 | **7 files / 24 tests passed** in 3.08 seconds. |
+| `npm run e2e` from the repository root | 0 | **11 browser tests passed** in 31.9 seconds using the dedicated `lab3_e2e` schema. |
+
+The server run intentionally does not use a normal-development schema for migration testing. The dedicated migration command proves the populated Lab 2-to-Lab 3 preservation and collision-preflight scenarios separately; the raw capture preserves both contexts rather than conflating skipped integration suites with failures.
