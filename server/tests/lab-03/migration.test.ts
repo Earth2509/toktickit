@@ -44,6 +44,11 @@ describe.skipIf(!testUrl)("Lab 3 requester-to-user migration", () => {
     }
 
     runMigration("20260912093000_lab3_auth_foundation", testUrl!);
+    // The test begins from a populated Lab 2 database and proves the
+    // requester-to-user migration first. Apply the subsequently merged Lab 3
+    // migrations before querying through the current Prisma client, whose
+    // Ticket model includes their columns (for example, itPriority).
+    for (const migration of postAuthMigrationDirectories) runMigration(migration, testUrl!);
 
     const user = await prisma.user.findUnique({ where: { id: 41 } });
     const ticket = await prisma.ticket.findUnique({ where: { id: 51 } });
@@ -121,6 +126,12 @@ const lab2MigrationDirectories = [
   "20260828150000_lab2_ticket_creation",
   "20260829160000_lab2_ticket_attachments",
   "20260830090000_harden_attachment_uploads",
+];
+
+const postAuthMigrationDirectories = [
+  "20260915113000_lab3_staff_queue",
+  "20260916090000_lab3_ticket_workflow",
+  "20260916103000_lab3_ticket_discussions",
 ];
 
 function dedicatedMigrationUrl(value: string): string {
