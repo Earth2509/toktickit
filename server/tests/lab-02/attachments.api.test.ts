@@ -1,3 +1,4 @@
+import { createHash, createHmac } from "node:crypto";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -12,6 +13,7 @@ const {
   writeFile,
   readFile,
   unlink,
+  sessionFindUnique,
 } = vi.hoisted(() => ({
   ticketFindFirst: vi.fn(),
   attachmentFindFirst: vi.fn(),
@@ -23,10 +25,12 @@ const {
   writeFile: vi.fn(),
   readFile: vi.fn(),
   unlink: vi.fn(),
+  sessionFindUnique: vi.fn(),
 }));
 
 vi.mock("../../src/prisma.js", () => ({
   getPrisma: () => ({
+    session: { findUnique: sessionFindUnique },
     ticket: { findFirst: ticketFindFirst },
     attachment: {
       findFirst: attachmentFindFirst,
@@ -41,6 +45,40 @@ vi.mock("../../src/prisma.js", () => ({
 vi.mock("node:fs/promises", () => ({ mkdir, writeFile, readFile, unlink }));
 
 import { app } from "../../src/app.js";
+
+const token = "attachments-test-session";
+const tokenHash = createHash("sha256").update(token).digest("base64url");
+const csrfSecret = "attachments-test-secret";
+const csrf = createHmac("sha256", csrfSecret).update(tokenHash).digest("base64url");
+const user = {
+  id: 1,
+  displayName: "Authenticated Requester",
+  email: "requester@example.test",
+  role: "REQUESTER",
+  isActive: true,
+  mustChangePassword: false,
+  credentialVersion: 1,
+};
+
+function getAsRequester(pathname: string) {
+  return request(app).get(pathname).set("Cookie", `toktickit_session=${token}`);
+}
+
+function postAsRequester(pathname: string) {
+  return request(app)
+    .post(pathname)
+    .set("Cookie", `toktickit_session=${token}`)
+    .set("Origin", "http://localhost:5173")
+    .set("X-CSRF-Token", csrf);
+}
+
+function patchAsRequester(pathname: string) {
+  return request(app)
+    .patch(pathname)
+    .set("Cookie", `toktickit_session=${token}`)
+    .set("Origin", "http://localhost:5173")
+    .set("X-CSRF-Token", csrf);
+}
 
 const activeAttachment = {
   id: 8,
@@ -58,13 +96,23 @@ const pdfFile = Buffer.from("%PDF-1.7\\n");
 describe("Ticket detail and attachment routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    ticketFindFirst.mockResolvedValue({ id: 42 });
+    process.env.AUTH_CSRF_SECRET = csrfSecret;
+    process.env.TRUSTED_ORIGINS = "http://localhost:5173";
+    sessionFindUnique.mockResolvedValue({
+      tokenHash,
+      userId: user.id,
+      credentialVersion: user.credentialVersion,
+      expiresAt: new Date(Date.now() + 60_000),
+      user,
+    });
+    ticketFindFirst.mockResolvedValue({ id: 42, currentStatus: "NEW" });
     attachmentCount.mockResolvedValue(0);
     attachmentCreate.mockResolvedValue(activeAttachment);
     attachmentFindMany.mockResolvedValue([activeAttachment]);
     attachmentFindFirst.mockResolvedValue({
       ...activeAttachment,
       storageKey: "safe-storage-key",
+      ticket: { currentStatus: "NEW" },
     });
     attachmentUpdate.mockResolvedValue({
       ...activeAttachment,
@@ -94,22 +142,25 @@ describe("Ticket detail and attachment routes", () => {
     };
     ticketFindFirst.mockResolvedValueOnce(detail);
 
-    const response = await request(app).get("/api/tickets/42?requesterId=1");
+    const response = await getAsRequester("/api/tickets/42");
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({ ticketNumber: "TT-2026-000042", attachments: [{ id: 8, removedAt: null }] });
     expect(ticketFindFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 42, requesterId: 1 } }));
 
+    // A mocked record cannot reveal a relation accidentally added to the
+    // Prisma include, so protect the requester-facing query shape directly.
+    const detailQuery = ticketFindFirst.mock.calls[0]?.[0];
+    expect(detailQuery?.include).not.toHaveProperty("internalNotes");
+
     ticketFindFirst.mockResolvedValueOnce(null);
-    const crossOwner = await request(app).get("/api/tickets/42?requesterId=2");
+    const crossOwner = await getAsRequester("/api/tickets/42");
     expect(crossOwner.status).toBe(404);
     expect(crossOwner.body).toEqual({ message: "Ticket not found." });
   });
 
   it("stores valid attachment metadata for an owned Ticket without exposing a storage path", async () => {
-    const response = await request(app)
-      .post("/api/tickets/42/attachments")
-      .field("requesterId", "1")
+    const response = await postAsRequester("/api/tickets/42/attachments")
       .attach("file", pngFile, { filename: "network-proof.png", contentType: "image/png" });
 
     expect(response.status).toBe(201);
@@ -119,18 +170,14 @@ describe("Ticket detail and attachment routes", () => {
   });
 
   it("rejects unsupported or oversized files and a sixth active attachment before creating metadata", async () => {
-    const unsupported = await request(app)
-      .post("/api/tickets/42/attachments")
-      .field("requesterId", "1")
+    const unsupported = await postAsRequester("/api/tickets/42/attachments")
       .attach("file", Buffer.from("notes"), { filename: "notes.txt", contentType: "text/plain" });
 
     expect(unsupported.status).toBe(415);
     expect(unsupported.body).toEqual({ message: "Only JPEG, PNG, WEBP, and PDF files are supported." });
     expect(attachmentCreate).not.toHaveBeenCalled();
 
-    const oversized = await request(app)
-      .post("/api/tickets/42/attachments")
-      .field("requesterId", "1")
+    const oversized = await postAsRequester("/api/tickets/42/attachments")
       .attach("file", Buffer.alloc(5 * 1024 * 1024 + 1), { filename: "oversized.png", contentType: "image/png" });
 
     expect(oversized.status).toBe(413);
@@ -140,9 +187,7 @@ describe("Ticket detail and attachment routes", () => {
     attachmentFindMany.mockResolvedValueOnce([
       { activeSlot: 1 }, { activeSlot: 2 }, { activeSlot: 3 }, { activeSlot: 4 }, { activeSlot: 5 },
     ]);
-    const sixth = await request(app)
-      .post("/api/tickets/42/attachments")
-      .field("requesterId", "1")
+    const sixth = await postAsRequester("/api/tickets/42/attachments")
       .attach("file", pdfFile, { filename: "proof.pdf", contentType: "application/pdf" });
 
     expect(sixth.status).toBe(409);
@@ -161,9 +206,7 @@ describe("Ticket detail and attachment routes", () => {
       return activeAttachment;
     });
 
-    const responses = await Promise.all(Array.from({ length: 6 }, () => request(app)
-      .post("/api/tickets/42/attachments")
-      .field("requesterId", "1")
+    const responses = await Promise.all(Array.from({ length: 6 }, () => postAsRequester("/api/tickets/42/attachments")
       .attach("file", pngFile, { filename: "network-proof.png", contentType: "image/png" })));
 
     expect(responses.map((response) => response.status).sort()).toEqual([201, 201, 201, 201, 201, 409]);
@@ -173,9 +216,7 @@ describe("Ticket detail and attachment routes", () => {
   it("does not disclose or attach files to a Ticket owned by another Requester", async () => {
     ticketFindFirst.mockResolvedValueOnce(null);
 
-    const response = await request(app)
-      .post("/api/tickets/42/attachments")
-      .field("requesterId", "2")
+    const response = await postAsRequester("/api/tickets/42/attachments")
       .attach("file", pdfFile, { filename: "proof.pdf", contentType: "application/pdf" });
 
     expect(response.status).toBe(404);
@@ -185,22 +226,21 @@ describe("Ticket detail and attachment routes", () => {
   });
 
   it("returns only owned attachment metadata and downloads active owned files", async () => {
-    const metadata = await request(app).get("/api/tickets/42/attachments?requesterId=1");
+    const metadata = await getAsRequester("/api/tickets/42/attachments");
     expect(metadata.status).toBe(200);
     expect(metadata.body).toHaveLength(1);
     expect(metadata.body[0]).not.toHaveProperty("storageKey");
 
-    const download = await request(app).get("/api/tickets/42/attachments/8/download?requesterId=1");
+    const download = await getAsRequester("/api/tickets/42/attachments/8/download");
     expect(download.status).toBe(200);
     expect(download.headers["content-disposition"]).toContain("network-proof.png");
     expect(Buffer.from(download.body).toString()).toBe("attachment data");
   });
 
   it("soft-removes an owned active attachment, records a trimmed reason, and blocks repeat removal", async () => {
-    attachmentFindFirst.mockResolvedValueOnce({ id: 8, removedAt: null });
-    const removed = await request(app)
-      .patch("/api/tickets/42/attachments/8/remove")
-      .send({ requesterId: 1, reason: "  Duplicate screenshot  " });
+    attachmentFindFirst.mockResolvedValueOnce({ id: 8, removedAt: null, ticket: { currentStatus: "NEW" } });
+    const removed = await patchAsRequester("/api/tickets/42/attachments/8/remove")
+      .send({ reason: "  Duplicate screenshot  " });
 
     expect(removed.status).toBe(200);
     expect(attachmentUpdate).toHaveBeenCalledWith(expect.objectContaining({
@@ -208,20 +248,41 @@ describe("Ticket detail and attachment routes", () => {
       data: expect.objectContaining({ removedByRequesterId: 1, removalReason: "Duplicate screenshot" }),
     }));
 
-    attachmentFindFirst.mockResolvedValueOnce({ id: 8, removedAt: new Date("2026-08-29T09:00:00.000Z") });
-    const repeated = await request(app)
-      .patch("/api/tickets/42/attachments/8/remove")
-      .send({ requesterId: 1, reason: "Duplicate screenshot" });
+    attachmentFindFirst.mockResolvedValueOnce({
+      id: 8,
+      removedAt: new Date("2026-08-29T09:00:00.000Z"),
+      ticket: { currentStatus: "NEW" },
+    });
+    const repeated = await patchAsRequester("/api/tickets/42/attachments/8/remove")
+      .send({ reason: "Duplicate screenshot" });
     expect(repeated.status).toBe(409);
+  });
+
+  it("rejects uploads and removals when a Ticket is closed or cancelled", async () => {
+    ticketFindFirst.mockResolvedValueOnce({ id: 42, currentStatus: "CLOSED" });
+    const upload = await postAsRequester("/api/tickets/42/attachments")
+      .attach("file", pngFile, { filename: "network-proof.png", contentType: "image/png" });
+
+    expect(upload.status).toBe(409);
+    expect(upload.body).toEqual({ code: "CONFLICT", message: "Attachments cannot be uploaded in this Ticket status." });
+    expect(attachmentCreate).not.toHaveBeenCalled();
+
+    attachmentFindFirst.mockResolvedValueOnce({ id: 8, removedAt: null, ticket: { currentStatus: "CANCELLED" } });
+    const removal = await patchAsRequester("/api/tickets/42/attachments/8/remove")
+      .send({ reason: "No longer needed" });
+
+    expect(removal.status).toBe(409);
+    expect(removal.body).toEqual({ code: "CONFLICT", message: "Attachments cannot be removed in this Ticket status." });
+    expect(attachmentUpdate).not.toHaveBeenCalled();
   });
 
   it("returns 500 for an unexpected attachment failure and 503 only when the database is unavailable", async () => {
     ticketFindFirst.mockRejectedValueOnce(new Error("unexpected"));
-    const unexpectedFailure = await request(app).get("/api/tickets/42?requesterId=1");
+    const unexpectedFailure = await getAsRequester("/api/tickets/42");
     expect(unexpectedFailure.status).toBe(500);
 
     ticketFindFirst.mockRejectedValueOnce(Object.assign(new Error("database unavailable"), { code: "P1001" }));
-    const dependencyFailure = await request(app).get("/api/tickets/42?requesterId=1");
+    const dependencyFailure = await getAsRequester("/api/tickets/42");
     expect(dependencyFailure.status).toBe(503);
   });
 });

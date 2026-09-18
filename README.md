@@ -1,4 +1,4 @@
-# TokTickIT - Lab 1
+# TokTickIT
 
 TokTickIT is an IT service desk application. This repository is being built in four reviewed feature branches for CPE334 Lab 1.
 
@@ -36,21 +36,57 @@ toktickit/
 
 2. Copy `server/.env.example` to `server/.env`, then set `DATABASE_URL` for a local PostgreSQL database. Do not commit `.env`.
 
-3. Validate the Prisma configuration.
+3. Copy the remaining sample values in `server/.env.example`. Generate a unique
+   local `AUTH_CSRF_SECRET`; do not commit it. To provision the documented Lab
+   3 fixture users, retain `LAB3_SEED_MODE=local` and optionally override
+   `LAB3_SEED_PASSWORD`. The local demo default is `Lab3-Demo-Only!2026` and
+   every fixture account must change it after login. Fixture seeding is refused
+   in production and never assigns a default password to migrated users.
+
+4. Apply migrations and create local-only fixture data. The Lab 3 migration
+   renames the existing `Requester` table to `User`; it does not delete or
+   recreate user, Ticket, Attachment, or attachment-removal attribution rows.
+   It stops before the rename if two existing emails would collide after
+   trim/lower normalization.
+
+   ```bash
+   cd server
+   npm run prisma:migrate
+   npm run prisma:seed
+   ```
+
+   Migrated users deliberately receive no default password. Provision one
+   migrated account locally by setting `LAB3_PROVISION_MODE=local`,
+   `LAB3_PROVISION_EMAIL`, and `LAB3_PROVISION_PASSWORD` for a single command,
+   then run `npm run prisma:provision-user`. The command refuses production,
+   missing users, invalid passwords, and any account that already has a hash;
+   it never prints the password.
+
+5. Validate the Prisma configuration.
 
    ```bash
    cd server
    npm run prisma:validate
    ```
 
-4. Run the development servers in separate terminals.
+6. Run the development servers in separate terminals.
 
    ```bash
    cd server && npm run dev
    cd client && npm run dev
    ```
 
-The health endpoint, category schema/seed, API routes, and interactive UI are delivered in the following feature branches.
+The browser uses the same-origin `/api` path. Vite proxies it to
+`http://localhost:3000` by default, so do not configure a browser-side API URL
+or use a wildcard CORS policy. Set `VITE_API_PROXY_TARGET` only when testing a
+different local API target.
+
+The Lab 3 authenticated Requester workflow provides `POST /api/auth/login`,
+`GET /api/auth/me`, `POST /api/auth/change-password`, and `POST /api/auth/logout`.
+Login and every browser mutation require an allowed Origin. Authenticated
+mutations also require the `X-CSRF-Token` returned by login/me. Ticket and
+attachment ownership comes only from the authenticated session; the former
+development Requester selector and `/api/requesters` directory are removed.
 
 ## Test commands
 
@@ -59,10 +95,10 @@ cd server && npm test
 cd client && npm test
 ```
 
-## Lab 2 integrated E2E checks
+## Integrated E2E checks
 
 The root-level Playwright command starts the API and client itself. It creates
-and resets only the dedicated PostgreSQL schema named `lab2_e2e`, applies the
+and resets only the dedicated PostgreSQL schema named `lab3_e2e`, applies the
 committed migrations, reruns the idempotent seed, and uses an isolated runtime
 attachment directory under `artifacts/`. No separately started development
 server is required, and E2E records do not alter the normal application schema.

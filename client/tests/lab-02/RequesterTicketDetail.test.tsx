@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App";
 
-const requester = { id: 1, displayName: "Anan Chaiyasit", email: "anan.chaiyasit@toktickit.local" };
+const requester = { id: 1, displayName: "Anan Chaiyasit", email: "anan.chaiyasit@toktickit.local", role: "REQUESTER", isActive: true, mustChangePassword: false };
 const ticketListItem = {
   id: 42,
   ticketNumber: "TT-2026-000042",
@@ -54,8 +54,8 @@ function response(body: unknown, ok = true): MockResponse {
 
 function mockApi() {
   const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
-    const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url);
-    if (url.pathname === "/api/requesters") return Promise.resolve(response([requester]));
+    const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url, "http://localhost");
+    if (url.pathname === "/api/auth/me") return Promise.resolve(response({ user: requester, csrfToken: "csrf", expiresAt: "2026-09-14T00:00:00.000Z" }));
     if (url.pathname === "/api/categories") return Promise.resolve(response([{ id: 10, name: "Hardware" }]));
     if (url.pathname === "/api/related-systems") return Promise.resolve(response([{ id: 20, name: "Corporate Laptop" }]));
     if (url.pathname === "/api/tickets") return Promise.resolve(response({ items: [ticketListItem], page: 1, pageSize: 10, totalItems: 1, totalPages: 1 }));
@@ -70,9 +70,7 @@ function mockApi() {
 
 async function openDetail() {
   render(<App />);
-  fireEvent.change(await screen.findByLabelText("Development Requester"), { target: { value: "1" } });
-  fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-  fireEvent.click(await screen.findByRole("button", { name: "My Tickets" }));
+  await screen.findByRole("heading", { name: "My Tickets" });
   fireEvent.click(await screen.findByRole("button", { name: "View details" }));
   await screen.findByRole("heading", { name: "Ticket Detail" });
 }

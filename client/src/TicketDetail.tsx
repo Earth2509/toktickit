@@ -1,7 +1,10 @@
 import { type ChangeEvent, type ReactNode, useEffect, useState } from "react";
 import {
   downloadTicketAttachment,
+  createComment,
+  fetchComments,
   fetchTicket,
+  indicateResolution,
   removeTicketAttachment,
   TicketApiError,
   uploadTicketAttachment,
@@ -9,6 +12,7 @@ import {
   type Requester,
   type TicketDetail as TicketDetailModel,
 } from "./api";
+import DiscussionPanel from "./DiscussionPanel";
 
 type TicketDetailProps = {
   requester: Requester;
@@ -30,6 +34,8 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
   const [removalError, setRemovalError] = useState("");
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [fileInputKey, setFileInputKey] = useState(0);
+  const [indicatingResolution, setIndicatingResolution] = useState(false);
+  const [resolutionMessage, setResolutionMessage] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -37,7 +43,7 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
     setError("");
     setTicket(null);
 
-    void fetchTicket(ticketId, requester.id)
+    void fetchTicket(ticketId)
       .then((loadedTicket) => {
         if (active) setTicket(loadedTicket);
       })
@@ -73,7 +79,7 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
 
     setUploading(true);
     try {
-      const attachment = await uploadTicketAttachment(ticket.id, requester.id, file);
+      const attachment = await uploadTicketAttachment(ticket.id, file);
       setTicket((current) => current ? { ...current, attachments: [attachment, ...current.attachments] } : current);
       setUploadMessage(`${attachment.originalFilename} was uploaded successfully.`);
       setFileInputKey((current) => current + 1);
@@ -89,7 +95,7 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
     setUploadMessage("");
     setDownloadingId(attachment.id);
     try {
-      await downloadTicketAttachment(ticket.id, attachment.id, requester.id, attachment.originalFilename);
+      await downloadTicketAttachment(ticket.id, attachment.id, attachment.originalFilename);
     } catch {
       setUploadMessage("Unable to download the attachment. Please retry.");
     } finally {
@@ -107,7 +113,7 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
 
     setRemovalError("");
     try {
-      const removed = await removeTicketAttachment(ticket.id, attachment.id, requester.id, trimmedReason);
+      const removed = await removeTicketAttachment(ticket.id, attachment.id, trimmedReason);
       setTicket((current) => current
         ? { ...current, attachments: current.attachments.map((item) => item.id === removed.id ? removed : item) }
         : current);
@@ -117,6 +123,17 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
     } catch (removeError) {
       setRemovalError(removeError instanceof TicketApiError ? removeError.message : "Unable to remove the attachment. Please retry.");
     }
+  }
+
+  async function confirmResolutionIndication() {
+    if (!ticket || !ticket.version || indicatingResolution) return;
+    setIndicatingResolution(true); setResolutionMessage("");
+    try {
+      const result = await indicateResolution(ticket.id, ticket.version);
+      setTicket(current => current ? { ...current, requesterResolvedAt: result.requesterResolvedAt, requesterResolvedBy: { id: requester.id, displayName: requester.displayName }, version: result.version } : current);
+      setResolutionMessage("Your indication was recorded. IT Staff will review the Ticket status.");
+    } catch (caught) { setResolutionMessage(caught instanceof TicketApiError ? caught.message : "Unable to record the indication. Please retry."); }
+    finally { setIndicatingResolution(false); }
   }
 
   if (loading) return <section className="ticket-card"><p className="status-message" role="status">Loading Ticket details...</p></section>;
@@ -156,6 +173,14 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
       <DetailField label="Summary" value={ticket.summary} fullWidth />
       <DetailField label="Description" value={ticket.description} fullWidth />
     </dl>
+
+    <section className="resolution-indication" aria-labelledby="resolution-indication-heading">
+      <h2 id="resolution-indication-heading">Problem appears resolved</h2>
+      {ticket.requesterResolvedAt ? <p className="attachment-success" role="status">You indicated that the problem appears resolved on {formatDate(ticket.requesterResolvedAt)}. The formal Ticket status remains {ticket.currentStatus}.</p> : <><p>Use this only if the problem appears resolved. This does not close or resolve the Ticket automatically.</p><button className="button button-secondary" type="button" disabled={indicatingResolution || !ticket.version} onClick={() => void confirmResolutionIndication()}>{indicatingResolution ? "Recording..." : "Indicate problem appears resolved"}</button></>}
+      {resolutionMessage && <p className={resolutionMessage.startsWith("Your") ? "attachment-success" : "field-error"} role="status">{resolutionMessage}</p>}
+    </section>
+
+    <DiscussionPanel title="Public comments" ticketId={ticket.id} load={fetchComments} create={createComment} />
 
     <section className="attachment-section" aria-labelledby="attachments-heading">
       <div className="attachment-heading">

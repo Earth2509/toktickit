@@ -4,7 +4,7 @@ export const ticketSortFields = ["createdAt", "updatedAt", "ticketNumber", "requ
 export const ticketSortOrders = ["asc", "desc"] as const;
 export const ticketPageSizes = [10, 20, 50] as const;
 export const ticketPriorities = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
-export const ticketStatuses = ["NEW"] as const;
+export const ticketStatuses = ["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"] as const;
 
 export type TicketListQuery = {
   requesterId: number;

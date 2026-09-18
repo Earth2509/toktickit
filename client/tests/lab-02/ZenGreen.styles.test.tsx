@@ -9,6 +9,9 @@ const requester = {
   id: 1,
   displayName: "Anan Chaiyasit",
   email: "anan.chaiyasit@toktickit.local",
+  role: "REQUESTER",
+  isActive: true,
+  mustChangePassword: false,
 };
 
 function response(body: unknown, ok = true): MockResponse {
@@ -39,7 +42,7 @@ describe("Zen Green UI style", () => {
 
     vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-      if (url.endsWith("/api/requesters")) return Promise.resolve(response([requester]));
+      if (url.endsWith("/api/auth/me")) return Promise.resolve(response({ user: requester, csrfToken: "csrf", expiresAt: "2026-09-14T00:00:00.000Z" }));
       if (url.endsWith("/api/categories")) return categories.promise;
       if (url.endsWith("/api/related-systems")) return relatedSystems.promise;
       if (url.endsWith("/api/tickets") && init?.method === "POST") return createTicket.promise;
@@ -47,8 +50,6 @@ describe("Zen Green UI style", () => {
     }));
 
     render(<App />);
-    fireEvent.change(await screen.findByLabelText("Development Requester"), { target: { value: "1" } });
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     await screen.findByRole("heading", { name: "My Tickets" });
     fireEvent.click(screen.getAllByRole("button", { name: "Create Ticket" })[0]);
     await screen.findByRole("heading", { name: "Create Ticket" });

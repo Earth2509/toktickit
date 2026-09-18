@@ -16,6 +16,19 @@ enum RequestedPriority {
 
 enum TicketStatus {
   NEW
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_REQUESTER
+  RESOLVED
+  CLOSED
+  REOPENED
+  CANCELLED
+}
+
+enum UserRole {
+  REQUESTER
+  IT_STAFF
+  ADMINISTRATOR
 }
 
 model Category {
@@ -26,15 +39,39 @@ model Category {
   tickets   Ticket[]
 }
 
-model Requester {
-  id          Int      @id @default(autoincrement())
-  displayName String
-  email       String   @unique
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  tickets     Ticket[]
+model User {
+  id                Int        @id @default(autoincrement())
+  displayName       String
+  email             String     @unique
+  isActive          Boolean    @default(true)
+  role              UserRole   @default(REQUESTER)
+  passwordHash      String?
+  mustChangePassword Boolean   @default(true)
+  credentialVersion Int        @default(1)
+  version           Int        @default(1)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  tickets           Ticket[]   @relation("RequesterTickets")
   removedAttachments Attachment[] @relation("AttachmentRemovedBy")
+  sessions          Session[]
+  ownedTickets      Ticket[]   @relation("OwnedTickets")
+  ticketEvents      TicketEvent[]
+  publicComments    PublicComment[]
+  internalNotes     InternalNote[]
+  resolutionIndications Ticket[] @relation("RequesterResolutionIndications")
+}
+
+model Session {
+  id                Int      @id @default(autoincrement())
+  tokenHash         String   @unique
+  userId            Int
+  credentialVersion Int
+  createdAt         DateTime @default(now())
+  expiresAt         DateTime
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
 }
 
 model RelatedSystem {
@@ -56,18 +93,76 @@ model Ticket {
   description       String
   requestedPriority RequestedPriority
   currentStatus     TicketStatus      @default(NEW)
+  // IT priority starts equal to the requester's stated priority. Workflow
+  // changes are deliberately deferred to Issue #41.
+  itPriority        RequestedPriority
+  ownerId           Int?
+  version           Int               @default(1)
+  resolutionSummary String?
+  requesterResolvedAt DateTime?
+  requesterResolvedById Int?
   idempotencyKey    String            @unique
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
-  requester     Requester     @relation(fields: [requesterId], references: [id])
+  requester     User          @relation("RequesterTickets", fields: [requesterId], references: [id])
+  owner         User?         @relation("OwnedTickets", fields: [ownerId], references: [id])
   category      Category      @relation(fields: [categoryId], references: [id])
   relatedSystem RelatedSystem @relation(fields: [relatedSystemId], references: [id])
   attachments   Attachment[]
+  events        TicketEvent[]
+  publicComments PublicComment[]
+  internalNotes  InternalNote[]
+  requesterResolvedBy User? @relation("RequesterResolutionIndications", fields: [requesterResolvedById], references: [id])
 
   @@index([requesterId, createdAt])
   @@index([categoryId])
   @@index([relatedSystemId])
+  @@index([ownerId])
+  @@index([currentStatus, updatedAt])
+  @@index([requesterResolvedById])
+}
+
+model PublicComment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  authorId  Int
+  content   String
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId, createdAt, id])
+}
+
+model InternalNote {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  authorId  Int
+  content   String
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId, createdAt, id])
+}
+
+model TicketEvent {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  actorId   Int
+  type      String
+  before    Json?
+  after     Json?
+  reason    String?
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  actor  User   @relation(fields: [actorId], references: [id])
+
+  @@index([ticketId, createdAt, id])
 }
 
 model Attachment {
@@ -84,7 +179,7 @@ model Attachment {
   removalReason        String?
 
   ticket           Ticket     @relation(fields: [ticketId], references: [id])
-  removedByRequester Requester? @relation("AttachmentRemovedBy", fields: [removedByRequesterId], references: [id])
+  removedByRequester User? @relation("AttachmentRemovedBy", fields: [removedByRequesterId], references: [id])
 
   @@index([ticketId, removedAt])
   @@index([removedByRequesterId])
