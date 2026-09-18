@@ -124,8 +124,12 @@ Executed from `feature/lab3-e2e-evidence` using only the disposable `lab3_e2e` P
 
 | Command | Actual result |
 |---|---|
-| `npx playwright test` with `E2E_DATABASE_URL` explicitly set to the `lab3_e2e` schema | **11 browser tests passed in 32.0 seconds**: 5 authenticated Requester regression/responsive tests, 1 same-origin authentication/cookie/CSRF/logout test, 2 Staff/Requester/Admin authorization and discussion flows, and 3 role-aware desktop/tablet/mobile overflow checks. HTML report, traces, and screenshot attachments were written under ignored `artifacts/lab-03/`. |
+| `npx playwright test` with `E2E_DATABASE_URL` explicitly set to the `lab3_e2e` schema | **11 browser tests passed in 32.0 seconds**: 5 authenticated Requester regression/responsive tests, 1 same-origin authentication/cookie/CSRF/logout test, 2 Staff/Requester/Admin authorization and discussion flows, and 3 role-aware desktop/tablet/mobile overflow checks. HTML report was written to `artifacts/lab-03/playwright-report`; traces and screenshot attachments were written to `artifacts/lab-03/test-results/<test-name>/`. These generated files are ignored, while this exact command/result is retained in the versioned evidence record. |
 
 This run is authentic execution evidence for the implemented browser coverage. The detailed E2E rows above remain `Planned` where their planned prose intentionally names additional scenarios that are not yet individually automated (for example, every priority/progress path, every Admin safety rejection, and keyboard/long-data accessibility checks). The 11 passing tests are not presented as evidence for those unimplemented cases.
 
-Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store output in artifacts/lab-03/test-output and screenshots in the UI contract folders. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include all relevant output, not just a summary count.
+### PR #50 review correction
+
+After strengthening the Administrator reset flow so it asserts the mandatory password gate before completing it, `npx playwright test --config=playwright.config.ts e2e/lab-03/role-workflows.spec.ts` passed **5 tests in 27.9 seconds**. This focused rerun covers the corrected mandatory-password assertion plus the Requester/Staff discussion and responsive role-workflow coverage.
+
+Capture real pending states with controlled test request delays, and label fault-injection evidence as such. Store run output, traces, and screenshots in `artifacts/lab-03/test-results/`, with the HTML report in `artifacts/lab-03/playwright-report/`; both locations are generated and ignored. Include direct unauthorized attachment/internal-note API responses with secrets redacted. Final PDF must include the relevant captured output, not just a summary count.

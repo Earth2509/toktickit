@@ -111,8 +111,7 @@ test("Administrator creates and resets a user while IT Staff is denied the Users
   expect(denial).toMatchObject({ status: 403, body: { code: "FORBIDDEN" } });
 
   await signOut(page);
-  await signIn(page, { email, name: displayName, landing: "My Tickets" }, resetPassword);
-  await expect(page.getByText("Change your initial password")).toHaveCount(0);
+  await signIn(page, { email, name: displayName, landing: "My Tickets" }, resetPassword, { expectMandatoryPasswordGate: true });
 });
 
 for (const viewport of [
@@ -138,10 +137,20 @@ for (const viewport of [
   });
 }
 
-async function signIn(page: Page, account: { email: string; name: string; landing: string }, initial = fixturePassword) {
+type SignInOptions = { expectMandatoryPasswordGate?: boolean };
+
+async function signIn(
+  page: Page,
+  account: { email: string; name: string; landing: string },
+  initial = fixturePassword,
+  options: SignInOptions = {},
+) {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Sign in to TokTickIT" })).toBeVisible();
 
+  // A resettable E2E schema may have been run before. Prefer the private password
+  // persisted by that prior run, then deliberately fall back to the documented
+  // fixture password when a fresh seed requires its first password change.
   let activePassword = privatePassword;
   await page.getByLabel("Email address").fill(account.email);
   await page.getByLabel("Password").fill(activePassword);
@@ -157,6 +166,12 @@ async function signIn(page: Page, account: { email: string; name: string; landin
     await page.getByLabel("Password").fill(activePassword);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(passwordGate.or(landing)).toBeVisible();
+  }
+
+  if (options.expectMandatoryPasswordGate) {
+    // This assertion intentionally happens before the helper completes the gate.
+    // It fails if an Admin reset ever stops setting mustChangePassword.
+    await expect(passwordGate).toBeVisible();
   }
 
   if (await passwordGate.isVisible()) {

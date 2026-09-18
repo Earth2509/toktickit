@@ -52,4 +52,4 @@ Forms stack on mobile; touch controls aim for 44px; dialogs fit viewport and scr
 - [ ] Requester has no internal-note controls/content; Staff has no Users navigation.
 - [ ] Editable/read-only distinctions and account safety feedback visible.
 - [ ] No clipping/overlap/overflow with long data.
-- [ ] Evidence under artifacts/lab-03/screenshots/{authentication,staff-queue,staff-ticket-detail,user-management,requester-regression}; record viewport and commit.
+- [ ] Playwright evidence under `artifacts/lab-03/test-results/<test-name>/lab-03/<viewport>/<screen>.png`; HTML report under `artifacts/lab-03/playwright-report/`. Record the viewport and tested commit in the versioned E2E execution evidence.
