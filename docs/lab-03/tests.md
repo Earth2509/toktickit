@@ -116,7 +116,7 @@ $env:E2E_DATABASE_URL = 'postgresql://USER:PASSWORD@localhost:5432/toktickit?sch
 npx playwright test
 ```
 
-`role-workflows.spec.ts` captures the Staff queue, Staff Ticket Detail, Requester My Tickets, and Administrator User Management screens at desktop (1440x900), tablet (820x1180), and mobile (390x844). Its functional flows additionally prove: Requester resolution indication, public-comment visibility, Internal Note privacy, Staff claiming, Admin create/reset, and direct Users API denial for an IT Staff account. The existing authenticated Requester suite covers ticket creation, attachment upload/download/soft removal, owner scoping, and Requester Create/Detail responsive screens. Keep every E2E row as `Planned` until this command exits zero on the candidate commit and its actual terminal output is retained with the report.
+`role-workflows.spec.ts` captures Login, Requester My Tickets, Create Ticket, Requester Ticket Detail, Staff Queue, Staff Ticket Detail, User Management list, Create User, and Edit User at desktop (1440x900), tablet (820x1180), and mobile (390x844). `authentication-foundation.spec.ts` also captures the mandatory Change Password gate before it changes an initial password. Its functional flows additionally prove: Requester resolution indication, public-comment visibility, Internal Note privacy, Staff claiming, Admin create/reset, and direct Users API denial for an IT Staff account. The existing authenticated Requester suite covers ticket creation, attachment upload/download/soft removal and owner scoping. Keep every E2E row as `Planned` until this command exits zero on the candidate commit and its actual terminal output is retained with the report.
 
 ## Issue #44 E2E and responsive execution evidence
 

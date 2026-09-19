@@ -122,8 +122,18 @@ for (const viewport of [
   test(`major authenticated screens have no horizontal overflow at ${viewport.name}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
 
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Sign in to TokTickIT" })).toBeVisible();
+    await capture(page, testInfo, viewport.name, "login");
+
     await signIn(page, accounts.requester);
     await capture(page, testInfo, viewport.name, "requester-my-tickets");
+    await page.getByRole("button", { name: "Create Ticket" }).first().click();
+    await expect(page.getByRole("heading", { name: "Create Ticket" })).toBeVisible();
+    await capture(page, testInfo, viewport.name, "requester-create-ticket");
+    await page.getByRole("button", { name: "My Tickets" }).first().click();
+    await openRequesterTicket(page, fixtureTicket);
+    await capture(page, testInfo, viewport.name, "requester-ticket-detail");
     await signOut(page);
 
     await signIn(page, accounts.staff);
@@ -134,6 +144,15 @@ for (const viewport of [
 
     await signIn(page, accounts.admin);
     await capture(page, testInfo, viewport.name, "user-management");
+    await page.getByRole("button", { name: "Create User" }).click();
+    await expect(page.getByRole("heading", { name: "Create User" })).toBeVisible();
+    await capture(page, testInfo, viewport.name, "user-management-create");
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
+    const administratorRow = page.getByRole("row").filter({ hasText: accounts.admin.email });
+    await expect(administratorRow).toBeVisible();
+    await administratorRow.getByRole("button", { name: "Edit" }).click();
+    await expect(page.getByRole("heading", { name: `Edit ${accounts.admin.name}` })).toBeVisible();
+    await capture(page, testInfo, viewport.name, "user-management-edit");
   });
 }
 
