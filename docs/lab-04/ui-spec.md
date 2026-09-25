@@ -8,7 +8,7 @@ Add a visible Dashboard item for all completed authenticated sessions. Requester
 
 ## IT Staff Dashboard
 
-Use a responsive card grid for Unassigned, Owned by me, Urgent, and Waiting for Requester counts. Cards are buttons/links with accessible labels such as `View 3 unassigned Tickets` and navigate to the matching Staff Queue filter. Below the cards, show recent nonterminal Tickets with Ticket number, summary, status, IT priority, owner and open-detail action. Show labelled loading skeletons, a no-operational-work empty state, forbidden feedback and Retry for safe API failure.
+Use a responsive card grid for Unassigned, Owned by me, Urgent, and Waiting for Requester counts. Cards are buttons/links with accessible labels such as `View 3 unassigned Tickets` and navigate to the exact documented Staff Queue drill-down. Unassigned includes every nonterminal ownerless Ticket, including a Ticket orphaned by staff deactivation. Below the cards, show recent nonterminal Tickets with Ticket number, summary, status, IT priority, owner and open-detail action. Show labelled loading skeletons, a no-operational-work empty state, forbidden feedback and Retry for safe API failure.
 
 ## Requester Dashboard
 
@@ -16,11 +16,11 @@ Show Total Open, Waiting for You, Recently Updated and Recently Resolved cards f
 
 ## Actions Taken on Ticket Detail
 
-Add a labelled Actions Taken section after the Ticket summary and before discussions. Rows show action date/time, description, result, performer, follow-up state/note and attachment notes. Requesters receive read-only rows. Staff/Admin see `Add action`; the original performer/Admin sees `Edit action`. The form has labelled controls, inline errors, Save/Cancel, busy state and preserved draft on recoverable failures. Follow-up Note becomes required when Follow-up Required is checked. Distinguish attachment notes from uploaded files.
+Add a labelled Actions Taken section after the Ticket summary and before discussions. Rows show action date/time, description, result, performer, active assignee, action status, follow-up state/note and attachment notes. Requesters receive read-only rows. Staff/Admin see `Add action`; the original performer/Admin sees `Edit action`. The form has labelled assignment and status controls, rejects inactive assignees, supports completion/cancellation, and has inline errors, Save/Cancel, busy state and preserved draft on recoverable failures. Follow-up Note becomes required when Follow-up Required is checked. Distinguish attachment notes from uploaded files.
 
 ## Workflow feedback
 
-Status controls show only valid next states. Resolve explains and validates the required owner, Action Taken and resolution summary. Cancel/Reopen request a reason and confirmation. A conflict retains current form input and provides Reload instead of retrying automatically. Success refreshes Ticket summary, Action Taken rows and dashboard-compatible state.
+Status controls show only valid next states. Resolve explains and validates the required owner, completed Action, no open Action, no unresolved follow-up and resolution summary. The same checks apply after reopen. Cancel/Reopen request a reason and confirmation. A conflict retains current form input and provides Reload instead of retrying automatically. Success refreshes Ticket summary, Action Taken rows and dashboard-compatible state.
 
 ## Responsive and accessibility rules
 

@@ -11,6 +11,11 @@ OpenAI Codex (GPT-5, reasoning level: high) is used as a specification and codin
 3. `Define a secure authorization matrix for Requester, IT Staff and Administrator Action Taken access.`
 4. `Create a planned-test table mapping every Lab 4 acceptance criterion to API, UI, integration and E2E coverage.`
 5. `Review the proposed Actions Taken model for data preservation, idempotent seed behavior and stale-update handling.`
+
+## Planned prompts after contract approval
+
+The following are future prompts, not evidence that implementation or final inspection has already occurred:
+
 6. `Implement the approved Action Taken API increment and write tests before opening a pull request.`
 7. `Review the dashboard calculations and confirm each card has an authoritative backend query and drill-down destination.`
 8. `Inspect the final responsive UI at desktop, tablet and mobile widths for accessibility, clipping and overflow.`
