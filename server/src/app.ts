@@ -1,5 +1,5 @@
 import express from "express";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import multer from "multer";
@@ -16,6 +16,14 @@ import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./t
 import { staffQueueOrderBy, staffQueueWhere, validateStaffQueueQuery } from "./staff-queue.js";
 import { editableOperationalFields, workflowValidation } from "./ticket-workflow.js";
 import { canCreateDiscussion, canIndicateResolution, discussionPagination, validateDiscussionContent } from "./ticket-discussions.js";
+import {
+  actionIdempotencyKey,
+  actionIdempotencyRetentionMilliseconds,
+  actionTakenPagination,
+  parseActionTakenCreate,
+  parseActionTakenPatch,
+  validateActionValues,
+} from "./actions-taken.js";
 import { formatTicketNumber, matchesTicketCreate, validateTicketCreate } from "./tickets.js";
 import {
   adminUserSelect,
@@ -69,6 +77,23 @@ const discussionEntrySelect = {
   createdAt: true,
   author: { select: { id: true, displayName: true, role: true } },
 };
+const actionTakenSelect = {
+  id: true,
+  ticketId: true,
+  actionAt: true,
+  completedAt: true,
+  description: true,
+  result: true,
+  status: true,
+  followUpRequired: true,
+  followUpNote: true,
+  attachmentNotes: true,
+  version: true,
+  createdAt: true,
+  updatedAt: true,
+  performedBy: { select: { id: true, displayName: true, role: true } },
+  assignedTo: { select: { id: true, displayName: true, role: true } },
+} satisfies Prisma.ActionTakenSelect;
 app.get("/api/health", (_req, res) => res.status(200).json({ status: "ok", service: "TokTickIT API" }));
 
 // Authentication is established before every protected business route below.
@@ -516,6 +541,162 @@ app.post("/api/tickets/:ticketId/internal-notes", ...protectedMutation, requireR
   return res.status(201).json(entry);
 });
 
+// Action Taken is a first-class, append-only work record. The coordinating
+// Ticket owner remains independent: several active Staff members can record
+// distinct actions for the same Ticket.
+app.get("/api/tickets/:ticketId/actions-taken", async (req, res) => {
+  const ticketId = requestId(req.params.ticketId);
+  const pagination = actionTakenPagination(req.query);
+  if (!ticketId || !pagination) return res.status(400).json({ code: "BAD_REQUEST", message: "Ticket id, page or page size is invalid." });
+  const user = authenticatedUser(res);
+  const ticket = await getPrisma().ticket.findFirst({
+    where: user.role === "REQUESTER" ? { id: ticketId, requesterId: user.id } : { id: ticketId },
+    select: { id: true },
+  });
+  // A requester receives the same response for an absent Ticket and another
+  // requester's Ticket, so this endpoint cannot be used as an ownership oracle.
+  if (!ticket) return res.status(404).json({ message: "Ticket not found." });
+  const where = { ticketId };
+  const [totalItems, items] = await Promise.all([
+    getPrisma().actionTaken.count({ where }),
+    getPrisma().actionTaken.findMany({
+      where,
+      orderBy: [{ actionAt: "desc" }, { id: "desc" }],
+      skip: (pagination.page - 1) * pagination.pageSize,
+      take: pagination.pageSize,
+      select: actionTakenSelect,
+    }),
+  ]);
+  return res.status(200).json({ items, ...pagination, totalItems, totalPages: Math.max(1, Math.ceil(totalItems / pagination.pageSize)) });
+});
+
+app.post("/api/staff/tickets/:ticketId/actions-taken", ...protectedMutation, async (req, res) => {
+  const ticketId = requestId(req.params.ticketId);
+  const parsed = parseActionTakenCreate(req.body);
+  const idempotencyKey = actionIdempotencyKey(req.get("Idempotency-Key"));
+  if (!ticketId) return res.status(400).json({ code: "BAD_REQUEST", message: "Ticket identifier must be a positive whole number." });
+  if (!idempotencyKey) return res.status(400).json({ code: "BAD_REQUEST", message: "A valid Idempotency-Key header is required." });
+  if ("badRequest" in parsed) return res.status(400).json({ code: "BAD_REQUEST", message: parsed.badRequest });
+  if ("validation" in parsed) return res.status(422).json({ code: "VALIDATION_FAILED", message: parsed.validation });
+
+  const actor = authenticatedUser(res);
+  const fingerprint = actionFingerprint(parsed.value);
+  const now = new Date();
+  const result = await getPrisma().$transaction(async (transaction) => {
+    const ticket = await transaction.ticket.findUnique({ where: { id: ticketId }, select: { id: true } });
+    if (!ticket) return { kind: "missing" as const };
+
+    const replay = await transaction.actionTakenIdempotency.findUnique({
+      where: { actorId_ticketId_key: { actorId: actor.id, ticketId, key: idempotencyKey } },
+      include: { actionTaken: { select: actionTakenSelect } },
+    });
+    if (replay && replay.expiresAt > now) {
+      if (replay.fingerprint !== fingerprint) return { kind: "conflict" as const, message: "This Idempotency-Key was already used with different Action Taken data." };
+      return { kind: "replayed" as const, action: replay.actionTaken };
+    }
+    if (replay) await transaction.actionTakenIdempotency.delete({ where: { id: replay.id } });
+
+    const assignee = await transaction.user.findFirst({
+      where: { id: parsed.value.assignedToId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
+      select: { id: true },
+    });
+    if (!assignee) return { kind: "validation" as const, message: "Choose an active IT Staff member or Administrator." };
+
+    const completedAt = parsed.value.status === "COMPLETED" ? now : null;
+    const action = await transaction.actionTaken.create({
+      data: { ...parsed.value, ticketId, performedById: actor.id, completedAt },
+      select: actionTakenSelect,
+    });
+    await transaction.ticketEvent.create({
+      data: { ticketId, actorId: actor.id, type: "ACTION_TAKEN_CREATED", after: action },
+    });
+    await transaction.actionTakenIdempotency.create({
+      data: {
+        actorId: actor.id,
+        ticketId,
+        key: idempotencyKey,
+        fingerprint,
+        actionTakenId: action.id,
+        expiresAt: new Date(now.getTime() + actionIdempotencyRetentionMilliseconds),
+      },
+    });
+    return { kind: "created" as const, action };
+  });
+  if (result.kind === "missing") return res.status(404).json({ message: "Ticket not found." });
+  if (result.kind === "conflict") return res.status(409).json({ code: "CONFLICT", message: result.message });
+  if (result.kind === "validation") return res.status(422).json({ code: "VALIDATION_FAILED", message: result.message });
+  return res.status(result.kind === "created" ? 201 : 200).json(result.action);
+});
+
+app.patch("/api/staff/tickets/:ticketId/actions-taken/:actionId", ...protectedMutation, async (req, res) => {
+  const ticketId = requestId(req.params.ticketId);
+  const actionId = requestId(req.params.actionId);
+  const parsed = parseActionTakenPatch(req.body);
+  if (!ticketId || !actionId) return res.status(400).json({ code: "BAD_REQUEST", message: "Ticket and Action Taken identifiers must be positive whole numbers." });
+  if ("badRequest" in parsed) return res.status(400).json({ code: "BAD_REQUEST", message: parsed.badRequest });
+  if ("validation" in parsed) return res.status(422).json({ code: "VALIDATION_FAILED", message: parsed.validation });
+
+  const actor = authenticatedUser(res);
+  const result = await getPrisma().$transaction(async (transaction) => {
+    const ticket = await transaction.ticket.findUnique({ where: { id: ticketId }, select: { id: true } });
+    if (!ticket) return { kind: "missingTicket" as const };
+    const action = await transaction.actionTaken.findFirst({ where: { id: actionId, ticketId }, select: actionTakenSelect });
+    if (!action) return { kind: "missingAction" as const };
+    if (action.version !== parsed.value.version) return { kind: "conflict" as const, message: "This Action Taken changed. Reload it before trying again." };
+    if (action.status !== "OPEN") return { kind: "conflict" as const, message: "Terminal Actions Taken cannot be edited or reopened." };
+
+    const editsOpenFields = ["description", "assignedToId", "followUpRequired", "followUpNote", "attachmentNotes"].some((key) => hasOwn(parsed.value, key));
+    const transitionsStatus = hasOwn(parsed.value, "status");
+    const canEditOpenFields = actor.role === "ADMINISTRATOR" || actor.id === action.performedBy.id;
+    const canTransition = canEditOpenFields || actor.id === action.assignedTo.id;
+    if ((editsOpenFields && !canEditOpenFields) || (transitionsStatus && !canTransition)) {
+      return { kind: "forbidden" as const };
+    }
+
+    const assignedToId = parsed.value.assignedToId ?? action.assignedTo.id;
+    const assignee = await transaction.user.findFirst({
+      where: { id: assignedToId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
+      select: { id: true },
+    });
+    if (!assignee) return { kind: "validation" as const, message: "Choose an active IT Staff member or Administrator." };
+
+    const status = parsed.value.status ?? action.status;
+    const followUpRequired = parsed.value.followUpRequired ?? action.followUpRequired;
+    const followUpNote = followUpRequired ? (hasOwn(parsed.value, "followUpNote") ? parsed.value.followUpNote! : action.followUpNote) : null;
+    const resultValue = hasOwn(parsed.value, "result") ? parsed.value.result! : action.result;
+    const valuesFailure = validateActionValues({ status, result: resultValue, followUpRequired, followUpNote });
+    if (valuesFailure) return { kind: "validation" as const, message: valuesFailure };
+
+    const now = new Date();
+    const write = await transaction.actionTaken.updateMany({
+      where: { id: actionId, ticketId, version: action.version },
+      data: {
+        description: parsed.value.description ?? action.description,
+        result: resultValue,
+        assignedToId,
+        status,
+        followUpRequired,
+        followUpNote,
+        attachmentNotes: hasOwn(parsed.value, "attachmentNotes") ? parsed.value.attachmentNotes! : action.attachmentNotes,
+        ...(status === "COMPLETED" ? { completedAt: now } : {}),
+        version: { increment: 1 },
+      },
+    });
+    if (write.count !== 1) return { kind: "conflict" as const, message: "This Action Taken changed. Reload it before trying again." };
+    const updated = await transaction.actionTaken.findUniqueOrThrow({ where: { id: actionId }, select: actionTakenSelect });
+    await transaction.ticketEvent.create({
+      data: { ticketId, actorId: actor.id, type: transitionsStatus ? "ACTION_TAKEN_STATUS_CHANGED" : "ACTION_TAKEN_UPDATED", before: action, after: updated },
+    });
+    return { kind: "updated" as const, action: updated };
+  });
+  if (result.kind === "missingTicket") return res.status(404).json({ message: "Ticket not found." });
+  if (result.kind === "missingAction") return res.status(404).json({ message: "Action Taken not found." });
+  if (result.kind === "forbidden") return res.status(403).json({ code: "FORBIDDEN", message: "You do not have permission to update this Action Taken." });
+  if (result.kind === "conflict") return res.status(409).json({ code: "CONFLICT", message: result.message });
+  if (result.kind === "validation") return res.status(422).json({ code: "VALIDATION_FAILED", message: result.message });
+  return res.status(200).json(result.action);
+});
+
 app.post("/api/tickets/:ticketId/resolution-indication", ...protectedMutation, requireRole("REQUESTER"), async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
   const version = workflowVersion(req.body?.version);
@@ -825,6 +1006,25 @@ function onlyContent(value: unknown): value is { content: unknown } {
 
 function onlyVersion(value: unknown): value is { version: unknown } {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length === 1 && "version" in value;
+}
+
+function actionFingerprint(input: {
+  actionAt: Date;
+  description: string;
+  result: string | null;
+  assignedToId: number;
+  status: string;
+  followUpRequired: boolean;
+  followUpNote: string | null;
+  attachmentNotes: string | null;
+}): string {
+  // Fingerprint the normalized values, not raw JSON, so harmless whitespace
+  // differences do not accidentally create duplicate operational records.
+  return createHash("sha256").update(JSON.stringify({ ...input, actionAt: input.actionAt.toISOString() })).digest("base64url");
+}
+
+function hasOwn(value: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
 }
 
 function isUniqueConstraintError(error: unknown): boolean {

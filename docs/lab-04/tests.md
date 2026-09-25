@@ -4,13 +4,13 @@ Status: Planned. This plan was created before implementation. Every row must be 
 
 | Test ID | Type | AC | Planned assertion | Intended test path | Final |
 |---|---|---|---|---|---|
-| API-01 | API | AC-01, AC-02 | Create valid Action Taken; validate required follow-up, performer/date rules and replay-safe Idempotency-Key behaviour | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
-| API-02 | API/Auth | AC-03 | Enforce requester ownership and Staff/Admin write restrictions | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
+| API-01 | API | AC-01, AC-02 | Create valid Action Taken; validate required follow-up, performer/date rules and replay-safe Idempotency-Key behaviour | `server/tests/lab-04/actions-taken.api.test.ts` | Implemented; local Vitest execution pending |
+| API-02 | API/Auth | AC-03 | Enforce requester ownership and Staff/Admin write restrictions | `server/tests/lab-04/actions-taken.api.test.ts` | Implemented; local Vitest execution pending |
 | API-03 | API | AC-04 | Different Staff record separate actions on one Ticket | `server/tests/lab-04/actions-taken.api.test.ts` | Planned |
 | API-04 | API/Workflow | AC-05 | Enforce owner/action/resolution gates, transition matrix and version conflict | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned |
 | API-05 | API | AC-06 | Requester metrics/rows match owned Ticket query and empty state | `server/tests/lab-04/requester-dashboard.api.test.ts` | Planned |
 | API-06 | API | AC-07 | Staff metric calculations, recent ordering and role restrictions | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned |
-| UNIT-01 | Unit | AC-01, AC-02, AC-05 | Validate Action status/assignee/follow-up transitions, terminal immutability, completion-after-reopen and pure resolution-gate decisions | `server/tests/lab-04/actions-taken.unit.test.ts` | Planned |
+| UNIT-01 | Unit | AC-01, AC-02, AC-05 | Validate Action status/assignee/follow-up transitions, terminal immutability, completion-after-reopen and pure resolution-gate decisions | `server/tests/lab-04/actions-taken.unit.test.ts` | Implemented; local Vitest execution pending |
 | INT-01 | Integration | AC-08 | Migration preserves Lab 3 records; repeat seed is idempotent | `server/tests/lab-04/migration-actions.integration.test.ts` | Planned |
 | INT-02 | Integration/Recovery | AC-08 | Restore a captured database-and-attachment backup to a disposable recovery target; compare manifest row counts and sampled Ticket relationships | `server/tests/lab-04/migration-recovery.integration.test.ts` | Planned |
 | UI-01 | UI | AC-01, AC-03 | Action list, create/edit form, validation and requester read-only view | `client/tests/lab-04/ActionsTaken.test.tsx` | Planned |
