@@ -16,11 +16,11 @@ Show Total Open, Waiting for You, Recently Updated and Recently Resolved cards f
 
 ## Actions Taken on Ticket Detail
 
-Add a labelled Actions Taken section after the Ticket summary and before discussions. Rows show action date/time, description, result, performer, active assignee, action status, follow-up state/note and attachment notes. Requesters receive read-only rows. Staff/Admin see `Add action`; the original performer/Admin sees `Edit action`. The form has labelled assignment and status controls, rejects inactive assignees, supports completion/cancellation, and has inline errors, Save/Cancel, busy state and preserved draft on recoverable failures. Follow-up Note becomes required when Follow-up Required is checked. Distinguish attachment notes from uploaded files.
+Add a labelled Actions Taken section after the Ticket summary and before discussions. Rows show action date/time, completion time, description, result, performer, active assignee, action status, follow-up state/note and attachment notes. Requesters receive read-only rows. Staff/Admin see `Add action`; the original performer/Admin sees `Edit action`, while an active assignee can complete or cancel their assigned OPEN Action. The form has labelled assignment and status controls, rejects inactive assignees, supports completion/cancellation, and has inline errors, Save/Cancel, busy state and preserved draft on recoverable failures. Result becomes required on completion, and Follow-up Note becomes required when Follow-up Required is checked. Distinguish attachment notes from uploaded files.
 
 ## Workflow feedback
 
-Status controls show only valid next states. Resolve explains and validates the required owner, completed Action, no open Action, no unresolved follow-up and resolution summary. The same checks apply after reopen. Cancel/Reopen request a reason and confirmation. A conflict retains current form input and provides Reload instead of retrying automatically. Success refreshes Ticket summary, Action Taken rows and dashboard-compatible state.
+Status controls show only valid next states. Resolve explains and validates the required owner, no open Action, an eligible latest completed Action with no follow-up, and resolution summary. After a reopen, the completed Action must have been completed after the latest reopen; a new later completion without follow-up visibly satisfies an earlier follow-up. Cancel/Reopen request a reason and confirmation. A conflict retains current form input and provides Reload instead of retrying automatically. Success refreshes Ticket summary, Action Taken rows and dashboard-compatible state.
 
 ## Responsive and accessibility rules
 
