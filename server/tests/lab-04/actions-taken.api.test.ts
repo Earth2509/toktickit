@@ -141,6 +141,13 @@ describe("Lab 4 Action Taken API", () => {
     ticketLock.mockResolvedValueOnce([{ id: 9, currentStatus: "OPEN" }]);
     userFindFirst.mockResolvedValueOnce(null);
     expect((await create({ actionAt: "2026-09-25T08:00:00.000Z", description: "Investigated", assignedToId: 72, followUpRequired: false }, "inactive-assignee")).status).toBe(422);
+    expect(userFindFirst).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({
+        id: 72,
+        isActive: true,
+        role: { in: ["IT_STAFF", "ADMINISTRATOR"] },
+      }),
+    }));
     expect(actionCreate).not.toHaveBeenCalled();
   });
 
