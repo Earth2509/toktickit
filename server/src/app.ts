@@ -14,7 +14,7 @@ import {
 } from "./attachments.js";
 import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
 import { staffQueueOrderBy, staffQueueWhere, validateStaffQueueQuery } from "./staff-queue.js";
-import { editableOperationalFields, workflowValidation } from "./ticket-workflow.js";
+import { editableOperationalFields, terminalStatuses, workflowValidation } from "./ticket-workflow.js";
 import { canCreateDiscussion, canIndicateResolution, discussionPagination, validateDiscussionContent } from "./ticket-discussions.js";
 import {
   actionIdempotencyKey,
@@ -544,7 +544,7 @@ app.post("/api/tickets/:ticketId/internal-notes", ...protectedMutation, requireR
 // Action Taken is a first-class, append-only work record. The coordinating
 // Ticket owner remains independent: several active Staff members can record
 // distinct actions for the same Ticket.
-app.get("/api/tickets/:ticketId/actions-taken", async (req, res) => {
+app.get("/api/tickets/:ticketId/actions-taken", asyncHandler(async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
   const pagination = actionTakenPagination(req.query);
   if (!ticketId || !pagination) return res.status(400).json({ code: "BAD_REQUEST", message: "Ticket id, page or page size is invalid." });
@@ -568,9 +568,9 @@ app.get("/api/tickets/:ticketId/actions-taken", async (req, res) => {
     }),
   ]);
   return res.status(200).json({ items, ...pagination, totalItems, totalPages: Math.max(1, Math.ceil(totalItems / pagination.pageSize)) });
-});
+}));
 
-app.post("/api/staff/tickets/:ticketId/actions-taken", ...protectedMutation, async (req, res) => {
+app.post("/api/staff/tickets/:ticketId/actions-taken", ...protectedMutation, asyncHandler(async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
   const parsed = parseActionTakenCreate(req.body);
   const idempotencyKey = actionIdempotencyKey(req.get("Idempotency-Key"));
@@ -583,7 +583,10 @@ app.post("/api/staff/tickets/:ticketId/actions-taken", ...protectedMutation, asy
   const fingerprint = actionFingerprint(parsed.value);
   const now = new Date();
   const result = await getPrisma().$transaction(async (transaction) => {
-    const ticket = await transaction.ticket.findUnique({ where: { id: ticketId }, select: { id: true } });
+    // The ticket row is locked until the Action and its audit record commit.
+    // A status transition therefore cannot race this write and leave fresh work
+    // on a Ticket that has already become terminal.
+    const ticket = await lockTicket(transaction, ticketId);
     if (!ticket) return { kind: "missing" as const };
 
     const replay = await transaction.actionTakenIdempotency.findUnique({
@@ -594,6 +597,7 @@ app.post("/api/staff/tickets/:ticketId/actions-taken", ...protectedMutation, asy
       if (replay.fingerprint !== fingerprint) return { kind: "conflict" as const, message: "This Idempotency-Key was already used with different Action Taken data." };
       return { kind: "replayed" as const, action: replay.actionTaken };
     }
+    if (terminalStatuses.has(ticket.currentStatus)) return { kind: "conflict" as const, message: "Actions Taken cannot be created on a terminal Ticket." };
     if (replay) await transaction.actionTakenIdempotency.delete({ where: { id: replay.id } });
 
     const assignee = await transaction.user.findFirst({
@@ -602,9 +606,8 @@ app.post("/api/staff/tickets/:ticketId/actions-taken", ...protectedMutation, asy
     });
     if (!assignee) return { kind: "validation" as const, message: "Choose an active IT Staff member or Administrator." };
 
-    const completedAt = parsed.value.status === "COMPLETED" ? now : null;
     const action = await transaction.actionTaken.create({
-      data: { ...parsed.value, ticketId, performedById: actor.id, completedAt },
+      data: { ...parsed.value, ticketId, performedById: actor.id, completedAt: null },
       select: actionTakenSelect,
     });
     await transaction.ticketEvent.create({
@@ -621,14 +624,26 @@ app.post("/api/staff/tickets/:ticketId/actions-taken", ...protectedMutation, asy
       },
     });
     return { kind: "created" as const, action };
+  }).catch(async (error: unknown) => {
+    // Concurrent requests can both observe a missing key. The unique index is
+    // the final arbiter; on its conflict, re-read the committed request and
+    // return its original result rather than leaking a rejected promise.
+    if (!isUniqueConstraintError(error)) throw error;
+    const replay = await getPrisma().actionTakenIdempotency.findUnique({
+      where: { actorId_ticketId_key: { actorId: actor.id, ticketId, key: idempotencyKey } },
+      include: { actionTaken: { select: actionTakenSelect } },
+    });
+    if (!replay || replay.expiresAt <= now) throw error;
+    if (replay.fingerprint !== fingerprint) return { kind: "conflict" as const, message: "This Idempotency-Key was already used with different Action Taken data." };
+    return { kind: "replayed" as const, action: replay.actionTaken };
   });
   if (result.kind === "missing") return res.status(404).json({ message: "Ticket not found." });
   if (result.kind === "conflict") return res.status(409).json({ code: "CONFLICT", message: result.message });
   if (result.kind === "validation") return res.status(422).json({ code: "VALIDATION_FAILED", message: result.message });
   return res.status(result.kind === "created" ? 201 : 200).json(result.action);
-});
+}));
 
-app.patch("/api/staff/tickets/:ticketId/actions-taken/:actionId", ...protectedMutation, async (req, res) => {
+app.patch("/api/staff/tickets/:ticketId/actions-taken/:actionId", ...protectedMutation, asyncHandler(async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
   const actionId = requestId(req.params.actionId);
   const parsed = parseActionTakenPatch(req.body);
@@ -638,8 +653,9 @@ app.patch("/api/staff/tickets/:ticketId/actions-taken/:actionId", ...protectedMu
 
   const actor = authenticatedUser(res);
   const result = await getPrisma().$transaction(async (transaction) => {
-    const ticket = await transaction.ticket.findUnique({ where: { id: ticketId }, select: { id: true } });
+    const ticket = await lockTicket(transaction, ticketId);
     if (!ticket) return { kind: "missingTicket" as const };
+    if (terminalStatuses.has(ticket.currentStatus)) return { kind: "conflict" as const, message: "Actions Taken cannot be changed on a terminal Ticket." };
     const action = await transaction.actionTaken.findFirst({ where: { id: actionId, ticketId }, select: actionTakenSelect });
     if (!action) return { kind: "missingAction" as const };
     if (action.version !== parsed.value.version) return { kind: "conflict" as const, message: "This Action Taken changed. Reload it before trying again." };
@@ -654,11 +670,15 @@ app.patch("/api/staff/tickets/:ticketId/actions-taken/:actionId", ...protectedMu
     }
 
     const assignedToId = parsed.value.assignedToId ?? action.assignedTo.id;
-    const assignee = await transaction.user.findFirst({
-      where: { id: assignedToId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
-      select: { id: true },
-    });
-    if (!assignee) return { kind: "validation" as const, message: "Choose an active IT Staff member or Administrator." };
+    // An inactive historical assignee must not freeze an otherwise valid
+    // cancellation or correction. Validate only a newly selected assignee.
+    if (assignedToId !== action.assignedTo.id) {
+      const assignee = await transaction.user.findFirst({
+        where: { id: assignedToId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
+        select: { id: true },
+      });
+      if (!assignee) return { kind: "validation" as const, message: "Choose an active IT Staff member or Administrator." };
+    }
 
     const status = parsed.value.status ?? action.status;
     const followUpRequired = parsed.value.followUpRequired ?? action.followUpRequired;
@@ -695,7 +715,7 @@ app.patch("/api/staff/tickets/:ticketId/actions-taken/:actionId", ...protectedMu
   if (result.kind === "conflict") return res.status(409).json({ code: "CONFLICT", message: result.message });
   if (result.kind === "validation") return res.status(422).json({ code: "VALIDATION_FAILED", message: result.message });
   return res.status(200).json(result.action);
-});
+}));
 
 app.post("/api/tickets/:ticketId/resolution-indication", ...protectedMutation, requireRole("REQUESTER"), async (req, res) => {
   const ticketId = requestId(req.params.ticketId);
@@ -933,6 +953,18 @@ type AdminMutation =
   | { kind: "missing" }
   | { kind: "forbidden" }
   | { kind: "conflict"; message: string };
+
+type LockedTicket = { id: number; currentStatus: import("@prisma/client").TicketStatus };
+
+async function lockTicket(transaction: Prisma.TransactionClient, ticketId: number): Promise<LockedTicket | undefined> {
+  const rows = await transaction.$queryRaw<LockedTicket[]>`
+    SELECT "id", "currentStatus"
+    FROM "Ticket"
+    WHERE "id" = ${ticketId}
+    FOR UPDATE
+  `;
+  return rows[0];
+}
 
 function adminUserMutationResponse(res: express.Response, result: AdminMutation) {
   if (result.kind === "missing") return res.status(404).json({ message: "User not found." });

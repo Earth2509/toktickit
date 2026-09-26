@@ -16,6 +16,16 @@ describe("Lab 4 Action Taken validation", () => {
     expect("value" in parsed && parsed.value).toMatchObject({ description: "Investigated the sign-in failure.", status: "OPEN", result: null, followUpNote: null });
   });
 
+  it("requires each new Action to begin OPEN", () => {
+    expect(parseActionTakenCreate({
+      actionAt,
+      description: "Investigated",
+      assignedToId: 7,
+      status: "CANCELLED",
+      followUpRequired: false,
+    }, now)).toMatchObject({ validation: "A new Action Taken must start OPEN." });
+  });
+
   it("rejects a future action time and incomplete follow-up evidence", () => {
     expect(parseActionTakenCreate({ actionAt: "2026-09-25T08:11:00.000Z", description: "Investigated", assignedToId: 7, followUpRequired: false }, now)).toMatchObject({ validation: expect.any(String) });
     expect(parseActionTakenCreate({ actionAt, description: "Investigated", assignedToId: 7, followUpRequired: true }, now)).toMatchObject({ validation: expect.stringContaining("follow-up") });

@@ -1,6 +1,5 @@
 import type { ActionTakenStatus } from "@prisma/client";
 
-export const actionTakenStatuses = ["OPEN", "COMPLETED", "CANCELLED"] as const satisfies readonly ActionTakenStatus[];
 export const actionIdempotencyRetentionMilliseconds = 24 * 60 * 60 * 1000;
 
 export type ActionTakenCreateInput = {
@@ -38,8 +37,13 @@ export function parseActionTakenCreate(value: unknown, now = new Date()): Valida
   const actionAt = parseActionAt(value.actionAt, now);
   const description = trimmed(value.description, 1, 2000);
   const assignedToId = positiveInteger(value.assignedToId);
-  const status = value.status === undefined ? "OPEN" : parseStatus(value.status);
-  if (!actionAt || !description || !assignedToId || !status || typeof value.followUpRequired !== "boolean") {
+  // An Action is a work item, not a historical status import. It always begins
+  // OPEN and may later be completed or cancelled through the versioned PATCH.
+  if (value.status !== undefined && value.status !== "OPEN") {
+    return { validation: "A new Action Taken must start OPEN." };
+  }
+  const status: ActionTakenStatus = "OPEN";
+  if (!actionAt || !description || !assignedToId || typeof value.followUpRequired !== "boolean") {
     return { validation: "One or more Action Taken fields are invalid." };
   }
   const result = nullableTrimmed(value.result, 2000);
@@ -117,10 +121,6 @@ function parseActionAt(value: unknown, now: Date): Date | undefined {
   if (typeof value !== "string" || !value.endsWith("Z")) return undefined;
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) || parsed.getTime() > now.getTime() + 5 * 60 * 1000 ? undefined : parsed;
-}
-
-function parseStatus(value: unknown): ActionTakenStatus | undefined {
-  return typeof value === "string" && actionTakenStatuses.includes(value as ActionTakenStatus) ? value as ActionTakenStatus : undefined;
 }
 
 function positiveInteger(value: unknown): number | undefined {
