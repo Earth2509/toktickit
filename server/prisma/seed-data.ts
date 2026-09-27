@@ -61,6 +61,7 @@ export async function seedDatabase(prisma: PrismaClient) {
   }
 
   await seedQueueTickets(prisma);
+  await seedLab4Actions(prisma);
 }
 
 /**
@@ -95,6 +96,84 @@ async function seedQueueTickets(prisma: PrismaClient) {
         currentStatus: statuses[(index - 1) % statuses.length]!,
         ownerId: index % 3 === 0 ? null : staff.length ? staff[(index - 1) % staff.length]!.id : null,
       },
+    });
+  }
+}
+
+/**
+ * Lab 4 demonstration records are identified through reserved idempotency
+ * keys, rather than mutable prose. Re-running the local seed therefore never
+ * duplicates an Action after a tester has edited its visible description.
+ */
+async function seedLab4Actions(prisma: PrismaClient) {
+  const [staff, tickets] = await Promise.all([
+    prisma.user.findMany({ where: { role: "IT_STAFF", isActive: true }, orderBy: { id: "asc" }, select: { id: true } }),
+    prisma.ticket.findMany({ where: { idempotencyKey: { in: ["lab3-queue-fixture-2", "lab3-queue-fixture-3", "lab3-queue-fixture-4"] } }, orderBy: { id: "asc" }, select: { id: true } }),
+  ]);
+  if (staff.length === 0 || tickets.length !== 3) return;
+  const definitions = [
+    {
+      key: "lab4-seed-action-1",
+      ticketId: tickets[0]!.id,
+      performedById: staff[0]!.id,
+      assignedToId: staff[0]!.id,
+      status: "COMPLETED" as const,
+      actionAt: new Date("2026-09-01T08:30:00.000Z"),
+      completedAt: new Date("2026-09-01T09:00:00.000Z"),
+      description: "Verified the service account configuration and applied the approved correction.",
+      result: "The service account now authenticates successfully.",
+      followUpRequired: false,
+      followUpNote: null,
+      attachmentNotes: "Configuration evidence is retained in the support record.",
+    },
+    {
+      key: "lab4-seed-action-2",
+      ticketId: tickets[1]!.id,
+      performedById: staff[1 % staff.length]!.id,
+      assignedToId: staff[1 % staff.length]!.id,
+      status: "OPEN" as const,
+      actionAt: new Date("2026-09-02T10:15:00.000Z"),
+      completedAt: null,
+      description: "Collected diagnostic logs and started a controlled connectivity investigation.",
+      result: null,
+      followUpRequired: true,
+      followUpNote: "Confirm connectivity with the requester after the network change window.",
+      attachmentNotes: "Diagnostic log bundle is referenced by the incident record.",
+    },
+    {
+      key: "lab4-seed-action-3",
+      ticketId: tickets[2]!.id,
+      performedById: staff[0]!.id,
+      assignedToId: staff[1 % staff.length]!.id,
+      status: "COMPLETED" as const,
+      actionAt: new Date("2026-09-03T13:00:00.000Z"),
+      completedAt: new Date("2026-09-03T13:45:00.000Z"),
+      description: "Replaced the affected configuration and completed a service validation check.",
+      result: "The requested service path passed the validation check.",
+      followUpRequired: true,
+      followUpNote: "Requester confirmation is still required before final Ticket resolution.",
+      attachmentNotes: null,
+    },
+  ];
+
+  for (const definition of definitions) {
+    await prisma.$transaction(async (transaction) => {
+      const existing = await transaction.actionTakenIdempotency.findUnique({
+        where: { actorId_ticketId_key: { actorId: definition.performedById, ticketId: definition.ticketId, key: definition.key } },
+        select: { id: true },
+      });
+      if (existing) return;
+      const action = await transaction.actionTaken.create({ data: definition, select: { id: true } });
+      await transaction.actionTakenIdempotency.create({
+        data: {
+          actorId: definition.performedById,
+          ticketId: definition.ticketId,
+          key: definition.key,
+          fingerprint: "local-lab4-seed",
+          actionTakenId: action.id,
+          expiresAt: new Date("2999-12-31T23:59:59.999Z"),
+        },
+      });
     });
   }
 }

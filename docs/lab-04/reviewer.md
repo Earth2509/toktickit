@@ -1,11 +1,11 @@
 # Lab 4 Reviewer Record
 
-Status: Peer review changes in progress (round two).
+Status: Engineering contract approved and merged to `lab4-staging`; implementation reviews are pending.
 
 | Review item | Owner | Evidence | Status |
 |---|---|---|---|
-| Engineering contract | SITTIJED JANTARATAEME (@Nuggetkub) | [PR #61 round-one review](https://github.com/Earth2509/toktickit/pull/61#pullrequestreview-5315340920) requested changes for Action lifecycle, drill-down parameters, deactivation-safe counts, recovery testing and test coverage; [round-two review](https://github.com/Earth2509/toktickit/pull/61#pullrequestreview-5315995792) requested changes for reopen/follow-up resolution evidence and owned-work scope. | Changes requested; round-two response in progress. |
-| Actions Taken foundation | Pending | PR to be added | Pending |
+| Engineering contract | SITTIJED JANTARATAEME (@Nuggetkub) | [PR #61 round-one review](https://github.com/Earth2509/toktickit/pull/61#pullrequestreview-5315340920) and [round-two review](https://github.com/Earth2509/toktickit/pull/61#pullrequestreview-5315995792) requested Action lifecycle, resolution evidence, drill-down, recovery and test-plan corrections. | Addressed, approved and merged to `lab4-staging`. |
+| Actions Taken foundation | Pitchai Chadchuangchot (@Earth2509) | Branch `feature/lab4-actions-foundation`; migration, seed records, authorization-aware API, audit events and focused tests. | Ready for peer review after local Vitest execution. |
 | Dashboard implementation | Pending | PR to be added | Pending |
 | Final release integration | Pending | PR to be added | Pending |
 
