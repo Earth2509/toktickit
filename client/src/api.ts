@@ -128,6 +128,11 @@ export type ActionTakenPage = {
   totalPages: number;
 };
 
+export type ActionTakenQuery = {
+  page?: number;
+  pageSize?: 10 | 20 | 50;
+};
+
 export type ActionTakenCreateInput = {
   actionAt: string;
   description: string;
@@ -312,8 +317,12 @@ export async function fetchInternalNotes(ticketId: number): Promise<DiscussionPa
   return ticketRequest(`/api/tickets/${ticketId}/internal-notes`, "Unable to load internal notes. Please retry.");
 }
 
-export async function fetchActionsTaken(ticketId: number): Promise<ActionTakenPage> {
-  return ticketRequest(`/api/tickets/${ticketId}/actions-taken`, "Unable to load Actions Taken. Please retry.");
+export async function fetchActionsTaken(ticketId: number, query: ActionTakenQuery = {}): Promise<ActionTakenPage> {
+  const parameters = new URLSearchParams();
+  if (query.page) parameters.set("page", String(query.page));
+  if (query.pageSize) parameters.set("pageSize", String(query.pageSize));
+  const suffix = parameters.size ? `?${parameters.toString()}` : "";
+  return ticketRequest(`/api/tickets/${ticketId}/actions-taken${suffix}`, "Unable to load Actions Taken. Please retry.");
 }
 
 export async function createActionTaken(ticketId: number, input: ActionTakenCreateInput, idempotencyKey: string): Promise<ActionTaken> {

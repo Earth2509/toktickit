@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import ActionsTakenSection from "../../src/ActionsTakenSection";
 
 const staff = { id: 7, displayName: "Kamon IT Support", email: "staff@example.test", role: "IT_STAFF" as const, isActive: true, mustChangePassword: false };
+const assignee = { id: 8, displayName: "Nisa Support", email: "assignee@example.test", role: "IT_STAFF" as const, isActive: true, mustChangePassword: false };
 const requester = { id: 2, displayName: "Anan Requester", email: "requester@example.test", role: "REQUESTER" as const, isActive: true, mustChangePassword: false };
 const action = {
   id: 11, ticketId: 7, actionAt: "2026-09-27T08:00:00.000Z", completedAt: null, description: "Checked the service logs", result: null,
@@ -48,5 +49,67 @@ describe("Lab 4 Actions Taken", () => {
       "/api/staff/tickets/7/actions-taken",
       expect.objectContaining({ method: "POST" }),
     ));
+  });
+
+  it("shows validation before an incomplete Action is created", async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/actions-taken")) return Promise.resolve(response({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 1 }));
+      if (url.includes("/staff/assignees")) return Promise.resolve(response([action.performedBy, action.assignedTo]));
+      return Promise.resolve(response({}));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ActionsTakenSection ticketId={7} user={staff} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Add action" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save action" }));
+
+    expect(await screen.findByText("Enter an Action description.")).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/staff/tickets/7/actions-taken", expect.objectContaining({ method: "POST" }));
+  });
+
+  it("allows an assignee to complete an Action with a transition-only request body", async () => {
+    const completed = { ...action, status: "COMPLETED" as const, result: "Service returned to normal operation.", completedAt: "2026-09-27T09:00:00.000Z", version: 2 };
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/actions-taken") && init?.method === "PATCH") return Promise.resolve(response(completed));
+      if (url.includes("/actions-taken")) return Promise.resolve(response({ items: [action], page: 1, pageSize: 10, totalItems: 1, totalPages: 1 }));
+      if (url.includes("/staff/assignees")) return Promise.resolve(response([action.performedBy, action.assignedTo]));
+      return Promise.resolve(response({}));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ActionsTakenSection ticketId={7} user={assignee} />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Complete action" }));
+    fireEvent.change(screen.getByLabelText(/^Result/), { target: { value: "Service returned to normal operation." } });
+    fireEvent.click(screen.getByRole("button", { name: "Complete action" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/api/staff/tickets/7/actions-taken/11",
+      expect.objectContaining({ method: "PATCH" }),
+    ));
+    const patch = fetchMock.mock.calls.find(([url, init]) => String(url).includes("/actions-taken/11") && (init as RequestInit | undefined)?.method === "PATCH");
+    expect(JSON.parse(String((patch?.[1] as RequestInit).body))).toEqual({
+      version: 1,
+      status: "COMPLETED",
+      result: "Service returned to normal operation.",
+    });
+  });
+
+  it("loads the next Actions Taken page instead of silently hiding older items", async () => {
+    const olderAction = { ...action, id: 10, description: "Documented the earlier investigation", actionAt: "2026-09-26T08:00:00.000Z" };
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("page=2")) return Promise.resolve(response({ items: [olderAction], page: 2, pageSize: 10, totalItems: 2, totalPages: 2 }));
+      return Promise.resolve(response({ items: [action], page: 1, pageSize: 10, totalItems: 2, totalPages: 2 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ActionsTakenSection ticketId={7} user={requester} readOnly />);
+
+    expect(await screen.findByText("Checked the service logs")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Load more actions" }));
+
+    expect(await screen.findByText("Documented the earlier investigation")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith("/api/tickets/7/actions-taken?page=2&pageSize=10", expect.anything());
   });
 });
