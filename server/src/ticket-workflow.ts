@@ -16,6 +16,25 @@ export const allowedTransitions: Record<TicketStatus, readonly TicketStatus[]> =
 
 export type WorkflowValidation = { kind: "conflict" | "validation"; message: string };
 
+export type ResolutionEvidence = {
+  ownerActive: boolean;
+  openActionCount: number;
+  latestCompletedAction: { completedAt: Date | null; followUpRequired: boolean } | null;
+  latestReopenedAt: Date | null;
+};
+
+export function resolutionGate(evidence: ResolutionEvidence): WorkflowValidation | undefined {
+  if (!evidence.ownerActive) return { kind: "conflict", message: "Assign an active IT Staff member or Administrator before resolving this Ticket." };
+  if (evidence.openActionCount > 0) return { kind: "conflict", message: "Complete or cancel every open Action Taken before resolving this Ticket." };
+  const latest = evidence.latestCompletedAction;
+  if (!latest?.completedAt) return { kind: "conflict", message: "Record a completed Action Taken before resolving this Ticket." };
+  if (evidence.latestReopenedAt && latest.completedAt <= evidence.latestReopenedAt) {
+    return { kind: "conflict", message: "Complete a new Action Taken after the latest reopening before resolving this Ticket." };
+  }
+  if (latest.followUpRequired) return { kind: "conflict", message: "Complete a later Action Taken with no follow-up required before resolving this Ticket." };
+  return undefined;
+}
+
 export function workflowValidation(input: { from: TicketStatus; to: TicketStatus; ownerId: number | null; reason?: unknown; resolutionSummary?: unknown }): WorkflowValidation | undefined {
   if (!allowedTransitions[input.from].includes(input.to)) return { kind: "conflict", message: "This status transition is not permitted." };
   const needsActiveOwner = ["OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED"].includes(input.to);

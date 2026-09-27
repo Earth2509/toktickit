@@ -9,6 +9,7 @@ const ticketUpdateMany = vi.fn();
 const ticketEventCreate = vi.fn();
 const transaction = vi.fn();
 const userFindFirst = vi.fn();
+const ticketLock = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({
   getPrisma: () => ({
@@ -42,7 +43,8 @@ describe("Lab 3 workflow mutation API", () => {
     ticketFindUniqueOrThrow.mockResolvedValue({ id: 9, ticketNumber: "TT-2026-000009", ownerId: staff.id, itPriority: "MEDIUM", currentStatus: "NEW", version: 5, resolutionSummary: null, updatedAt: new Date() });
     ticketEventCreate.mockResolvedValue({ id: 1 });
     userFindFirst.mockResolvedValue({ id: staff.id });
-    transaction.mockImplementation((callback: (client: unknown) => unknown) => callback({ ticket: { findUnique: ticketFindUnique, updateMany: ticketUpdateMany, findUniqueOrThrow: ticketFindUniqueOrThrow }, ticketEvent: { create: ticketEventCreate }, user: { findFirst: userFindFirst } }));
+    ticketLock.mockResolvedValue([{ id: 9, currentStatus: "NEW" }]);
+    transaction.mockImplementation((callback: (client: unknown) => unknown) => callback({ $queryRaw: ticketLock, ticket: { findUnique: ticketFindUnique, updateMany: ticketUpdateMany, findUniqueOrThrow: ticketFindUniqueOrThrow }, ticketEvent: { create: ticketEventCreate }, user: { findFirst: userFindFirst } }));
   });
 
   it("claims an eligible Ticket using a conditional version write and records an event", async () => {
