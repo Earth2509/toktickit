@@ -46,7 +46,9 @@ describe("Lab 4 Dashboard API", () => {
   it("calculates requester metrics from owned Tickets and returns five ordered rows", async () => {
     ticketCount.mockResolvedValueOnce(3).mockResolvedValueOnce(1).mockResolvedValueOnce(2).mockResolvedValueOnce(1);
     ticketFindMany.mockResolvedValue([{ id: 7, ticketNumber: "TT-7" }]);
+    const beforeRequest = Date.now();
     const response = await get("/api/requester/dashboard");
+    const afterRequest = Date.now();
     expect(response.status).toBe(200);
     expect(response.body.metrics).toEqual({ openTickets: 3, waitingForRequester: 1, recentlyUpdated: 2, recentlyResolved: 1 });
     expect(response.body.recentTickets).toEqual([{ id: 7, ticketNumber: "TT-7" }]);
@@ -54,8 +56,12 @@ describe("Lab 4 Dashboard API", () => {
     expect(ticketCount.mock.calls[3][0].where).toMatchObject({
       requesterId: requester.id,
       currentStatus: { in: ["RESOLVED", "CLOSED"] },
-      events: { some: { type: "STATUS_CHANGED", after: { path: ["currentStatus"], equals: "RESOLVED" } } },
+      events: { some: { type: "STATUS_CHANGED", after: { path: ["currentStatus"], equals: "RESOLVED" }, createdAt: { gte: expect.any(Date) } } },
     });
+    const resolutionCutoff = ticketCount.mock.calls[3][0].where.events.some.createdAt.gte as Date;
+    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+    expect(resolutionCutoff.getTime()).toBeGreaterThanOrEqual(beforeRequest - thirtyDays);
+    expect(resolutionCutoff.getTime()).toBeLessThanOrEqual(afterRequest - thirtyDays);
     expect(ticketFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: { requesterId: requester.id }, take: 5, orderBy: [{ updatedAt: "desc" }, { id: "desc" }] }));
   });
 
