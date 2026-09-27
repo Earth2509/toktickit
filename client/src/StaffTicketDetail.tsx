@@ -20,7 +20,7 @@ export default function StaffTicketDetail({ ticketId, user, onBack }: { ticketId
   useEffect(load, [ticketId]);
   const canEdit = !!ticket && !terminal.has(ticket.currentStatus);
   const eligibleStatuses = useMemo(() => ticket ? nextStatuses[ticket.currentStatus] : [], [ticket]);
-  async function save(action: string, task: () => Promise<unknown>) { setSaving(action); setError(""); try { await task(); load(); } catch (caught) { const api = caught instanceof TicketApiError ? caught : undefined; setError(api?.status === 409 ? "This Ticket changed or cannot be updated. Reload and try again." : api?.message ?? "Unable to save this change."); } finally { setSaving(""); } }
+  async function save(action: string, task: () => Promise<unknown>) { setSaving(action); setError(""); try { await task(); load(); } catch (caught) { const api = caught instanceof TicketApiError ? caught : undefined; setError(api?.status === 409 && api.message.startsWith("This Ticket changed.") ? "This Ticket changed. Reload and try again." : api?.message ?? "Unable to save this change."); } finally { setSaving(""); } }
   if (loading) return <section className="ticket-card"><p className="status-message" role="status">Loading Ticket details...</p></section>;
   if (error && !ticket) return <section className="ticket-card"><div className="error-panel" role="alert"><p>{error}</p><button className="button button-secondary" onClick={load}>Retry</button></div></section>;
   if (!ticket) return null;

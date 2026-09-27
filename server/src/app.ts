@@ -14,7 +14,7 @@ import {
 } from "./attachments.js";
 import { ticketListOrderBy, ticketListWhere, validateTicketListQuery } from "./ticket-query.js";
 import { staffQueueOrderBy, staffQueueWhere, validateStaffQueueQuery } from "./staff-queue.js";
-import { editableOperationalFields, terminalStatuses, workflowValidation } from "./ticket-workflow.js";
+import { editableOperationalFields, resolutionGate, terminalStatuses, workflowValidation } from "./ticket-workflow.js";
 import { canCreateDiscussion, canIndicateResolution, discussionPagination, validateDiscussionContent } from "./ticket-discussions.js";
 import {
   actionIdempotencyKey,
@@ -896,7 +896,7 @@ app.patch("/api/staff/tickets/:id/priority", ...protectedMutation, async (req, r
   return workflowResponse(res, result);
 });
 
-app.patch("/api/staff/tickets/:id/status", ...protectedMutation, async (req, res) => {
+app.patch("/api/staff/tickets/:id/status", ...protectedMutation, asyncHandler(async (req, res) => {
   const version = workflowVersion(req.body?.version);
   const ticketId = requestId(req.params.id);
   const currentStatus = req.body?.currentStatus;
@@ -904,6 +904,31 @@ app.patch("/api/staff/tickets/:id/status", ...protectedMutation, async (req, res
   const result = await mutateWorkflow(ticketId, version, authenticatedUser(res).id, "STATUS_CHANGED", async (ticket, transaction) => {
     const validation = workflowValidation({ from: ticket.currentStatus, to: currentStatus, ownerId: ticket.ownerId, reason: req.body?.reason, resolutionSummary: req.body?.resolutionSummary });
     if (validation) return validation.kind === "validation" ? { validation: validation.message } : { conflict: validation.message };
+
+    if (currentStatus === "RESOLVED") {
+      const owner = await transaction.user.findFirst({
+        where: { id: ticket.ownerId!, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
+        select: { id: true },
+      });
+      const openActionCount = await transaction.actionTaken.count({ where: { ticketId, status: "OPEN" } });
+      const latestCompletedAction = await transaction.actionTaken.findFirst({
+        where: { ticketId, status: "COMPLETED" },
+        orderBy: [{ completedAt: "desc" }, { id: "desc" }],
+        select: { completedAt: true, followUpRequired: true },
+      });
+      const latestReopenedEvent = await transaction.ticketEvent.findFirst({
+        where: { ticketId, type: "STATUS_CHANGED", after: { path: ["currentStatus"], equals: "REOPENED" } },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        select: { createdAt: true },
+      });
+      const gate = resolutionGate({
+        ownerActive: Boolean(owner),
+        openActionCount,
+        latestCompletedAction,
+        latestReopenedAt: latestReopenedEvent?.createdAt ?? null,
+      });
+      if (gate) return { conflict: gate.message };
+    }
 
     const data: Record<string, unknown> = { currentStatus, ...(currentStatus === "RESOLVED" ? { resolutionSummary: req.body.resolutionSummary.trim() } : {}) };
     // A reopened Ticket must not retain an owner who can no longer work on it.
@@ -922,9 +947,9 @@ app.patch("/api/staff/tickets/:id/status", ...protectedMutation, async (req, res
       if (!eligibleOwner) data.ownerId = null;
     }
     return { data };
-  }, req.body?.reason);
+  }, req.body?.reason, true);
   return workflowResponse(res, result);
-});
+}));
 
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (error instanceof SyntaxError && "body" in error) {
@@ -1003,8 +1028,12 @@ async function mutateWorkflow(
   type: string,
   decide: (ticket: WorkflowTicket, transaction: Prisma.TransactionClient) => Promise<WorkflowMutation>,
   reason?: unknown,
+  lockBeforeDecision = false,
 ) {
   return getPrisma().$transaction(async (transaction) => {
+    // Action Taken writes lock the same Ticket row. Lock status transitions
+    // before reading their gate evidence so an Action cannot race resolution.
+    if (lockBeforeDecision && !(await lockTicket(transaction, ticketId))) return { kind: "missing" as const };
     const ticket = await transaction.ticket.findUnique({ where: { id: ticketId }, select: { id: true, version: true, ownerId: true, currentStatus: true, itPriority: true } });
     if (!ticket) return { kind: "missing" as const };
     if (ticket.version !== version) return { kind: "conflict" as const, message: "This Ticket changed. Reload it before trying again." };
