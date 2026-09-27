@@ -9,12 +9,15 @@ import {
   type Requester,
   type RequestedPriority,
   type TicketListResponse,
+  type TicketListQuery,
 } from "./api";
 
 type MyTicketsProps = {
   requester: Requester;
   onCreateTicket: () => void;
   onViewTicket: (ticketId: number) => void;
+  drillDown?: TicketListQuery | null;
+  onClearDrillDown?: () => void;
 };
 
 type TicketFilters = {
@@ -33,7 +36,7 @@ const initialFilters: TicketFilters = {
   sort: "createdAt:desc",
 };
 
-export default function MyTickets({ requester, onCreateTicket, onViewTicket }: MyTicketsProps) {
+export default function MyTickets({ requester, onCreateTicket, onViewTicket, drillDown, onClearDrillDown }: MyTicketsProps) {
   const [filters, setFilters] = useState<TicketFilters>(initialFilters);
   const [searchInput, setSearchInput] = useState(initialFilters.search);
   const [page, setPage] = useState(1);
@@ -47,7 +50,7 @@ export default function MyTickets({ requester, onCreateTicket, onViewTicket }: M
   const [reloadVersion, setReloadVersion] = useState(0);
 
   const [sortBy, sortOrder] = filters.sort.split(":") as ["createdAt" | "updatedAt" | "ticketNumber" | "requestedPriority", "asc" | "desc"];
-  const hasSearchOrFilters = Boolean(searchInput.trim() || filters.categoryId || filters.relatedSystemId || filters.requestedPriority);
+  const hasSearchOrFilters = Boolean(searchInput.trim() || filters.categoryId || filters.relatedSystemId || filters.requestedPriority || drillDown);
   const hasModifiedControls = hasSearchOrFilters || filters.sort !== initialFilters.sort;
 
   useEffect(() => {
@@ -90,6 +93,7 @@ export default function MyTickets({ requester, onCreateTicket, onViewTicket }: M
       sortOrder,
       page,
       pageSize: 10,
+      ...drillDown,
     })
       .then((response) => {
         if (active) setResults(response);
@@ -104,7 +108,7 @@ export default function MyTickets({ requester, onCreateTicket, onViewTicket }: M
     return () => {
       active = false;
     };
-  }, [filters, page, reloadVersion, requester.id, sortBy, sortOrder]);
+  }, [filters, page, reloadVersion, requester.id, sortBy, sortOrder, drillDown]);
 
   const pageSummary = useMemo(() => {
     if (!results) return "";
@@ -123,6 +127,7 @@ export default function MyTickets({ requester, onCreateTicket, onViewTicket }: M
     setSearchInput(initialFilters.search);
     setFilters(initialFilters);
     setPage(1);
+    onClearDrillDown?.();
   }
 
   return (
@@ -135,6 +140,8 @@ export default function MyTickets({ requester, onCreateTicket, onViewTicket }: M
         </div>
         <button className="button button-primary" type="button" onClick={onCreateTicket}>Create Ticket</button>
       </div>
+
+      {drillDown && <div className="info-panel dashboard-filter-notice" role="status">Showing Tickets matching the Dashboard card. <button className="button button-secondary" type="button" onClick={clearFilters}>Clear Dashboard filter</button></div>}
 
       <div className="ticket-toolbar" aria-label="Ticket search and filters">
         <div className="ticket-filter search-filter">
