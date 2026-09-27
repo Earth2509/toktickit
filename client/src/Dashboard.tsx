@@ -47,7 +47,7 @@ function DashboardState({ loading, error, retry }: { loading: boolean; error: st
 }
 
 function MetricCard({ title, count, onClick }: { title: string; count: number; onClick: () => void }) {
-  return <button className="dashboard-metric" type="button" onClick={onClick} aria-label={`View ${count} ${title.toLowerCase()} Tickets`}><span>{title}</span><strong>{count}</strong><small>View matching Tickets →</small></button>;
+  return <button className="dashboard-metric" type="button" onClick={onClick} aria-label={`View ${count} ${title.toLowerCase()} Tickets`}><span>{title}</span><strong>{count}</strong><small>{count === 0 ? "No matching Tickets · View" : "View matching Tickets →"}</small></button>;
 }
 
 export function RequesterDashboardView({ onDrillDown, onViewTicket, onCreateTicket }: {
