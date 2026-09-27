@@ -257,7 +257,30 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 .reset-password-panel p { margin: 0; color: #52685a; line-height: 1.45; }
 .reset-password-panel .button { width: fit-content; margin: .2rem 0 0; }
 
+/* Lab 4 role dashboards */
+.dashboard-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin: 1.4rem 0 2rem; }
+.dashboard-metric { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; min-height: 10rem; padding: 1.15rem; color: #1f3428; text-align: left; background: #f2f9f4; border: 1px solid #b9d9c5; border-radius: 10px; cursor: pointer; }
+.dashboard-metric:hover { background: #e6f4ea; border-color: #075c37; }
+.dashboard-metric:focus-visible { outline: 3px solid #075c37; outline-offset: 3px; }
+.dashboard-metric span { font-weight: 750; overflow-wrap: anywhere; }
+.dashboard-metric strong { margin: .55rem 0; color: #075c37; font-size: clamp(2rem, 4vw, 2.7rem); line-height: 1; }
+.dashboard-metric small { margin-top: auto; color: #075c37; font-size: .86rem; font-weight: 700; }
+.dashboard-recent h2 { margin: 0 0 .9rem; font-size: 1.3rem; }
+.dashboard-recent ul { margin: 0; padding: 0; list-style: none; border: 1px solid #d8e3db; border-radius: 10px; }
+.dashboard-recent li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-width: 0; padding: .85rem 1rem; border-bottom: 1px solid #d8e3db; }
+.dashboard-recent li:last-child { border-bottom: 0; }
+.dashboard-recent li > div { display: grid; min-width: 0; gap: .25rem; overflow-wrap: anywhere; }
+.dashboard-recent li strong { color: #075c37; }
+.dashboard-recent li small { color: #52685a; }
+.dashboard-recent li .button { flex-shrink: 0; }
+.dashboard-loading { padding: 1rem 0; }
+.dashboard-skeleton-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.dashboard-skeleton-grid span { display: block; height: 8rem; background: #eaf3ed; border-radius: 10px; }
+.dashboard-filter-notice { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; }
+.dashboard-filter-notice .button { margin: 0; }
+
 @media (max-width: 991px) {
+  .dashboard-metrics, .dashboard-skeleton-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .application-header { padding-inline: 1rem; flex-wrap: wrap; }
   .application-navigation { order: 3; width: 100%; margin-right: 0; }
   .ticket-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -275,6 +298,9 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 }
 
 @media (max-width: 767px) {
+  .dashboard-metrics, .dashboard-skeleton-grid { grid-template-columns: minmax(0, 1fr); }
+  .dashboard-recent li { align-items: stretch; flex-direction: column; }
+  .dashboard-recent li .button { width: 100%; }
   .application-page { padding: 0 1rem 2rem; }
   .application-header { width: calc(100% + 2rem); margin: 0 -1rem 1.25rem; align-items: flex-start; gap: .8rem; }
   .application-brand { width: 100%; }

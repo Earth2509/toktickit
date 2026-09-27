@@ -12,7 +12,9 @@ export type TicketListQuery = {
   categoryId?: number;
   relatedSystemId?: number;
   requestedPriority?: RequestedPriority;
-  currentStatus?: TicketStatus;
+  currentStatus?: TicketStatus | TicketStatus[];
+  updatedWithinDays?: 30;
+  resolvedWithinDays?: 30;
   sortBy: (typeof ticketSortFields)[number];
   sortOrder: (typeof ticketSortOrders)[number];
   page: number;
@@ -32,9 +34,15 @@ export function validateTicketListQuery(query: Record<string, QueryValue>): Tick
   const relatedSystemId = positiveInteger(query.relatedSystemId, "relatedSystemId", fieldErrors, false);
   const search = optionalSearch(query.search, fieldErrors);
   const requestedPriority = optionalEnum(query.requestedPriority, "requestedPriority", ticketPriorities, fieldErrors) as RequestedPriority | undefined;
-  const currentStatus = optionalEnum(query.currentStatus, "currentStatus", ticketStatuses, fieldErrors) as TicketStatus | undefined;
-  const sortBy = optionalEnum(query.sortBy, "sortBy", ticketSortFields, fieldErrors) ?? "createdAt";
-  const sortOrder = optionalEnum(query.sortOrder, "sortOrder", ticketSortOrders, fieldErrors) ?? "desc";
+  const currentStatus = optionalEnumList(query.currentStatus, "currentStatus", ticketStatuses, fieldErrors) as TicketStatus | TicketStatus[] | undefined;
+  const updatedWithinDays = optionalThirtyDays(query.updatedWithinDays, "updatedWithinDays", fieldErrors);
+  const resolvedWithinDays = optionalThirtyDays(query.resolvedWithinDays, "resolvedWithinDays", fieldErrors);
+  if (query.sort !== undefined && query.sort !== "recent") fieldErrors.sort = "Choose recent.";
+  if (query.sort === "recent" && (query.sortBy !== undefined || query.sortOrder !== undefined)) fieldErrors.sort = "Choose sort or sortBy/sortOrder, not both.";
+  const requestedSortBy = optionalEnum(query.sortBy, "sortBy", ticketSortFields, fieldErrors);
+  const requestedSortOrder = optionalEnum(query.sortOrder, "sortOrder", ticketSortOrders, fieldErrors);
+  const sortBy = query.sort === "recent" ? "updatedAt" : requestedSortBy ?? "createdAt";
+  const sortOrder = query.sort === "recent" ? "desc" : requestedSortOrder ?? "desc";
   const page = positiveInteger(query.page, "page", fieldErrors, false) ?? 1;
   const pageSize = optionalPageSize(query.pageSize, fieldErrors) ?? 10;
 
@@ -48,6 +56,8 @@ export function validateTicketListQuery(query: Record<string, QueryValue>): Tick
       ...(relatedSystemId ? { relatedSystemId } : {}),
       ...(requestedPriority ? { requestedPriority } : {}),
       ...(currentStatus ? { currentStatus } : {}),
+      ...(updatedWithinDays ? { updatedWithinDays } : {}),
+      ...(resolvedWithinDays ? { resolvedWithinDays } : {}),
       sortBy: sortBy as TicketListQuery["sortBy"],
       sortOrder: sortOrder as TicketListQuery["sortOrder"],
       page,
@@ -56,13 +66,16 @@ export function validateTicketListQuery(query: Record<string, QueryValue>): Tick
   };
 }
 
-export function ticketListWhere(query: TicketListQuery): Prisma.TicketWhereInput {
+export function ticketListWhere(query: TicketListQuery, now = new Date()): Prisma.TicketWhereInput {
+  const cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   return {
     requesterId: query.requesterId,
     ...(query.categoryId ? { categoryId: query.categoryId } : {}),
     ...(query.relatedSystemId ? { relatedSystemId: query.relatedSystemId } : {}),
     ...(query.requestedPriority ? { requestedPriority: query.requestedPriority } : {}),
-    ...(query.currentStatus ? { currentStatus: query.currentStatus } : {}),
+    ...(query.currentStatus ? { currentStatus: Array.isArray(query.currentStatus) ? { in: query.currentStatus } : query.currentStatus } : {}),
+    ...(query.updatedWithinDays ? { updatedAt: { gte: cutoff } } : {}),
+    ...(query.resolvedWithinDays ? { events: { some: { type: "STATUS_CHANGED", after: { path: ["currentStatus"], equals: "RESOLVED" }, createdAt: { gte: cutoff } } } } : {}),
     ...(query.search
       ? {
           OR: [
@@ -72,6 +85,23 @@ export function ticketListWhere(query: TicketListQuery): Prisma.TicketWhereInput
         }
       : {}),
   };
+}
+
+function optionalEnumList<T extends readonly string[]>(value: QueryValue, field: string, allowed: T, fieldErrors: Record<string, string>): T[number] | T[number][] | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string") { fieldErrors[field] = `Choose one of: ${allowed.join(", ")}.`; return undefined; }
+  const parts = value.split(",");
+  if (!parts.length || parts.some(part => !allowed.includes(part) || parts.indexOf(part) !== parts.lastIndexOf(part))) {
+    fieldErrors[field] = `Choose one of: ${allowed.join(", ")}.`;
+    return undefined;
+  }
+  return parts.length === 1 ? parts[0] as T[number] : parts as T[number][];
+}
+
+function optionalThirtyDays(value: QueryValue, field: string, fieldErrors: Record<string, string>): 30 | undefined {
+  if (value === undefined) return undefined;
+  if (value !== "30") { fieldErrors[field] = "Only a 30-day window is supported."; return undefined; }
+  return 30;
 }
 
 export function ticketListOrderBy(query: TicketListQuery): Prisma.TicketOrderByWithRelationInput[] {

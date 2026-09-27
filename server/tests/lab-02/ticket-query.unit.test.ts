@@ -109,4 +109,21 @@ describe("My Tickets query validation", () => {
     expect(ticketListOrderBy(ticketNumberSort.value!)).toEqual([{ ticketNumber: "desc" }, { id: "desc" }]);
     expect(ticketListOrderBy(updatedSort.value!)).toEqual([{ updatedAt: "asc" }, { id: "asc" }]);
   });
+
+  it("supports exact dashboard status and 30-day drill-down filters", () => {
+    const now = new Date("2026-09-27T12:00:00.000Z");
+    const result = validateTicketListQuery({ requesterId: "7", currentStatus: "RESOLVED,CLOSED", resolvedWithinDays: "30" });
+    expect(result.value).toBeDefined();
+    expect(ticketListWhere(result.value!, now)).toMatchObject({
+      requesterId: 7,
+      currentStatus: { in: ["RESOLVED", "CLOSED"] },
+      events: { some: { type: "STATUS_CHANGED", createdAt: { gte: new Date("2026-08-28T12:00:00.000Z") } } },
+    });
+    const invalid = validateTicketListQuery({ requesterId: "7", currentStatus: "NEW,NEW", updatedWithinDays: "31" });
+    expect(invalid.fieldErrors).toHaveProperty("currentStatus");
+    expect(invalid.fieldErrors).toHaveProperty("updatedWithinDays");
+    expect(validateTicketListQuery({ requesterId: "7", updatedWithinDays: "30", sort: "recent" }).value).toMatchObject({
+      sortBy: "updatedAt", sortOrder: "desc", updatedWithinDays: 30,
+    });
+  });
 });

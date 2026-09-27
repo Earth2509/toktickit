@@ -114,10 +114,60 @@ const protectedResource = [asyncHandler(requireAuthenticatedUser), requirePasswo
 const protectedMutation = [requireTrustedOrigin, requireCsrfToken];
 
 app.use(["/api/categories", "/api/related-systems", "/api/tickets"], ...protectedResource);
+app.use("/api/requester", ...protectedResource, requireRole("REQUESTER"));
 // Queue reads are deliberately isolated from requester routes. Issue #40 has
 // no mutation controls: ownership, priority and status changes arrive in #41.
 app.use("/api/staff", ...protectedResource, requireRole("IT_STAFF", "ADMINISTRATOR"));
 app.use("/api/admin", ...protectedResource, requireRole("ADMINISTRATOR"));
+
+const openRequesterStatuses = ["NEW", "OPEN", "IN_PROGRESS", "REOPENED"] as const;
+const operationalStatuses = ["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "REOPENED"] as const;
+const dashboardWindowMilliseconds = 30 * 24 * 60 * 60 * 1000;
+
+app.get("/api/requester/dashboard", async (req, res) => {
+  try {
+    const prisma = getPrisma();
+    const requesterId = authenticatedUser(res).id;
+    const cutoff = new Date(Date.now() - dashboardWindowMilliseconds);
+    const own = { requesterId };
+    const [openTickets, waitingForRequester, recentlyUpdated, recentlyResolved, recentTickets] = await Promise.all([
+      prisma.ticket.count({ where: { ...own, currentStatus: { in: [...openRequesterStatuses] } } }),
+      prisma.ticket.count({ where: { ...own, currentStatus: "WAITING_FOR_REQUESTER" } }),
+      prisma.ticket.count({ where: { ...own, updatedAt: { gte: cutoff } } }),
+      prisma.ticket.count({ where: { ...own, currentStatus: { in: ["RESOLVED", "CLOSED"] }, events: { some: { type: "STATUS_CHANGED", after: { path: ["currentStatus"], equals: "RESOLVED" }, createdAt: { gte: cutoff } } } } }),
+      prisma.ticket.findMany({ where: own, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], take: 5, select: {
+        id: true, ticketNumber: true, requesterId: true, summary: true, requestedPriority: true,
+        currentStatus: true, createdAt: true, updatedAt: true,
+        category: { select: { id: true, name: true } }, relatedSystem: { select: { id: true, name: true } },
+      } }),
+    ]);
+    return res.status(200).json({ metrics: { openTickets, waitingForRequester, recentlyUpdated, recentlyResolved }, recentTickets });
+  } catch {
+    return res.status(503).json({ code: "UNAVAILABLE", message: "Requester dashboard is temporarily unavailable." });
+  }
+});
+
+app.get("/api/staff/dashboard", async (req, res) => {
+  try {
+    const prisma = getPrisma();
+    const operational = { currentStatus: { in: [...operationalStatuses] } };
+    const [unassignedTickets, ownedByMe, urgentTickets, waitingForRequester, recentTickets] = await Promise.all([
+      prisma.ticket.count({ where: { ...operational, ownerId: null } }),
+      prisma.ticket.count({ where: { ...operational, ownerId: authenticatedUser(res).id } }),
+      prisma.ticket.count({ where: { ...operational, itPriority: { in: ["HIGH", "URGENT"] } } }),
+      prisma.ticket.count({ where: { currentStatus: "WAITING_FOR_REQUESTER" } }),
+      prisma.ticket.findMany({ where: operational, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], take: 5, select: {
+        id: true, ticketNumber: true, summary: true, requestedPriority: true, itPriority: true,
+        currentStatus: true, createdAt: true, updatedAt: true,
+        category: { select: { id: true, name: true } }, relatedSystem: { select: { id: true, name: true } },
+        requester: { select: { id: true, displayName: true } }, owner: { select: { id: true, displayName: true, role: true } },
+      } }),
+    ]);
+    return res.status(200).json({ metrics: { unassignedTickets, ownedByMe, urgentTickets, waitingForRequester }, recentTickets });
+  } catch {
+    return res.status(503).json({ code: "UNAVAILABLE", message: "Staff dashboard is temporarily unavailable." });
+  }
+});
 
 app.get("/api/categories", async (_req, res) => {
   try {
@@ -450,7 +500,7 @@ app.patch("/api/tickets/:ticketId/attachments/:attachmentId/remove", ...protecte
 // Keep normal routes before the terminal error handler so future route work is
 // not visually mistaken for unreachable middleware.
 app.get("/api/staff/tickets", async (req, res) => {
-  const validation = validateStaffQueueQuery(req.query);
+  const validation = validateStaffQueueQuery(req.query, authenticatedUser(res).id);
   if (!("value" in validation)) {
     return res.status(400).json({ message: "Staff queue query validation failed", fieldErrors: validation.fieldErrors });
   }
