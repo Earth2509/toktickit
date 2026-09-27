@@ -12,6 +12,7 @@ import {
   type Requester,
   type TicketDetail as TicketDetailModel,
 } from "./api";
+import ActionsTakenSection from "./ActionsTakenSection";
 import DiscussionPanel from "./DiscussionPanel";
 
 type TicketDetailProps = {
@@ -179,6 +180,8 @@ export default function TicketDetail({ requester, ticketId, onBack }: TicketDeta
       {ticket.requesterResolvedAt ? <p className="attachment-success" role="status">You indicated that the problem appears resolved on {formatDate(ticket.requesterResolvedAt)}. The formal Ticket status remains {ticket.currentStatus}.</p> : <><p>Use this only if the problem appears resolved. This does not close or resolve the Ticket automatically.</p><button className="button button-secondary" type="button" disabled={indicatingResolution || !ticket.version} onClick={() => void confirmResolutionIndication()}>{indicatingResolution ? "Recording..." : "Indicate problem appears resolved"}</button></>}
       {resolutionMessage && <p className={resolutionMessage.startsWith("Your") ? "attachment-success" : "field-error"} role="status">{resolutionMessage}</p>}
     </section>
+
+    <ActionsTakenSection ticketId={ticket.id} user={requester} readOnly />
 
     <DiscussionPanel title="Public comments" ticketId={ticket.id} load={fetchComments} create={createComment} />
 

@@ -100,6 +100,54 @@ export type DiscussionEntry = {
 
 export type DiscussionPage = { items: DiscussionEntry[]; page: number; pageSize: number; totalItems: number; totalPages: number };
 
+export type ActionTakenStatus = "OPEN" | "COMPLETED" | "CANCELLED";
+
+export type ActionTaken = {
+  id: number;
+  ticketId: number;
+  actionAt: string;
+  completedAt: string | null;
+  description: string;
+  result: string | null;
+  status: ActionTakenStatus;
+  followUpRequired: boolean;
+  followUpNote: string | null;
+  attachmentNotes: string | null;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  performedBy: Pick<AuthUser, "id" | "displayName" | "role">;
+  assignedTo: Pick<AuthUser, "id" | "displayName" | "role">;
+};
+
+export type ActionTakenPage = {
+  items: ActionTaken[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
+
+export type ActionTakenCreateInput = {
+  actionAt: string;
+  description: string;
+  assignedToId: number;
+  followUpRequired: boolean;
+  followUpNote: string | null;
+  attachmentNotes: string | null;
+};
+
+export type ActionTakenPatchInput = {
+  version: number;
+  description?: string;
+  result?: string | null;
+  assignedToId?: number;
+  status?: Exclude<ActionTakenStatus, "OPEN">;
+  followUpRequired?: boolean;
+  followUpNote?: string | null;
+  attachmentNotes?: string | null;
+};
+
 export type TicketListItem = Omit<Ticket, "description">;
 
 export type TicketListQuery = {
@@ -262,6 +310,26 @@ export async function createComment(ticketId: number, content: string): Promise<
 
 export async function fetchInternalNotes(ticketId: number): Promise<DiscussionPage> {
   return ticketRequest(`/api/tickets/${ticketId}/internal-notes`, "Unable to load internal notes. Please retry.");
+}
+
+export async function fetchActionsTaken(ticketId: number): Promise<ActionTakenPage> {
+  return ticketRequest(`/api/tickets/${ticketId}/actions-taken`, "Unable to load Actions Taken. Please retry.");
+}
+
+export async function createActionTaken(ticketId: number, input: ActionTakenCreateInput, idempotencyKey: string): Promise<ActionTaken> {
+  return ticketRequest(`/api/staff/tickets/${ticketId}/actions-taken`, "Unable to create the Action Taken. Please retry.", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
+    body: JSON.stringify({ ...input, status: "OPEN", result: null }),
+  });
+}
+
+export async function updateActionTaken(ticketId: number, actionId: number, input: ActionTakenPatchInput): Promise<ActionTaken> {
+  return ticketRequest(`/api/staff/tickets/${ticketId}/actions-taken/${actionId}`, "Unable to update the Action Taken. Please retry.", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
 }
 
 export async function createInternalNote(ticketId: number, content: string): Promise<DiscussionEntry> {
