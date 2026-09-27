@@ -75,29 +75,27 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
   const [saving, setSaving] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState(() => newIdempotencyKey());
 
-  const load = (nextPage = 1, append = false) => {
-    let active = true;
+  const load = async (nextPage = 1, append = false) => {
     setLoading(true);
     setError("");
     const tasks: [Promise<ActionTakenPage>, Promise<Array<Pick<AuthUser, "id" | "displayName" | "role">>>?] = readOnly
       ? [fetchActionsTaken(ticketId, { page: nextPage, pageSize: actionsPageSize })]
       : [fetchActionsTaken(ticketId, { page: nextPage, pageSize: actionsPageSize }), fetchStaffAssignees()];
-    void Promise.all(tasks).then(([page, users]) => {
-      if (!active) return;
+    try {
+      const [page, users] = await Promise.all(tasks);
       setItems(current => append ? [...current, ...page.items].sort(sortActions) : page.items);
       setLoadedPage(page.page);
       setTotalItems(page.totalItems);
       setTotalPages(page.totalPages);
       setAssignees(users ?? []);
-    }).catch((caught) => {
-      if (active) setError(caught instanceof TicketApiError ? caught.message : "Unable to load Actions Taken. Please retry.");
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
+    } catch (caught) {
+      setError(caught instanceof TicketApiError ? caught.message : "Unable to load Actions Taken. Please retry.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => load(), [ticketId, readOnly]);
+  useEffect(() => { void load(); }, [ticketId, readOnly]);
 
   function startCreate() {
     setEditing(null);
@@ -159,8 +157,11 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
           followUpNote: form.followUpRequired ? form.followUpNote.trim() : null,
           attachmentNotes: form.attachmentNotes.trim() || null,
         };
-        const created = await createActionTaken(ticketId, input, idempotencyKey);
-        setItems(current => [created, ...current].sort(sortActions));
+        await createActionTaken(ticketId, input, idempotencyKey);
+        // Re-fetch page one after a create. Prepending locally leaves totalItems stale and
+        // shifts offset-based pages, which can duplicate an older Action after "Load more".
+        // The server response is the source of truth for both the count and page boundary.
+        await load();
       } else {
         const input: ActionTakenPatchInput = isTransition
           ? {

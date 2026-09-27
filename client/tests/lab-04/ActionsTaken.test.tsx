@@ -112,4 +112,50 @@ describe("Lab 4 Actions Taken", () => {
     expect(await screen.findByText("Documented the earlier investigation")).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith("/api/tickets/7/actions-taken?page=2&pageSize=10", expect.anything());
   });
+
+  it("reloads page one after creating an Action so totals and later pages stay accurate", async () => {
+    const initialActions = Array.from({ length: 10 }, (_, index) => ({
+      ...action,
+      id: index + 1,
+      description: `Action ${index + 1}`,
+      actionAt: `2026-09-${String(27 - index).padStart(2, "0")}T08:00:00.000Z`,
+    }));
+    const created = { ...action, id: 12, description: "Newly recorded Action", actionAt: "2026-09-28T08:00:00.000Z" };
+    const refreshedFirstPage = [created, ...initialActions.slice(0, 9)];
+    const secondPage = initialActions.slice(9).concat({ ...action, id: 11, description: "Oldest Action", actionAt: "2026-09-17T08:00:00.000Z" });
+    let actionWasCreated = false;
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("/actions-taken") && init?.method === "POST") {
+        actionWasCreated = true;
+        return Promise.resolve(response(created));
+      }
+      if (url.includes("/staff/assignees")) return Promise.resolve(response([action.performedBy, action.assignedTo]));
+      if (url.includes("page=2")) return Promise.resolve(response({ items: secondPage, page: 2, pageSize: 10, totalItems: 12, totalPages: 2 }));
+      return Promise.resolve(response(actionWasCreated
+        ? { items: refreshedFirstPage, page: 1, pageSize: 10, totalItems: 12, totalPages: 2 }
+        : { items: initialActions, page: 1, pageSize: 10, totalItems: 11, totalPages: 2 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<ActionsTakenSection ticketId={7} user={staff} />);
+
+    expect(await screen.findByText("Action 1")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add action" }));
+    fireEvent.change(screen.getByLabelText(/^Action date and time/), { target: { value: "2026-09-27T08:00" } });
+    fireEvent.change(screen.getByLabelText(/^Assignee/), { target: { value: "7" } });
+    fireEvent.change(screen.getByLabelText(/^Action description/), { target: { value: "Newly recorded Action" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save action" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      "/api/staff/tickets/7/actions-taken",
+      expect.objectContaining({ method: "POST" }),
+    ));
+    expect(await screen.findByText("Newly recorded Action")).toBeInTheDocument();
+    expect(screen.getByText("Showing 10 of 12 Actions Taken.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Load more actions" }));
+
+    expect(await screen.findByText("Oldest Action")).toBeInTheDocument();
+    expect(screen.getAllByRole("listitem")).toHaveLength(12);
+    expect(screen.getByText("Showing 12 of 12 Actions Taken.")).toBeInTheDocument();
+  });
 });
