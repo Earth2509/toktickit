@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:migration": "vitest run tests/lab-03/migration.test.ts",
     "test:lab4-migration": "npm run build --silent && node dist/scripts/run-lab4-migration-test.js",
-    "test:lab4-performance": "npm run build --silent && node dist/scripts/run-lab4-dashboard-performance.js"
+    "test:lab4-performance": "npm run build --silent && node dist/scripts/run-lab4-dashboard-performance.js",
+    "test:lab4-recovery": "npm run build --silent && node dist/scripts/run-lab4-recovery-test.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
