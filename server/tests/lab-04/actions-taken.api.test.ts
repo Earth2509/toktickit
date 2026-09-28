@@ -43,12 +43,14 @@ const action = {
   assignedTo: { id: 72, displayName: "Assigned Staff", role: "IT_STAFF" },
 };
 
-function create(body: object, key = "action-request-1") {
+function create(body: object, key = "action-request-1", actingToken = token) {
+  const actingTokenHash = createHash("sha256").update(actingToken).digest("base64url");
+  const actingCsrf = createHmac("sha256", secret).update(actingTokenHash).digest("base64url");
   return request(app)
     .post("/api/staff/tickets/9/actions-taken")
-    .set("Cookie", `toktickit_session=${token}`)
+    .set("Cookie", `toktickit_session=${actingToken}`)
     .set("Origin", "http://localhost:5173")
-    .set("X-CSRF-Token", csrf)
+    .set("X-CSRF-Token", actingCsrf)
     .set("Idempotency-Key", key)
     .send(body);
 }
@@ -101,6 +103,46 @@ describe("Lab 4 Action Taken API", () => {
     expect(actionCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ ticketId: 9, performedById: staff.id, status: "OPEN", result: null }) }));
     expect(ticketEventCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: "ACTION_TAKEN_CREATED", actorId: staff.id }) }));
     expect(ticketLock).toHaveBeenCalledTimes(1);
+  });
+
+  it("records two Staff members' distinct Actions on one Ticket without changing its owner", async () => {
+    const secondStaff = { ...staff, id: 73, displayName: "Second Action Staff", email: "second-staff@example.test" };
+    const secondToken = "lab4-action-second-session";
+    const secondHash = createHash("sha256").update(secondToken).digest("base64url");
+    const ownedTicket = { id: 9, currentStatus: "OPEN", ownerId: staff.id };
+    const createdActions: typeof action[] = [];
+    ticketLock.mockResolvedValue([ownedTicket]);
+    sessionFindUnique.mockImplementation(async ({ where }: { where: { tokenHash: string } }) => {
+      const actor = where.tokenHash === secondHash ? secondStaff : staff;
+      return { tokenHash: where.tokenHash, userId: actor.id, credentialVersion: actor.credentialVersion, expiresAt: new Date(Date.now() + 60_000), user: actor };
+    });
+    actionCreate.mockImplementation(async ({ data }: { data: { description: string; performedById: number } }) => {
+      const actor = data.performedById === staff.id ? staff : secondStaff;
+      const created = { ...action, id: 31 + createdActions.length, description: data.description,
+        performedBy: { id: actor.id, displayName: actor.displayName, role: actor.role } };
+      createdActions.push(created);
+      return created;
+    });
+
+    const first = await create({ actionAt: "2026-09-25T08:00:00.000Z", description: "Owner investigated the fault.", assignedToId: 72, followUpRequired: false }, "owner-work");
+    const second = await create({ actionAt: "2026-09-25T09:00:00.000Z", description: "Second Staff tested the fix.", assignedToId: 72, followUpRequired: false }, "second-staff-work", secondToken);
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+    expect(first.body.id).not.toBe(second.body.id);
+    expect(createdActions.map(item => item.performedBy.id)).toEqual([staff.id, secondStaff.id]);
+    expect(actionCreate.mock.calls.map(([call]) => call.data.performedById)).toEqual([staff.id, secondStaff.id]);
+    expect(ticketEventCreate.mock.calls.map(([call]) => call.data.actorId)).toEqual([staff.id, secondStaff.id]);
+    expect(ticketLock).toHaveBeenCalledTimes(2);
+    expect(ownedTicket.ownerId).toBe(staff.id);
+
+    ticketFindFirst.mockResolvedValue({ id: ownedTicket.id });
+    actionCount.mockResolvedValue(2);
+    actionFindMany.mockResolvedValue([...createdActions].reverse());
+    const listing = await request(app).get("/api/tickets/9/actions-taken?page=1&pageSize=10")
+      .set("Cookie", `toktickit_session=${secondToken}`);
+    expect(listing.status).toBe(200);
+    expect(listing.body.totalItems).toBe(2);
+    expect(listing.body.items.map((item: { performedBy: { id: number } }) => item.performedBy.id)).toEqual([secondStaff.id, staff.id]);
   });
 
   it("returns the stored result for an idempotent replay and does not create another Action", async () => {
