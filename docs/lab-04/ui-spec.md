@@ -28,8 +28,18 @@ Desktop is >=992px, tablet 768-991px and mobile <768px. Metric cards flow 4/2/1 
 
 ## Visual and accessibility checklist
 
-- [ ] Dashboard, Ticket Detail and Actions Taken inspected at desktop/tablet/mobile.
+- [x] Dashboard, Ticket Detail and Actions Taken inspected at desktop/tablet/mobile using the twelve full-page images below; the corresponding browser tests also asserted no page-level horizontal overflow.
 - [ ] Dashboard loading, empty, forbidden and safe-failure states inspected.
 - [ ] Action create/edit submitting, validation, follow-up, conflict and read-only states inspected.
 - [ ] Keyboard focus order, labels, errors, non-colour badges and drill-down actions checked.
 - [ ] Long action text/notes and narrow screens have no clipping, overlap or horizontal overflow.
+
+### Captured responsive evidence (2026-09-28)
+
+The following images were copied from the passing Playwright run into this repository so a reviewer can inspect them without the local test artifacts. The screenshots show the populated dashboard and Ticket/Action detail states, not every loading, validation or conflict state in the unchecked checklist items above.
+
+| Viewport | IT Staff Dashboard | IT Staff Ticket / Actions | Requester Dashboard | Requester Ticket / Actions |
+|---|---|---|---|---|
+| Desktop, 1440 × 900 | [View image](evidence/desktop/staff-dashboard.png) | [View image](evidence/desktop/staff-ticket-actions.png) | [View image](evidence/desktop/requester-dashboard.png) | [View image](evidence/desktop/requester-ticket-actions.png) |
+| Tablet, 820 × 1180 | [View image](evidence/tablet/staff-dashboard.png) | [View image](evidence/tablet/staff-ticket-actions.png) | [View image](evidence/tablet/requester-dashboard.png) | [View image](evidence/tablet/requester-ticket-actions.png) |
+| Mobile, 390 × 844 | [View image](evidence/mobile/staff-dashboard.png) | [View image](evidence/mobile/staff-ticket-actions.png) | [View image](evidence/mobile/requester-dashboard.png) | [View image](evidence/mobile/requester-ticket-actions.png) |
