@@ -70,6 +70,10 @@ describe("Lab 4 Zen Green and accessibility contract", () => {
     expect(screen.getByLabelText(/^Assignee/)).toBeInTheDocument();
     expect(screen.getByLabelText("Follow-up required")).toHaveAttribute("type", "checkbox");
     fireEvent.click(screen.getByRole("button", { name: "Save action" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Enter an Action description.");
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveAttribute("id", "action-form-error");
+    expect(alert).toHaveTextContent("Enter an Action description.");
+    expect(screen.getByLabelText(/^Action description/)).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText(/^Action description/)).toHaveAttribute("aria-describedby", "action-form-error");
   });
 });
