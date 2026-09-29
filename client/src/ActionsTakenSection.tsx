@@ -196,6 +196,17 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
   const canTransition = (action: ActionTaken) => canEdit(action) || action.assignedTo.id === user.id;
   const isTransition = editing !== null && form.status !== "OPEN";
   const disableOpenFields = saving || (editing !== null && (!canEdit(editing) || isTransition));
+  const invalidField = ({
+    "Choose an active IT Staff member or Administrator.": "action-assignee",
+    "Enter an Action description.": "action-description",
+    "Enter a follow-up note when follow-up is required.": "action-follow-up-note",
+    "Enter a result before completing this Action.": "action-result",
+    "Enter a valid action date and time.": "action-at",
+  } as Record<string, string>)[formError];
+  const errorAttributes = (field: string) => ({
+    "aria-invalid": invalidField === field ? true as const : undefined,
+    "aria-describedby": invalidField === field ? "action-form-error" : undefined,
+  });
 
   return <section className="actions-taken-section" aria-labelledby="actions-taken-heading">
     <div className="section-heading-row">
@@ -207,15 +218,15 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
     {showForm && !readOnly && canWrite && <form className="action-form" onSubmit={submit} noValidate>
       <h3>{editing ? form.status === "COMPLETED" ? "Complete action" : form.status === "CANCELLED" ? "Cancel action" : "Edit action" : "Add action"}</h3>
       <div className="form-grid">
-        <div className="form-field"><label htmlFor="action-at">Action date and time <span className="required-marker">*</span></label><input id="action-at" type="datetime-local" value={form.actionAt} onChange={event => setForm(current => ({ ...current, actionAt: event.target.value }))} disabled={saving || editing !== null} /></div>
-        <div className="form-field"><label htmlFor="action-assignee">Assignee <span className="required-marker">*</span></label><select id="action-assignee" value={form.assignedToId} onChange={event => setForm(current => ({ ...current, assignedToId: event.target.value }))} disabled={disableOpenFields}>{assignees.map(person => <option key={person.id} value={person.id}>{person.displayName} ({person.role.replaceAll("_", " ")})</option>)}</select></div>
-        <div className="form-field full-width"><label htmlFor="action-description">Action description <span className="required-marker">*</span></label><textarea id="action-description" maxLength={2000} value={form.description} onChange={event => setForm(current => ({ ...current, description: event.target.value }))} disabled={disableOpenFields} /></div>
+        <div className="form-field"><label htmlFor="action-at">Action date and time <span className="required-marker">*</span></label><input id="action-at" type="datetime-local" value={form.actionAt} onChange={event => setForm(current => ({ ...current, actionAt: event.target.value }))} disabled={saving || editing !== null} {...errorAttributes("action-at")} /></div>
+        <div className="form-field"><label htmlFor="action-assignee">Assignee <span className="required-marker">*</span></label><select id="action-assignee" value={form.assignedToId} onChange={event => setForm(current => ({ ...current, assignedToId: event.target.value }))} disabled={disableOpenFields} {...errorAttributes("action-assignee")}>{assignees.map(person => <option key={person.id} value={person.id}>{person.displayName} ({person.role.replaceAll("_", " ")})</option>)}</select></div>
+        <div className="form-field full-width"><label htmlFor="action-description">Action description <span className="required-marker">*</span></label><textarea id="action-description" maxLength={2000} value={form.description} onChange={event => setForm(current => ({ ...current, description: event.target.value }))} disabled={disableOpenFields} {...errorAttributes("action-description")} /></div>
         <div className="form-field full-width"><label className="checkbox-label" htmlFor="action-follow-up"><input id="action-follow-up" type="checkbox" checked={form.followUpRequired} onChange={event => setForm(current => ({ ...current, followUpRequired: event.target.checked }))} disabled={disableOpenFields} /> Follow-up required</label></div>
-        {form.followUpRequired && <div className="form-field full-width"><label htmlFor="action-follow-up-note">Follow-up note <span className="required-marker">*</span></label><textarea id="action-follow-up-note" maxLength={1000} value={form.followUpNote} onChange={event => setForm(current => ({ ...current, followUpNote: event.target.value }))} disabled={disableOpenFields} /></div>}
+        {form.followUpRequired && <div className="form-field full-width"><label htmlFor="action-follow-up-note">Follow-up note <span className="required-marker">*</span></label><textarea id="action-follow-up-note" maxLength={1000} value={form.followUpNote} onChange={event => setForm(current => ({ ...current, followUpNote: event.target.value }))} disabled={disableOpenFields} {...errorAttributes("action-follow-up-note")} /></div>}
         <div className="form-field full-width"><label htmlFor="action-attachment-notes">Attachment notes</label><textarea id="action-attachment-notes" maxLength={1000} value={form.attachmentNotes} onChange={event => setForm(current => ({ ...current, attachmentNotes: event.target.value }))} disabled={disableOpenFields} /><p className="field-hint">Describe related files here. This does not upload an attachment.</p></div>
-        {form.status === "COMPLETED" && <div className="form-field full-width"><label htmlFor="action-result">Result <span className="required-marker">*</span></label><textarea id="action-result" maxLength={2000} value={form.result} onChange={event => setForm(current => ({ ...current, result: event.target.value }))} disabled={saving} /></div>}
+        {form.status === "COMPLETED" && <div className="form-field full-width"><label htmlFor="action-result">Result <span className="required-marker">*</span></label><textarea id="action-result" maxLength={2000} value={form.result} onChange={event => setForm(current => ({ ...current, result: event.target.value }))} disabled={saving} {...errorAttributes("action-result")} /></div>}
       </div>
-      {formError && <p className="field-error" role="alert">{formError}</p>}
+      {formError && <p id="action-form-error" className="field-error" role="alert">{formError}</p>}
       <div className="form-actions"><button className="button button-primary" type="submit" disabled={saving}>{saving ? "Saving action..." : form.status === "COMPLETED" ? "Complete action" : form.status === "CANCELLED" ? "Cancel action" : "Save action"}</button><button className="button button-secondary" type="button" onClick={closeForm} disabled={saving}>Cancel</button></div>
     </form>}
     {loading && items.length === 0 ? <p className="status-message" role="status">Loading Actions Taken...</p> : items.length === 0 ? <p className="empty-panel" role="status">No Actions Taken have been recorded for this Ticket.</p> : <><ul className="action-list" aria-label="Actions Taken">

@@ -158,17 +158,18 @@ async function seedLab4Actions(prisma: PrismaClient) {
 
   for (const definition of definitions) {
     await prisma.$transaction(async (transaction) => {
+      const { key, ...actionData } = definition;
       const existing = await transaction.actionTakenIdempotency.findUnique({
-        where: { actorId_ticketId_key: { actorId: definition.performedById, ticketId: definition.ticketId, key: definition.key } },
+        where: { actorId_ticketId_key: { actorId: actionData.performedById, ticketId: actionData.ticketId, key } },
         select: { id: true },
       });
       if (existing) return;
-      const action = await transaction.actionTaken.create({ data: definition, select: { id: true } });
+      const action = await transaction.actionTaken.create({ data: actionData, select: { id: true } });
       await transaction.actionTakenIdempotency.create({
         data: {
-          actorId: definition.performedById,
-          ticketId: definition.ticketId,
-          key: definition.key,
+          actorId: actionData.performedById,
+          ticketId: actionData.ticketId,
+          key,
           fingerprint: "local-lab4-seed",
           actionTakenId: action.id,
           expiresAt: new Date("2999-12-31T23:59:59.999Z"),
