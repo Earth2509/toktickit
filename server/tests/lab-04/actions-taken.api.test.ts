@@ -14,6 +14,8 @@ const actionUpdateMany = vi.fn();
 const idempotencyFindUnique = vi.fn();
 const idempotencyCreate = vi.fn();
 const ticketEventCreate = vi.fn();
+const ticketUpdate = vi.fn();
+const ticketUpdateMany = vi.fn();
 const userFindFirst = vi.fn();
 const ticketLock = vi.fn();
 const transaction = vi.fn();
@@ -89,7 +91,7 @@ describe("Lab 4 Action Taken API", () => {
     ticketLock.mockResolvedValue([{ id: 9, currentStatus: "OPEN" }]);
     transaction.mockImplementation((callback: (client: unknown) => unknown) => callback({
       $queryRaw: ticketLock,
-      ticket: { findUnique: ticketFindUnique },
+      ticket: { findUnique: ticketFindUnique, update: ticketUpdate, updateMany: ticketUpdateMany },
       user: { findFirst: userFindFirst },
       actionTaken: { create: actionCreate, findFirst: actionFindFirst, findUniqueOrThrow: actionFindUniqueOrThrow, updateMany: actionUpdateMany },
       actionTakenIdempotency: { findUnique: idempotencyFindUnique, create: idempotencyCreate, delete: vi.fn() },
@@ -133,7 +135,8 @@ describe("Lab 4 Action Taken API", () => {
     expect(actionCreate.mock.calls.map(([call]) => call.data.performedById)).toEqual([staff.id, secondStaff.id]);
     expect(ticketEventCreate.mock.calls.map(([call]) => call.data.actorId)).toEqual([staff.id, secondStaff.id]);
     expect(ticketLock).toHaveBeenCalledTimes(2);
-    expect(ownedTicket.ownerId).toBe(staff.id);
+    expect(ticketUpdate).not.toHaveBeenCalled();
+    expect(ticketUpdateMany).not.toHaveBeenCalled();
 
     ticketFindFirst.mockResolvedValue({ id: ownedTicket.id });
     actionCount.mockResolvedValue(2);

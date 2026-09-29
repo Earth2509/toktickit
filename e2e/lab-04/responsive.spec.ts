@@ -28,9 +28,24 @@ async function signIn(page: Page, email: string, landing: string) {
   await expect(landingHeading).toBeVisible();
 }
 
-async function capture(page: Page, testInfo: TestInfo, viewport: string, screen: string) {
+async function checkRenderedLayout(page: Page, viewport: string, screen: string) {
   const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(horizontalOverflow, `${screen} must not overflow horizontally at ${viewport} size`).toBeLessThanOrEqual(1);
+  const undersizedTargets = await page.locator("button, a[href], input, select, textarea").evaluateAll(elements =>
+    elements.flatMap(element => {
+      const target = element instanceof HTMLInputElement && element.type === "checkbox"
+        ? element.closest("label") ?? element
+        : element;
+      const rect = target.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0 || getComputedStyle(target).visibility === "hidden") return [];
+      return rect.height < 44 ? [`${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ""} (${rect.height.toFixed(1)}px)`] : [];
+    }),
+  );
+  expect(undersizedTargets, `${screen} interactive targets must be at least 44px high at ${viewport} size`).toEqual([]);
+}
+
+async function capture(page: Page, testInfo: TestInfo, viewport: string, screen: string) {
+  await checkRenderedLayout(page, viewport, screen);
   const screenshotPath = testInfo.outputPath("lab-04", viewport, `${screen}.png`);
   await page.screenshot({ path: screenshotPath, fullPage: true });
   await testInfo.attach(`${screen}-${viewport}`, { path: screenshotPath, contentType: "image/png" });
@@ -55,6 +70,7 @@ for (const viewport of [
     await page.getByLabel("Search tickets").fill(ticketNumber);
     const staffRow = page.getByRole("row").filter({ hasText: ticketNumber });
     await expect(staffRow).toBeVisible();
+    await checkRenderedLayout(page, viewport.name, "staff-ticket-queue");
     await staffRow.getByRole("button", { name: "Open" }).click();
     await expect(page.getByRole("heading", { name: ticketNumber })).toBeVisible();
     await expect(page.getByRole("list", { name: "Actions Taken" })).toContainText("Replaced the affected configuration");
@@ -71,9 +87,16 @@ for (const viewport of [
     await page.getByLabel("Search tickets").fill(ticketNumber);
     const requesterRow = page.getByRole("row").filter({ hasText: ticketNumber });
     await expect(requesterRow).toBeVisible();
+    await checkRenderedLayout(page, viewport.name, "requester-my-tickets");
     await requesterRow.getByRole("button", { name: "View details" }).click();
     await expect(page.getByRole("heading", { name: "Ticket Detail" })).toBeVisible();
     await expect(page.getByRole("list", { name: "Actions Taken" })).toContainText("Replaced the affected configuration");
     await capture(page, testInfo, viewport.name, "requester-ticket-actions");
+
+    await page.getByRole("button", { name: "Logout" }).click();
+    await signIn(page, "admin@example.test", "User Management");
+    await page.getByRole("button", { name: "Create User" }).click();
+    await expect(page.getByRole("heading", { name: "Create User" })).toBeVisible();
+    await checkRenderedLayout(page, viewport.name, "administrator-user-form");
   });
 }

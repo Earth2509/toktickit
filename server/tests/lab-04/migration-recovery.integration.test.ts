@@ -68,7 +68,11 @@ describe.skipIf(!sourceUrl || !targetUrl)("Lab 4 logical database and attachment
       await restore(target, savedSnapshot);
       await copyFile(path.join(backupFiles, storageKey), path.join(restoredFiles, storageKey));
 
-      expect(rowCounts(await capture(target))).toEqual(savedManifest.counts);
+      const restoredSnapshot = await capture(target);
+      expect(rowCounts(restoredSnapshot)).toEqual(savedManifest.counts);
+      // Compare every restored row, including relationships and audit history,
+      // after normalizing Prisma Date objects to the backup's JSON format.
+      expect(JSON.parse(JSON.stringify(restoredSnapshot))).toEqual(savedSnapshot);
       const recoveredTicket = await target.ticket.findUnique({
         where: { id: savedManifest.ticket.id }, include: { requester: true, owner: true },
       });

@@ -18,18 +18,13 @@ const success = (body: unknown) => ({ ok: true, status: 200, headers: new Header
 afterEach(() => vi.unstubAllGlobals());
 
 describe("Lab 4 Zen Green and accessibility contract", () => {
-  it("keeps visible focus, 44px targets, wrapping Action text, and 4/2/1 dashboard columns", () => {
+  it("keeps visible focus, wrapping Action text, and 4/2/1 dashboard columns", () => {
     const css = Array.from(document.head.querySelectorAll("style"))
       .map(style => style.textContent ?? "")
       .join("\n");
 
     expect(css).toContain("button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible");
     expect(css).toContain("outline: 3px solid #0b7a46;");
-    expect(css).toContain(".button { min-height: 44px;");
-    expect(css).toContain(".header-nav-button { display: inline-flex; align-items: center; min-height: 44px;");
-    expect(css).toContain(".header-account-action { min-height: 44px;");
-    expect(css).toContain(".form-field input:not([type=\"file\"]):not([type=\"checkbox\"]), .form-field select, .form-field textarea { width: 100%; min-height: 44px;");
-    expect(css).toContain(".checkbox-label { display: inline-flex !important; align-items: center; min-height: 44px;");
     expect(css).toContain(".action-metadata dd { margin: 0; color: #1f3428; line-height: 1.45; overflow-wrap: anywhere; }");
     expect(css).toContain(".dashboard-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));");
     expect(css).toContain("@media (max-width: 991px) {");
