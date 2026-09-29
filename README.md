@@ -1,125 +1,84 @@
 # TokTickIT
 
-TokTickIT is an IT service desk application. This repository is being built through reviewed feature branches for CPE334 Labs 1–3.
+TokTickIT is a full-stack IT service desk built through reviewed CPE334 Lab 1-4 increments. Requesters create and follow their own Tickets; IT Staff coordinate Tickets and record Actions Taken; Administrators manage users and can perform Staff work. The Lab 4 dashboards summarize the same authoritative Ticket data without replacing the detailed views.
 
-## Foundation stack
+## Stack and repository layout
 
-- Client: React, TypeScript, Vite, Bootstrap
-- Server: Node.js, Express, TypeScript
-- Database: PostgreSQL with Prisma ORM
-- Tests: Vitest, Supertest, React Testing Library
+- `client/`: React, TypeScript and Vite UI; Vitest and React Testing Library tests.
+- `server/`: Express API, Prisma/PostgreSQL schema and migrations, seed, Vitest/Supertest tests.
+- `e2e/`: Playwright browser regression and responsive checks.
+- `docs/lab-01/` through `docs/lab-04/`: specifications, test plans, review records and submission evidence.
+- `docs/lab-04/evidence/`: twelve committed desktop, tablet and mobile screenshots of the major Lab 4 screens.
+- `artifacts/`: local Playwright reports, traces and runtime files; ignored by Git.
 
-## Repository layout
+## Local setup
 
-```text
-toktickit/
-|- client/                 React + Vite frontend
-|  |- src/
-|  `- tests/
-|- server/                 Express backend
-|  |- prisma/              Prisma schema and future seed files
-|  |- src/
-|  `- tests/
-|- docs/lab-01/            Lab evidence and records
-|- .gitignore
-`- README.md
-```
-
-## Setup
-
-1. Install the dependencies separately for each application.
-
-   ```bash
-   cd server && npm install
-   cd ../client && npm install
-   ```
-
-2. Copy `server/.env.example` to `server/.env`, then set `DATABASE_URL` for a local PostgreSQL database. Do not commit `.env`.
-
-3. Copy the remaining sample values in `server/.env.example`. Generate a unique
-   local `AUTH_CSRF_SECRET`; do not commit it. To provision the documented Lab
-   3 fixture users, retain `LAB3_SEED_MODE=local` and optionally override
-   `LAB3_SEED_PASSWORD`. The local demo default is `Lab3-Demo-Only!2026` and
-   every fixture account must change it after login. Fixture seeding is refused
-   in production and never assigns a default password to migrated users.
-
-4. Apply migrations and create local-only fixture data. The Lab 3 migration
-   renames the existing `Requester` table to `User`; it does not delete or
-   recreate user, Ticket, Attachment, or attachment-removal attribution rows.
-   It stops before the rename if two existing emails would collide after
-   trim/lower normalization.
-
-   ```bash
-   cd server
-   npm run prisma:migrate
-   npm run prisma:seed
-   ```
-
-   Migrated users deliberately receive no default password. Provision one
-   migrated account locally by setting `LAB3_PROVISION_MODE=local`,
-   `LAB3_PROVISION_EMAIL`, and `LAB3_PROVISION_PASSWORD` for a single command,
-   then run `npm run prisma:provision-user`. The command refuses production,
-   missing users, invalid passwords, and any account that already has a hash;
-   it never prints the password.
-
-5. Validate the Prisma configuration.
-
-   ```bash
-   cd server
-   npm run prisma:validate
-   ```
-
-6. Run the development servers in separate terminals.
-
-   ```bash
-   cd server && npm run dev
-   cd client && npm run dev
-   ```
-
-The browser uses the same-origin `/api` path. Vite proxies it to
-`http://localhost:3000` by default, so do not configure a browser-side API URL
-or use a wildcard CORS policy. Set `VITE_API_PROXY_TARGET` only when testing a
-different local API target.
-
-The Lab 3 authenticated Requester workflow provides `POST /api/auth/login`,
-`GET /api/auth/me`, `POST /api/auth/change-password`, and `POST /api/auth/logout`.
-Login and every browser mutation require an allowed Origin. Authenticated
-mutations also require the `X-CSRF-Token` returned by login/me. Ticket and
-attachment ownership comes only from the authenticated session; the former
-development Requester selector and `/api/requesters` directory are removed.
-
-## Test commands
+Use a local PostgreSQL database. From the repository root, install each package's locked dependencies:
 
 ```bash
-cd server && npm test
-cd client && npm test
+npm ci
+npm ci --prefix server
+npm ci --prefix client
 ```
 
-## Integrated E2E checks
+Copy `server/.env.example` to `server/.env` and set `DATABASE_URL`, a unique `AUTH_CSRF_SECRET`, and the trusted browser origins for your local ports. Keep `.env` out of Git. The example file documents the optional Lab 3 fixture and migrated-user provisioning settings.
 
-The root-level Playwright command starts the API and client itself. It creates
-and resets only the dedicated PostgreSQL schema named `lab3_e2e`, applies the
-committed migrations, reruns the idempotent seed, and uses an isolated runtime
-attachment directory under `artifacts/`. No separately started development
-server is required, and E2E records do not alter the normal application schema.
-
-Before the first E2E run, install the root dependency and Chromium browser:
+Apply the committed migrations, then run the repeat-safe local seed:
 
 ```bash
-npm install
+npm --prefix server run prisma:validate
+npm --prefix server run prisma:migrate
+npm --prefix server run prisma:seed
+```
+
+The Lab 3 migration preserves existing User, Ticket and Attachment relationships, and the Lab 4 migration adds Actions Taken without deleting earlier records. The seed adds local-only fixture accounts and Tickets with zero, one or multiple Actions. It requires `LAB3_SEED_MODE=local`, refuses production, and does not duplicate seeded Actions on rerun. Migrated users receive no default password; see `server/.env.example` for the guarded one-time provisioning command.
+
+Start the API and UI in separate terminals:
+
+```bash
+npm --prefix server run dev
+npm --prefix client run dev
+```
+
+The UI normally opens at `http://localhost:5173`. Vite proxies same-origin `/api` requests to `http://localhost:3000`; set `VITE_API_PROXY_TARGET` only if your local API uses another port. Sign in with an active local fixture account: `requester1@example.test`, `staff1@example.test`, or `admin@example.test`. The fixture password is the local seed value in `server/prisma/seed-data.ts` or your `LAB3_SEED_PASSWORD` override. Fixture users must change the initial password on first sign-in. Do not use these accounts or passwords in production.
+
+## Demonstration path
+
+1. As a Requester, open Dashboard, drill down to My Tickets, create a Ticket, then inspect its status, public discussion, attachments and read-only Actions Taken.
+2. As IT Staff, open Dashboard and Ticket Queue, claim a Ticket, create or complete an Action Taken, and observe the resolution-gate feedback and updated Ticket status. A second Staff member can record a separate Action without becoming the primary Ticket Owner.
+3. As an Administrator, inspect the Staff dashboard and Users screen. Verify that inactive accounts and role restrictions remain enforced by the API, not merely by hidden UI controls.
+4. Inspect each role's loading, empty, validation and safe-error feedback, and the desktop/tablet/mobile layouts. The committed evidence and any remaining manual-inspection limits are listed in `docs/lab-04/ui-spec.md`.
+
+## Verification
+
+Run the default server and client suites and production builds from the repository root:
+
+```bash
+npm --prefix server test
+npm --prefix client test
+npm --prefix server run build
+npm --prefix client run build
+```
+
+The default server run intentionally skips database-resetting integration, recovery and performance suites. To run the guarded Lab 4 checks against *disposable local PostgreSQL schemas*, first verify your `server/.env` points to a local database, then run each separately:
+
+```bash
+npm --prefix server run test:lab4-migration
+npm --prefix server run test:lab4-recovery
+npm --prefix server run test:lab4-performance
+```
+
+The scripts reset only their named test schemas (`lab4_migration_test`, `lab4_recovery_source_test`, `lab4_recovery_target_test`, and `lab4_dashboard_perf_test`). They must not be used as a production backup or performance benchmark. `docs/lab-04/tests.md` records the separate results and their limits.
+
+The root Playwright command starts its own API and UI and **resets the disposable `lab3_e2e` schema** before seeding it. Stop any local servers on the configured E2E ports first. With a working local PostgreSQL `DATABASE_URL` in `server/.env`, run:
+
+```bash
 npm run e2e:install
-```
-
-The normal local database setup still applies: copy `server/.env.example` to
-`server/.env` and set a working PostgreSQL `DATABASE_URL`. Then run:
-
-```bash
 npm run e2e
 ```
 
-The suite performs real requester-owned ticket creation, requester switching,
-Ticket Detail attachment lifecycle actions, and desktop/tablet/mobile visual
-checks. HTML, trace, and responsive screenshot artifacts are written under
-`artifacts/lab-02/` and are intentionally ignored by Git.
+Playwright covers Lab 2/3 regressions and Lab 4 Action, dashboard, workflow and responsive scenarios. Its HTML report is written to `artifacts/lab-03/playwright-report/`; the twelve Lab 4 responsive evidence images are committed under `docs/lab-04/evidence/`. Run final verification again **after** the reviewed staging branch is promoted to `main`; feature-branch results alone do not establish a passing final `main`.
 
-The foundation keeps the test commands ready. Feature-specific tests are added together with their corresponding functionality.
+## Security and data handling
+
+Authentication uses an HTTP-only session cookie. Browser mutations require an allowed Origin and CSRF token. Requester ownership, Staff/Admin permissions, Action assignment, concurrency conflicts and Ticket resolution rules are enforced on the server. Never commit `server/.env`, real credentials, database dumps, private attachments or local `artifacts/` output.

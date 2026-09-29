@@ -1,6 +1,6 @@
 # Lab 4 REST API Contract
 
-Status: Proposed for peer review. Base path: `/api`. Existing Lab 3 session cookie, Origin, CSRF and safe-error conventions remain unchanged.
+Status: Reviewed Lab 4 contract, implemented on `lab4-staging`; final `main` verification pending. Base path: `/api`. Existing Lab 3 session cookie, Origin, CSRF and safe-error conventions remain unchanged.
 
 ## DTOs
 

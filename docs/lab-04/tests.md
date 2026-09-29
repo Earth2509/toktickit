@@ -1,6 +1,6 @@
 # Lab 4 Test Plan and Traceability
 
-Status: Initial plan created before implementation; results are updated as each feature is verified. Final `main` evidence remains pending until the Lab 4 release merge.
+Status: Initial plan created before implementation; feature-branch results are recorded below. [PR #66](https://github.com/Earth2509/toktickit/pull/66) was peer-reviewed and merged into `lab4-staging` as `510b3eb`. Integrated staging and final `main` test evidence are tracked separately; the feature-branch runs below are not labelled as final `main` results.
 
 | Test ID | Type | AC | Planned assertion | Intended test path | Final |
 |---|---|---|---|---|---|

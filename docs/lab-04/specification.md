@@ -1,6 +1,6 @@
 # Lab 4 Engineering Contract
 
-Status: Proposed for peer review. Implementation has not started.
+Status: Contract reviewed before implementation; Lab 4 feature increments are merged to `lab4-staging`. Final `main` verification and Product Definition of Done sign-off remain pending.
 
 ## 1. Sprint Goal
 

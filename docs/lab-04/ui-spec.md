@@ -1,6 +1,6 @@
 # Lab 4 Zen Green UI Specification
 
-Status: Proposed for peer review.
+Status: Reviewed Lab 4 contract; feature-branch responsive evidence is merged into `lab4-staging`. Final visual checklist and `main` verification remain pending.
 
 ## Application shell and navigation
 
