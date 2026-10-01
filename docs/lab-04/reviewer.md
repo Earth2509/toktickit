@@ -1,6 +1,6 @@
 # Lab 4 Reviewer Record
 
-Status: Engineering contract, feature increments, and final regression/evidence PR are peer-reviewed and merged to `lab4-staging`. Release review into `main` and final `main` verification remain pending.
+Status: Engineering contract, feature increments and release are merged. Release PR #67 reached `main` at `ffe6e0e`; post-merge automated results are recorded in [final-main-verification.md](final-main-verification.md). Earlier pending statements below retain their historical review-round context. Final visual/submission work remains open.
 
 | Review item | Owner | Evidence | Status |
 |---|---|---|---|
