@@ -100,6 +100,59 @@ export type DiscussionEntry = {
 
 export type DiscussionPage = { items: DiscussionEntry[]; page: number; pageSize: number; totalItems: number; totalPages: number };
 
+export type ActionTakenStatus = "OPEN" | "COMPLETED" | "CANCELLED";
+
+export type ActionTaken = {
+  id: number;
+  ticketId: number;
+  actionAt: string;
+  completedAt: string | null;
+  description: string;
+  result: string | null;
+  status: ActionTakenStatus;
+  followUpRequired: boolean;
+  followUpNote: string | null;
+  attachmentNotes: string | null;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  performedBy: Pick<AuthUser, "id" | "displayName" | "role">;
+  assignedTo: Pick<AuthUser, "id" | "displayName" | "role">;
+};
+
+export type ActionTakenPage = {
+  items: ActionTaken[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
+
+export type ActionTakenQuery = {
+  page?: number;
+  pageSize?: 10 | 20 | 50;
+};
+
+export type ActionTakenCreateInput = {
+  actionAt: string;
+  description: string;
+  assignedToId: number;
+  followUpRequired: boolean;
+  followUpNote: string | null;
+  attachmentNotes: string | null;
+};
+
+export type ActionTakenPatchInput = {
+  version: number;
+  description?: string;
+  result?: string | null;
+  assignedToId?: number;
+  status?: Exclude<ActionTakenStatus, "OPEN">;
+  followUpRequired?: boolean;
+  followUpNote?: string | null;
+  attachmentNotes?: string | null;
+};
+
 export type TicketListItem = Omit<Ticket, "description">;
 
 export type TicketListQuery = {
@@ -107,6 +160,10 @@ export type TicketListQuery = {
   categoryId?: number;
   relatedSystemId?: number;
   requestedPriority?: RequestedPriority;
+  currentStatus?: Ticket["currentStatus"] | Ticket["currentStatus"][];
+  updatedWithinDays?: 30;
+  resolvedWithinDays?: 30;
+  sort?: "recent";
   sortBy?: "createdAt" | "updatedAt" | "ticketNumber" | "requestedPriority";
   sortOrder?: "asc" | "desc";
   page?: number;
@@ -133,8 +190,9 @@ export type StaffQueueQuery = {
   categoryId?: number;
   relatedSystemId?: number;
   requestedPriority?: RequestedPriority;
-  itPriority?: RequestedPriority;
-  currentStatus?: Ticket["currentStatus"];
+  itPriority?: RequestedPriority | RequestedPriority[];
+  currentStatus?: Ticket["currentStatus"] | Ticket["currentStatus"][];
+  owner?: "me" | "unassigned";
   ownerId?: number | "unassigned";
   sortBy?: "createdAt" | "updatedAt" | "ticketNumber" | "itPriority" | "currentStatus";
   sortOrder?: "asc" | "desc";
@@ -143,6 +201,24 @@ export type StaffQueueQuery = {
 };
 
 export type StaffQueueResponse = Omit<TicketListResponse, "items"> & { items: StaffQueueTicket[] };
+
+export type RequesterDashboard = {
+  metrics: { openTickets: number; waitingForRequester: number; recentlyUpdated: number; recentlyResolved: number };
+  recentTickets: TicketListItem[];
+};
+
+export type StaffDashboard = {
+  metrics: { unassignedTickets: number; ownedByMe: number; urgentTickets: number; waitingForRequester: number };
+  recentTickets: StaffQueueTicket[];
+};
+
+export function fetchRequesterDashboard(): Promise<RequesterDashboard> {
+  return ticketRequest("/api/requester/dashboard", "Unable to load your Dashboard. Please retry.");
+}
+
+export function fetchStaffDashboard(): Promise<StaffDashboard> {
+  return ticketRequest("/api/staff/dashboard", "Unable to load the Staff Dashboard. Please retry.");
+}
 
 export class TicketApiError extends Error {
   fieldErrors?: Record<string, string>;
@@ -226,8 +302,14 @@ export async function fetchTickets(query: TicketListQuery): Promise<TicketListRe
   if (query.categoryId) parameters.set("categoryId", String(query.categoryId));
   if (query.relatedSystemId) parameters.set("relatedSystemId", String(query.relatedSystemId));
   if (query.requestedPriority) parameters.set("requestedPriority", query.requestedPriority);
-  if (query.sortBy) parameters.set("sortBy", query.sortBy);
-  if (query.sortOrder) parameters.set("sortOrder", query.sortOrder);
+  if (query.currentStatus) parameters.set("currentStatus", Array.isArray(query.currentStatus) ? query.currentStatus.join(",") : query.currentStatus);
+  if (query.updatedWithinDays) parameters.set("updatedWithinDays", String(query.updatedWithinDays));
+  if (query.resolvedWithinDays) parameters.set("resolvedWithinDays", String(query.resolvedWithinDays));
+  if (query.sort) parameters.set("sort", query.sort);
+  else {
+    if (query.sortBy) parameters.set("sortBy", query.sortBy);
+    if (query.sortOrder) parameters.set("sortOrder", query.sortOrder);
+  }
   if (query.page) parameters.set("page", String(query.page));
   if (query.pageSize) parameters.set("pageSize", String(query.pageSize));
 
@@ -264,6 +346,30 @@ export async function fetchInternalNotes(ticketId: number): Promise<DiscussionPa
   return ticketRequest(`/api/tickets/${ticketId}/internal-notes`, "Unable to load internal notes. Please retry.");
 }
 
+export async function fetchActionsTaken(ticketId: number, query: ActionTakenQuery = {}): Promise<ActionTakenPage> {
+  const parameters = new URLSearchParams();
+  if (query.page) parameters.set("page", String(query.page));
+  if (query.pageSize) parameters.set("pageSize", String(query.pageSize));
+  const suffix = parameters.size ? `?${parameters.toString()}` : "";
+  return ticketRequest(`/api/tickets/${ticketId}/actions-taken${suffix}`, "Unable to load Actions Taken. Please retry.");
+}
+
+export async function createActionTaken(ticketId: number, input: ActionTakenCreateInput, idempotencyKey: string): Promise<ActionTaken> {
+  return ticketRequest(`/api/staff/tickets/${ticketId}/actions-taken`, "Unable to create the Action Taken. Please retry.", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
+    body: JSON.stringify({ ...input, status: "OPEN", result: null }),
+  });
+}
+
+export async function updateActionTaken(ticketId: number, actionId: number, input: ActionTakenPatchInput): Promise<ActionTaken> {
+  return ticketRequest(`/api/staff/tickets/${ticketId}/actions-taken/${actionId}`, "Unable to update the Action Taken. Please retry.", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
 export async function createInternalNote(ticketId: number, content: string): Promise<DiscussionEntry> {
   return ticketRequest(`/api/tickets/${ticketId}/internal-notes`, "Unable to save the internal note. Please retry.", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content }) });
 }
@@ -278,8 +384,9 @@ export async function fetchStaffQueue(query: StaffQueueQuery): Promise<StaffQueu
   if (query.categoryId) parameters.set("categoryId", String(query.categoryId));
   if (query.relatedSystemId) parameters.set("relatedSystemId", String(query.relatedSystemId));
   if (query.requestedPriority) parameters.set("requestedPriority", query.requestedPriority);
-  if (query.itPriority) parameters.set("itPriority", query.itPriority);
-  if (query.currentStatus) parameters.set("currentStatus", query.currentStatus);
+  if (query.itPriority) parameters.set("itPriority", Array.isArray(query.itPriority) ? query.itPriority.join(",") : query.itPriority);
+  if (query.currentStatus) parameters.set("currentStatus", Array.isArray(query.currentStatus) ? query.currentStatus.join(",") : query.currentStatus);
+  if (query.owner) parameters.set("owner", query.owner);
   if (query.ownerId) parameters.set("ownerId", String(query.ownerId));
   if (query.sortBy) parameters.set("sortBy", query.sortBy);
   if (query.sortOrder) parameters.set("sortOrder", query.sortOrder);

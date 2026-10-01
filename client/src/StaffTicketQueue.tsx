@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { fetchCategories, fetchRelatedSystems, fetchStaffQueue, requestedPriorities, type Category, type RelatedSystem, type RequestedPriority, type StaffQueueResponse, type Ticket } from "./api";
+import { fetchCategories, fetchRelatedSystems, fetchStaffQueue, requestedPriorities, type Category, type RelatedSystem, type RequestedPriority, type StaffQueueQuery, type StaffQueueResponse, type Ticket } from "./api";
 
 type QueueFilters = { search: string; categoryId: string; relatedSystemId: string; requestedPriority: "" | RequestedPriority; currentStatus: "" | Ticket["currentStatus"]; sort: "updatedAt:desc" | "updatedAt:asc" | "createdAt:desc" | "ticketNumber:asc" | "itPriority:desc" | "currentStatus:asc" };
 const statuses: Ticket["currentStatus"][] = ["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"];
 const initialFilters: QueueFilters = { search: "", categoryId: "", relatedSystemId: "", requestedPriority: "", currentStatus: "", sort: "updatedAt:desc" };
 
-export default function StaffTicketQueue({ onViewTicket }: { onViewTicket: (id: number) => void }) {
+export default function StaffTicketQueue({ onViewTicket, drillDown, onClearDrillDown }: { onViewTicket: (id: number) => void; drillDown?: StaffQueueQuery | null; onClearDrillDown?: () => void }) {
   const [filters, setFilters] = useState(initialFilters);
   const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(1);
@@ -15,25 +15,26 @@ export default function StaffTicketQueue({ onViewTicket }: { onViewTicket: (id: 
   const [error, setError] = useState("");
   const [reloadVersion, setReloadVersion] = useState(0);
   const [sortBy, sortOrder] = filters.sort.split(":") as ["updatedAt" | "createdAt" | "ticketNumber" | "itPriority" | "currentStatus", "asc" | "desc"];
-  const filtered = Boolean(searchInput.trim() || filters.categoryId || filters.relatedSystemId || filters.requestedPriority || filters.currentStatus);
+  const filtered = Boolean(searchInput.trim() || filters.categoryId || filters.relatedSystemId || filters.requestedPriority || filters.currentStatus || drillDown);
 
   useEffect(() => { let active = true; void Promise.all([fetchCategories(), fetchRelatedSystems()]).then(([categories, relatedSystems]) => { if (active) setReferenceData({ categories, relatedSystems }); }).catch(() => { if (active) setReferenceData({ categories: [], relatedSystems: [] }); }); return () => { active = false; }; }, []);
   useEffect(() => { const timer = window.setTimeout(() => { setFilters(current => current.search === searchInput ? current : { ...current, search: searchInput }); setPage(1); }, 300); return () => window.clearTimeout(timer); }, [searchInput]);
   useEffect(() => {
     let active = true; setLoading(true); setError("");
-    void fetchStaffQueue({ search: filters.search, categoryId: filters.categoryId ? Number(filters.categoryId) : undefined, relatedSystemId: filters.relatedSystemId ? Number(filters.relatedSystemId) : undefined, requestedPriority: filters.requestedPriority || undefined, currentStatus: filters.currentStatus || undefined, sortBy, sortOrder, page, pageSize: 10 })
+    void fetchStaffQueue({ search: filters.search, categoryId: filters.categoryId ? Number(filters.categoryId) : undefined, relatedSystemId: filters.relatedSystemId ? Number(filters.relatedSystemId) : undefined, requestedPriority: filters.requestedPriority || undefined, currentStatus: filters.currentStatus || undefined, sortBy, sortOrder, page, pageSize: 10, ...drillDown })
       .then(response => { if (active) setResults(response); })
       .catch(() => { if (active) setError("Unable to load the Ticket queue. Please retry."); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [filters, page, reloadVersion, sortBy, sortOrder]);
+  }, [filters, page, reloadVersion, sortBy, sortOrder, drillDown]);
 
   const summary = useMemo(() => !results ? "" : `Showing ${results.totalItems ? (results.page - 1) * results.pageSize + 1 : 0}–${Math.min(results.page * results.pageSize, results.totalItems)} of ${results.totalItems} tickets · Page ${results.page} of ${results.totalPages}`, [results]);
   const update = (values: Partial<QueueFilters>) => { setFilters(current => ({ ...current, ...values })); setPage(1); };
-  const clear = () => { setSearchInput(""); setFilters(initialFilters); setPage(1); };
+  const clear = () => { setSearchInput(""); setFilters(initialFilters); setPage(1); onClearDrillDown?.(); };
 
   return <section className="ticket-card ticket-list-card" aria-labelledby="staff-queue-heading">
     <div className="ticket-card-heading"><div><p className="section-kicker">IT Staff workspace</p><h1 id="staff-queue-heading">Ticket Queue</h1><p>Review, assign and progress service requests.</p></div></div>
+    {drillDown && <div className="info-panel dashboard-filter-notice" role="status">Showing Tickets matching the Dashboard card. <button className="button button-secondary" type="button" onClick={clear}>Clear Dashboard filter</button></div>}
     <div className="ticket-toolbar" aria-label="Ticket queue search and filters">
       <div className="ticket-filter search-filter"><label htmlFor="queue-search">Search tickets</label><input id="queue-search" type="search" value={searchInput} onChange={event => setSearchInput(event.target.value)} placeholder="Ticket number or summary" /></div>
       <QueueSelect id="queue-category" label="Category" value={filters.categoryId} onChange={value => update({ categoryId: value })}><option value="">All categories</option>{referenceData.categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</QueueSelect>

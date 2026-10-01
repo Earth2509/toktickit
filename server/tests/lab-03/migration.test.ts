@@ -132,6 +132,8 @@ const postAuthMigrationDirectories = [
   "20260915113000_lab3_staff_queue",
   "20260916090000_lab3_ticket_workflow",
   "20260916103000_lab3_ticket_discussions",
+  // The current repeat-safe fixture seed also creates Lab 4 Actions Taken.
+  "20260925090000_lab4_actions_taken",
 ];
 
 function dedicatedMigrationUrl(value: string): string {
