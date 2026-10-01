@@ -83,3 +83,21 @@ The developer reran `npm run build --prefix client` after the 2026-09-29 review 
 All twelve full-page responsive screenshots from the passing Lab 4 browser run were visually inspected and copied under [`docs/lab-04/evidence/`](evidence/) for repository review. The three viewport-by-role-and-screen mappings are linked from [`ui-spec.md`](ui-spec.md). They show the populated dashboard and Ticket/Action states; unchecked loading, validation and conflict checklist items are not claimed as screenshot evidence.
 
 After the Action form was updated to associate validation messages with invalid fields using `aria-invalid` and `aria-describedby`, the developer reran `tests/lab-04/ZenGreenLab4.styles.test.tsx`: **1 file passed; 3 tests passed**. This focused rerun verifies the new field-to-error relationship. TypeScript also passed with `tsc -p client/tsconfig.json --noEmit`.
+
+## Peer verification of the integrated release, 2026-10-01
+
+In [the PR #67 review](https://github.com/Earth2509/toktickit/pull/67#pullrequestreview-5370663170), @Nuggetkub reported an independent run from a fresh clone at **`e3543e6` on `feature/lab4-release-integration`**, following the README commands with a new local database and configured `DATABASE_URL`/`AUTH_CSRF_SECRET`. This is peer-run integrated-branch evidence, not a developer rerun and not post-merge `main` evidence.
+
+| Check | Result reported by the reviewer |
+|---|---|
+| Locked dependency installation, Prisma validation, migrations and local seed | Passed; all 10 migrations applied; 10 users, 28 Tickets and 3 Actions |
+| Repeat local seed | Still 28 Tickets and 3 Actions |
+| Default server suite | 25 files / 130 tests passed; 8 intentional opt-in skips |
+| Client suite | 12 files / 39 tests passed |
+| Server and client production builds | Passed; client transformed 37 modules |
+| Lab 4 migration integration | 1/1 passed |
+| Logical recovery integration | 1/1 passed; reported restored counts and matching attachment SHA-256 |
+| Dashboard performance smoke | 2/2 passed; reported local p95 values 7.7 ms and 7.2 ms |
+| Unfiltered Playwright suite | 19/19 passed |
+
+The review states that the clone had no changes after execution and that the release's parent is the reviewed staging merge `510b3eb`. The performance values describe that reviewer's local run only, not a portable production latency guarantee. The subsequent response to the review changes documentation only; final verification must still be run on the merged `main` commit and recorded with its SHA. The requested correction concerns review-history completeness, not a failing runtime check.
