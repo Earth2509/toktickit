@@ -31,7 +31,7 @@ npm --prefix server run prisma:migrate
 npm --prefix server run prisma:seed
 ```
 
-`prisma:migrate` runs `prisma migrate dev` for this local development setup. When applying the committed migrations to a shared or deployed database, use `npm --prefix server exec -- prisma migrate deploy` instead; `migrate deploy` applies existing migration files without generating a new development migration. The local-only fixture seed is not part of deployment.
+`prisma:migrate` runs `prisma migrate dev` for this local development setup. When applying the committed migrations to a shared or deployed database, use `npm --prefix server run prisma:deploy` instead. This package script runs `prisma migrate deploy` from `server/`, where Prisma can find `prisma/schema.prisma` and the local `server/.env` (or use the deployment environment's `DATABASE_URL`). It applies existing migration files without generating a new development migration. Confirm that `DATABASE_URL` targets the intended database before running it. The local-only fixture seed is not part of deployment.
 
 The Lab 3 migration preserves existing User, Ticket and Attachment relationships, and the Lab 4 migration adds Actions Taken without deleting earlier records. The seed adds local-only fixture accounts and Tickets with zero, one or multiple Actions. It requires `LAB3_SEED_MODE=local`, refuses production, and does not duplicate seeded Actions on rerun. Migrated users receive no default password; see `server/.env.example` for the guarded one-time provisioning command.
 

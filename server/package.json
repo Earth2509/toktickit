@@ -9,6 +9,7 @@
     "start": "node dist/src/index.js",
     "prisma:validate": "prisma validate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:provision-user": "tsx scripts/provision-user.ts",
     "e2e:prepare": "npm run build --silent && node dist/scripts/prepare-e2e.js",
