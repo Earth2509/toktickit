@@ -1,6 +1,6 @@
 # Lab 4 Zen Green UI Specification
 
-Status: Reviewed Lab 4 contract; feature-branch responsive evidence is merged into `lab4-staging`. Final visual checklist and `main` verification remain pending.
+Status: Reviewed Lab 4 contract. Post-merge main automated verification is recorded in [final-main-verification.md](final-main-verification.md). Twelve latest responsive images are indexed in [the main evidence record](evidence/main/README.md); remaining UI-state evidence and the final visual checklist are pending.
 
 ## Application shell and navigation
 
@@ -9,6 +9,10 @@ Add a visible Dashboard item for all completed authenticated sessions. Requester
 ## IT Staff Dashboard
 
 Use a responsive card grid for Unassigned, Owned by me, Urgent, and Waiting for Requester counts. Cards are buttons/links with accessible labels such as `View 3 unassigned Tickets` and navigate to the exact documented Staff Queue drill-down. Unassigned includes every nonterminal ownerless Ticket, including a Ticket orphaned by staff deactivation. Below the cards, show recent nonterminal Tickets with Ticket number, summary, status, IT priority, owner and open-detail action. Show labelled loading skeletons, a no-operational-work empty state, forbidden feedback and Retry for safe API failure.
+
+### Staff current-user Action preview
+
+Below Staff metric cards and above recent operational Tickets, show `Actions Taken by me`. Explain that these are records performed by the signed-in account, regardless of Ticket owner or assignee. Show the latest five of the total count, description, textual OPEN/COMPLETED/CANCELLED status, action date/time in browser locale, assignee and follow-up flag. Each uniquely labelled View Ticket button opens the corresponding Staff Detail. Render an explicit no-recorded-Actions state without hiding operational Tickets. Reuse wrapped, stacked dashboard rows at smaller breakpoints and existing loading/forbidden/Retry feedback for the whole Dashboard. This addition is pending feature-branch test completion and peer review; older screenshots do not prove its layout.
 
 ## Requester Dashboard
 
@@ -32,10 +36,14 @@ Desktop is >=992px, tablet 768-991px and mobile <768px. Metric cards flow 4/2/1 
 - [x] Updated browser checks passed at all three viewports and measured rendered interactive targets at least 44px high (including the enclosing label for checkboxes) on Dashboard, Detail, Queue/My Tickets and Administrator Create User screens.
 - [ ] Dashboard loading, empty, forbidden and safe-failure states inspected.
 - [ ] Action create/edit submitting, validation, follow-up, conflict and read-only states inspected.
+- [x] Local isolated-fixture create/edit, description/follow-up/result validation, completion/cancellation and real two-tab version conflict inspected; full images and fixture provenance are in [the main evidence record](evidence/main/README.md). This does not complete the combined item above: submitting and remaining role-state checks are outstanding.
+- [x] Local isolated-fixture Ticket resolution rejected for missing summary and an OPEN Action; Ticket remained OPEN after Reload. Other resolution guards and successful transitions remain outstanding.
 - [ ] Keyboard focus order, labels, errors, non-colour badges and drill-down actions checked.
 - [ ] Long action text/notes and narrow screens have no clipping, overlap or horizontal overflow.
 
 ### Captured responsive evidence (2026-09-29)
+
+Latest post-merge set: [twelve full-page images from the 1 October 2026 main verification run](evidence/main/README.md). All twelve were visually inspected for their captured populated states. The earlier images below remain historical feature-branch evidence, not the latest main screenshots. Outstanding state/interaction checklist items remain unchecked.
 
 The following images were copied from the 2026-09-29 passing post-correction Playwright run into this repository so a reviewer can inspect them without the local test artifacts. The screenshots show the populated dashboard and Ticket/Action detail states, including the corrected full-width discussion fields on mobile, not every loading, validation or conflict state in the unchecked checklist items above.
 

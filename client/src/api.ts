@@ -210,6 +210,13 @@ export type RequesterDashboard = {
 export type StaffDashboard = {
   metrics: { unassignedTickets: number; ownedByMe: number; urgentTickets: number; waitingForRequester: number };
   recentTickets: StaffQueueTicket[];
+  totalPerformedActions: number;
+  recentActions: Array<{
+    id: number; actionAt: string; completedAt: string | null; description: string;
+    status: "OPEN" | "COMPLETED" | "CANCELLED"; followUpRequired: boolean;
+    assignedTo: { id: number; displayName: string };
+    ticket: { id: number; ticketNumber: string; currentStatus: Ticket["currentStatus"] };
+  }>;
 };
 
 export function fetchRequesterDashboard(): Promise<RequesterDashboard> {
