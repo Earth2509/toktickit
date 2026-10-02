@@ -1,6 +1,30 @@
 # Lab 4 Test Plan and Traceability
 
-Status: Initial plan created before implementation; results are updated as each feature is verified. Final `main` evidence remains pending until the Lab 4 release merge.
+Status: Initial plan created before implementation; feature-branch results are recorded below. [PR #66](https://github.com/Earth2509/toktickit/pull/66) was peer-reviewed and merged into `lab4-staging` as `510b3eb`. Integrated staging and final `main` test evidence are tracked separately; the feature-branch runs below are not labelled as final `main` results.
+
+## Latest correction verification, 2026-10-02
+
+The developer supplied the following successful local runs on `feature/lab4-staff-actions-dashboard`. They cover the current-user Actions Taken Dashboard correction and are not post-merge `main` results. Earlier pending statements in the chronological notes below describe intermediate stages and are superseded by this table.
+
+| Check | Supplied result |
+|---|---|
+| Focused Dashboard API | 1 file / 11 tests passed; start 00:35:22; duration 811ms |
+| Focused Staff Dashboard UI | 1 file / 4 tests passed; start 00:42:33; duration 1.43s |
+| Default server suite | 25 files passed / 5 skipped; 134 tests passed / 8 skipped; start 00:44:31; duration 4.88s |
+| Full client suite | 12 files / 41 tests passed; start 00:45:18; duration 4.01s |
+| Server build | TypeScript build reported no error; subsequent passing E2E preparation also builds the server |
+| Client production build | TypeScript and Vite passed; 37 modules transformed; duration 610ms |
+| Focused Dashboard browser suite | 3 tests passed; duration 24.3s |
+| Unfiltered browser suite | 19 tests passed; duration 55.5s |
+| Dashboard performance smoke | 1 file / 2 tests passed; start 00:52:44; duration 3.16s |
+
+Both performance cases passed their p95-at-most-500ms assertions across twenty measured warm local requests. The excerpt does not provide exact p95 values; the displayed 372ms is the Requester test-case duration, not its p95. This is local smoke evidence, not a production latency guarantee. The six other opt-in migration/recovery/Administrator cases were not rerun against this correction; their historical main results remain separately attributed. Supplied excerpts do not contain a commit SHA, so these runs are attributed to the working feature branch without inventing a run SHA. Assistant-side TypeScript checks and `git diff --check` passed; assistant-side Vitest startup was blocked before execution by sandbox directory access.
+
+## Post-merge main verification
+
+[PR #67](https://github.com/Earth2509/toktickit/pull/67) merged the release into `main` at `ffe6e0ee858d712eb9c36a25c4866ba3cf3ec72f`. The developer subsequently supplied passing terminal results for the default server suite (130 passed / 8 intentional opt-in skips), client suite (39 passed), unfiltered browser suite (19 passed), both production builds, and all eight opt-in server tests in separate runs: Lab 3 migration (2), Administrator integration (2), Lab 4 migration (1), logical recovery (1), and performance (2).
+
+The [post-merge verification record](final-main-verification.md) retains the supplied summaries, source SHA, attribution, skip explanation and evidence limitations. Exact performance p95 measurements were not supplied; only the passing <=500ms assertions are recorded. Historical pending statements below describe the state at those earlier runs, not the current automated-verification status. Visual checklist completion and the submission report remain outstanding, so Issue #60 remains open.
 
 | Test ID | Type | AC | Planned assertion | Intended test path | Final |
 |---|---|---|---|---|---|
@@ -26,6 +50,26 @@ Status: Initial plan created before implementation; results are updated as each 
 | REG-01 | Regression | AC-09 | Run Labs 1-3 server/client/auth/attachment/comment/note/admin tests | existing suites | Passed after review correction, 2026-09-29 (server: 25 files / 130 tests passed, 5 files / 8 opt-in tests skipped; client: 12 files / 39 tests passed; browser: 19 tests passed). Final `main` verification remains pending |
 
 ## Execution commands
+
+### Current-user Actions correction: pending verification
+
+Developer-supplied unfiltered browser regression result on 2 October 2026, after `npm run e2e`: **19 tests passed using 1 worker in 55.5s**. This is the full discovered browser suite on the correction feature branch, not just the three Dashboard cases and not a post-merge main result. The added Action-preview assertions are within existing tests, so the discovered total remains 19. The performance smoke rerun is still pending because this correction adds two Action queries to the Staff Dashboard.
+
+Developer-supplied focused Dashboard browser result on 2 October 2026: **3 tests passed using 1 worker, 24.3s**, after running `npm run e2e -- e2e/lab-04/dashboards.spec.ts`. The three viewport cases now include the current-user Action preview/count and Ticket link check. The preceding attempt stopped during Prisma generation with a Windows DLL rename/EPERM error before any tests ran; the passing retry followed stopping the local dev Backend. The E2E server preparation builds the server as a prerequisite, corroborating successful server build. Unfiltered browser regression and opt-in checks for this correction remain pending; the result is not relabelled as final main.
+
+Developer-supplied client production build passed on 2 October 2026: Vite 6.4.3 transformed 37 modules and completed in 610ms, producing `index-BxP1s5g_.css` (24.41kB) and `index-CgTo7x62.js` (229.87kB). This is the correction feature-branch build, not a new merged-main artifact. Browser verification remains pending.
+
+Developer supplied the correction's `npm --prefix server run build` output showing the package build script and `tsc`, with no error included. The excerpt does not include an exit code or return-to-prompt confirmation; the assistant-side server `tsc --noEmit` check separately passed. Client production build and browser verification remain pending.
+
+Developer-supplied full client result on 2 October 2026, after running `npm --prefix client test`: **12 files / 41 tests passed**, start 00:45:18, duration 4.01s. This is feature-branch regression evidence, including the two added own-Action component cases. Browser and production-build verification for this correction remain pending.
+
+Developer-supplied full default server result on 2 October 2026, after running `npm --prefix server test`: **25 files passed / 5 skipped; 134 tests passed / 8 skipped**, start 00:44:31, duration 4.88s. This is the correction feature branch, not merged main. The eight skipped opt-in cases were not executed in this command; their earlier main results do not establish a new run against this correction. Full client, browser and production-build results remain pending.
+
+Developer-supplied focused server result on 2 October 2026, after running `npm --prefix server test -- tests/lab-04/dashboards.api.test.ts`: **1 file / 11 tests passed**, start 00:35:22, duration 811ms. This includes the seven existing Dashboard API cases and four correction cases. It is feature-branch evidence, not a new full server suite or main result. Client, E2E, full regression and production build verification for the correction remain pending.
+
+Developer-supplied focused client result on 2 October 2026, after running `npm --prefix client test -- tests/lab-04/StaffDashboard.test.tsx`: **1 file / 4 tests passed**, start 00:42:33, duration 1.43s. The four reported cases cover operational drill-down/Ticket links, safe failure with Retry, performed-Action history independent of Ticket ownership with Ticket navigation, and empty own-Action history without hiding operational Tickets. This is focused feature-branch component evidence; full regression, E2E and production builds remain pending.
+
+On `feature/lab4-staff-actions-dashboard`, AC-10 adds four Dashboard API cases for session-performer scope/forged input, Administrator own empty state, Requester denial before Action reads, and safe Action-query failure. Two component cases cover populated independent Action history/Ticket navigation and empty Action history alongside populated operational Tickets. The three existing viewport Dashboard browser cases now check the Action preview/count and its Ticket link. These additions are not included in the historical main totals of server 130 / client 39 / E2E 19. Assistant-side Vitest attempts stopped at sandbox config loading before execution; passing counts are pending actual runs.
 
 ```bash
 npm --prefix server test
@@ -83,3 +127,21 @@ The developer reran `npm run build --prefix client` after the 2026-09-29 review 
 All twelve full-page responsive screenshots from the passing Lab 4 browser run were visually inspected and copied under [`docs/lab-04/evidence/`](evidence/) for repository review. The three viewport-by-role-and-screen mappings are linked from [`ui-spec.md`](ui-spec.md). They show the populated dashboard and Ticket/Action states; unchecked loading, validation and conflict checklist items are not claimed as screenshot evidence.
 
 After the Action form was updated to associate validation messages with invalid fields using `aria-invalid` and `aria-describedby`, the developer reran `tests/lab-04/ZenGreenLab4.styles.test.tsx`: **1 file passed; 3 tests passed**. This focused rerun verifies the new field-to-error relationship. TypeScript also passed with `tsc -p client/tsconfig.json --noEmit`.
+
+## Peer verification of the integrated release, 2026-10-01
+
+In [the PR #67 review](https://github.com/Earth2509/toktickit/pull/67#pullrequestreview-5370663170), @Nuggetkub reported an independent run from a fresh clone at **`e3543e6` on `feature/lab4-release-integration`**, following the README commands with a new local database and configured `DATABASE_URL`/`AUTH_CSRF_SECRET`. This is peer-run integrated-branch evidence, not a developer rerun and not post-merge `main` evidence.
+
+| Check | Result reported by the reviewer |
+|---|---|
+| Locked dependency installation, Prisma validation, migrations and local seed | Passed; all 10 migrations applied; 10 users, 28 Tickets and 3 Actions |
+| Repeat local seed | Still 28 Tickets and 3 Actions |
+| Default server suite | 25 files / 130 tests passed; 8 intentional opt-in skips |
+| Client suite | 12 files / 39 tests passed |
+| Server and client production builds | Passed; client transformed 37 modules |
+| Lab 4 migration integration | 1/1 passed |
+| Logical recovery integration | 1/1 passed; reported restored counts and matching attachment SHA-256 |
+| Dashboard performance smoke | 2/2 passed; reported local p95 values 7.7 ms and 7.2 ms |
+| Unfiltered Playwright suite | 19/19 passed |
+
+The review states that the clone had no changes after execution and that the release's parent is the reviewed staging merge `510b3eb`. The performance values describe that reviewer's local run only, not a portable production latency guarantee. The subsequent response to the review changes documentation only; final verification must still be run on the merged `main` commit and recorded with its SHA. The requested correction concerns review-history completeness, not a failing runtime check.

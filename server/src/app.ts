@@ -151,7 +151,8 @@ app.get("/api/staff/dashboard", async (req, res) => {
   try {
     const prisma = getPrisma();
     const operational = { currentStatus: { in: [...operationalStatuses] } };
-    const [unassignedTickets, ownedByMe, urgentTickets, waitingForRequester, recentTickets] = await Promise.all([
+    const ownActions = { performedById: authenticatedUser(res).id };
+    const [unassignedTickets, ownedByMe, urgentTickets, waitingForRequester, recentTickets, totalPerformedActions, recentActions] = await Promise.all([
       prisma.ticket.count({ where: { ...operational, ownerId: null } }),
       prisma.ticket.count({ where: { ...operational, ownerId: authenticatedUser(res).id } }),
       prisma.ticket.count({ where: { ...operational, itPriority: { in: ["HIGH", "URGENT"] } } }),
@@ -162,8 +163,14 @@ app.get("/api/staff/dashboard", async (req, res) => {
         category: { select: { id: true, name: true } }, relatedSystem: { select: { id: true, name: true } },
         requester: { select: { id: true, displayName: true } }, owner: { select: { id: true, displayName: true, role: true } },
       } }),
+      prisma.actionTaken.count({ where: ownActions }),
+      prisma.actionTaken.findMany({ where: ownActions, orderBy: [{ actionAt: "desc" }, { id: "desc" }], take: 5, select: {
+        id: true, actionAt: true, completedAt: true, description: true, status: true, followUpRequired: true,
+        assignedTo: { select: { id: true, displayName: true } },
+        ticket: { select: { id: true, ticketNumber: true, currentStatus: true } },
+      } }),
     ]);
-    return res.status(200).json({ metrics: { unassignedTickets, ownedByMe, urgentTickets, waitingForRequester }, recentTickets });
+    return res.status(200).json({ metrics: { unassignedTickets, ownedByMe, urgentTickets, waitingForRequester }, recentTickets, totalPerformedActions, recentActions });
   } catch {
     return res.status(503).json({ code: "UNAVAILABLE", message: "Staff dashboard is temporarily unavailable." });
   }

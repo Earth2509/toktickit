@@ -5,10 +5,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const sessionFindUnique = vi.fn();
 const ticketCount = vi.fn();
 const ticketFindMany = vi.fn();
+const actionCount = vi.fn();
+const actionFindMany = vi.fn();
 
 vi.mock("../../src/prisma.js", () => ({ getPrisma: () => ({
   session: { findUnique: sessionFindUnique },
   ticket: { count: ticketCount, findMany: ticketFindMany },
+  actionTaken: { count: actionCount, findMany: actionFindMany },
 }) }));
 
 import { app } from "../../src/app.js";
@@ -30,6 +33,8 @@ describe("Lab 4 Dashboard API", () => {
     signIn(requester);
     ticketCount.mockResolvedValue(0);
     ticketFindMany.mockResolvedValue([]);
+    actionCount.mockResolvedValue(0);
+    actionFindMany.mockResolvedValue([]);
   });
 
   it("requires authentication and isolates the two dashboard roles", async () => {
@@ -101,6 +106,50 @@ describe("Lab 4 Dashboard API", () => {
     expect(ticketCount).toHaveBeenCalledWith({ where: expect.objectContaining({ ownerId: staff.id, currentStatus: { in: ["NEW", "OPEN"] } }) });
     expect((await get("/api/staff/tickets?owner=me&ownerId=unassigned")).status).toBe(400);
     expect((await get("/api/staff/tickets?updatedWithinDays=30")).status).toBe(400);
+  });
+
+  it("returns only session-performed Actions, bounded and stably ordered, ignoring a forged actor query", async () => {
+    signIn(staff);
+    actionCount.mockResolvedValue(8);
+    const item = { id: 7, description: "Diagnostic work", status: "COMPLETED", ticket: { id: 9, ticketNumber: "TT-9" } };
+    actionFindMany.mockResolvedValue([item]);
+    const response = await get("/api/staff/dashboard?performedById=999&assignedToId=999");
+    expect(response.status).toBe(200);
+    expect(response.body.totalPerformedActions).toBe(8);
+    expect(response.body.recentActions).toEqual([item]);
+    expect(actionCount).toHaveBeenCalledWith({ where: { performedById: staff.id } });
+    expect(actionFindMany).toHaveBeenCalledWith({
+      where: { performedById: staff.id }, orderBy: [{ actionAt: "desc" }, { id: "desc" }], take: 5,
+      select: {
+        id: true, actionAt: true, completedAt: true, description: true, status: true, followUpRequired: true,
+        assignedTo: { select: { id: true, displayName: true } },
+        ticket: { select: { id: true, ticketNumber: true, currentStatus: true } },
+      },
+    });
+  });
+
+  it("returns an explicit empty own-Action list for an Administrator's own session", async () => {
+    signIn(admin);
+    const response = await get("/api/staff/dashboard");
+    expect(response.status).toBe(200);
+    expect(response.body.totalPerformedActions).toBe(0);
+    expect(response.body.recentActions).toEqual([]);
+    expect(actionCount).toHaveBeenCalledWith({ where: { performedById: admin.id } });
+  });
+
+  it("denies Requesters before querying Actions", async () => {
+    expect((await get("/api/staff/dashboard")).status).toBe(403);
+    expect(actionCount).not.toHaveBeenCalled();
+    expect(actionFindMany).not.toHaveBeenCalled();
+  });
+
+  it("fails safely without partial data when the own-Action query fails", async () => {
+    signIn(staff);
+    actionFindMany.mockRejectedValueOnce(new Error("database connection secret"));
+    const response = await get("/api/staff/dashboard");
+    expect(response.status).toBe(503);
+    expect(response.body).toEqual({ code: "UNAVAILABLE", message: "Staff dashboard is temporarily unavailable." });
+    expect(response.body.metrics).toBeUndefined();
   });
 
   it("returns a safe failure when dashboard queries fail", async () => {

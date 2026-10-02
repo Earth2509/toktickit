@@ -52,6 +52,20 @@ for (const viewport of [
     const staffData = await page.evaluate(async () => (await fetch("/api/staff/dashboard", { credentials: "same-origin" })).json());
     const ownedCount = staffData.metrics.ownedByMe as number;
     await expect(page.getByRole("button", { name: `View ${ownedCount} owned by me Tickets` })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Actions Taken by me" })).toBeVisible();
+    const ownActions = page.getByRole("region", { name: "Actions Taken by me" });
+    expect(staffData.recentActions.length).toBeLessThanOrEqual(5);
+    await expect(ownActions.getByText(`Showing the latest ${staffData.recentActions.length} of ${staffData.totalPerformedActions} Actions.`, { exact: false })).toBeVisible();
+    if (staffData.recentActions.length === 0) {
+      await expect(ownActions.getByText("You have not recorded any Actions Taken yet.")).toBeVisible();
+    } else {
+      const action = staffData.recentActions[0];
+      await expect(ownActions.getByText(action.description, { exact: true })).toBeVisible();
+      await ownActions.getByRole("button", { name: `View Ticket ${action.ticket.ticketNumber} for Action ${action.id}`, exact: true }).click();
+      await expect(page.getByRole("heading", { name: action.ticket.ticketNumber, exact: true })).toBeVisible();
+      await page.getByRole("button", { name: "Dashboard", exact: true }).click();
+      await expect(page.getByRole("button", { name: `View ${ownedCount} owned by me Tickets` })).toBeVisible();
+    }
     const ownedList = page.waitForResponse(response => response.url().includes("/api/staff/tickets?") && response.url().includes("owner=me"));
     await page.getByRole("button", { name: `View ${ownedCount} owned by me Tickets` }).click();
     expect((await (await ownedList).json()).totalItems).toBe(ownedCount);
