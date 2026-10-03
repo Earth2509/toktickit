@@ -40,6 +40,8 @@ The client build emitted `index-BxP1s5g_.css` (24.41 kB) and `index-CgTo7x62.js`
 
 ## Remaining release and submission steps
 
+Update (2026-10-03): PR #69 has merged into `main` as `7329652011d406ca0a9c5466f5b4c1c93f7cf8ad`. All post-merge automated checks now have developer-supplied passing results, recorded in [final-main-verification.md](final-main-verification.md). Steps 1–3 below are historical release-preparation steps and are complete. Step 4 remains open; Issue #60 is not yet complete.
+
 1. Push the preparation branch and open a release PR into `main`, retaining these results with their provenance.
 2. Obtain peer review before merging the release.
 3. Verify the resulting main source and record its actual commit separately.
