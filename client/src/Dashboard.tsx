@@ -73,6 +73,19 @@ export function StaffDashboardView({ onDrillDown, onViewTicket }: {
     <div className="ticket-card-heading"><div><p className="section-kicker">IT Staff workspace</p><h1 id="staff-dashboard-heading">Dashboard</h1><p>Operational work across the Ticket Queue.</p></div></div>
     <DashboardState loading={loading} error={error} retry={retry} />
     {data && <><div className="dashboard-metrics" aria-label="Operational Ticket metrics">{staffCards.map(card => <MetricCard key={card.key} title={card.title} count={data.metrics[card.key]} onClick={() => onDrillDown(card.drillDown)} />)}</div>
+      <section className="dashboard-recent" aria-labelledby="my-actions-heading">
+        <h2 id="my-actions-heading">Actions Taken by me</h2>
+        <p>Work recorded by your signed-in account, regardless of Ticket owner or assignee. Showing the latest {data.recentActions.length} of {data.totalPerformedActions} Actions.</p>
+        {data.recentActions.length === 0
+          ? <div className="empty-panel" role="status"><p>You have not recorded any Actions Taken yet.</p></div>
+          : <ul>{data.recentActions.map(action => <li key={action.id}>
+            <div><strong>{action.ticket.ticketNumber}</strong><span>{action.description}</span>
+              <small>{action.status} · Action date/time {new Date(action.actionAt).toLocaleString()} · Assigned to {action.assignedTo.displayName}</small>
+              <small>{action.followUpRequired ? "Follow-up required" : "No follow-up required"}</small>
+            </div>
+            <button className="button button-secondary" type="button" aria-label={`View Ticket ${action.ticket.ticketNumber} for Action ${action.id}`} onClick={() => onViewTicket(action.ticket.id)}>View Ticket</button>
+          </li>)}</ul>}
+      </section>
       <div className="dashboard-recent"><h2>Recent operational Tickets</h2>{data.recentTickets.length === 0
         ? <div className="empty-panel" role="status"><p>There is no operational work right now.</p></div>
         : <ul>{data.recentTickets.map(ticket => <li key={ticket.id}><div><strong>{ticket.ticketNumber}</strong><span>{ticket.summary}</span><small>{ticket.currentStatus.replaceAll("_", " ")} · {ticket.itPriority} · {ticket.owner?.displayName ?? "Unassigned"}</small></div><button className="button button-secondary" type="button" onClick={() => onViewTicket(ticket.id)}>Open</button></li>)}</ul>}</div>

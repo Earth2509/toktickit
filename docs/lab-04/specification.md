@@ -1,6 +1,6 @@
 # Lab 4 Engineering Contract
 
-Status: Contract reviewed before implementation; Lab 4 feature increments are merged to `lab4-staging`. Final `main` verification and Product Definition of Done sign-off remain pending.
+Status: Contract reviewed before implementation; the release is merged into `main` at `ffe6e0e`. Automated main verification is recorded in [final-main-verification.md](final-main-verification.md). Product Definition of Done sign-off remains pending; [submission-completion-audit.md](submission-completion-audit.md) identifies unresolved product and submission evidence requirements.
 
 ## 1. Sprint Goal
 
@@ -50,6 +50,7 @@ Excluded: SLA/escalation clocks, notification services, inventory/cost accountin
 | BR-14 | Dashboard values are calculated by the backend from authoritative rows at request time; a card has an explicit zero state and documented drill-down query. |
 | BR-15 | Existing records remain valid after migration: pre-Lab 4 Tickets have zero Actions Taken and remain in dashboard calculations according to their current status. |
 | BR-16 | Seeds are idempotent and never overwrite edited users, passwords, Tickets, Actions Taken or workflow history. |
+| BR-17 | Staff/Admin Dashboard includes Actions Taken originally recorded by the authenticated current user, independently of Ticket owner and Action assignee. Here `performedById` identifies the recording session at creation (BR-02/BR-09), not the person who later completes delegated work; completing another user's Action does not move it into the completing user's preview or count. Return the recorder's total across all statuses and up to five latest Actions ordered by actionAt descending, then ID descending; zero means no Actions recorded. Actor identity cannot be overridden by client input. Each row links to its Ticket Detail. |
 
 ### Final Ticket transition matrix
 
@@ -95,6 +96,7 @@ See [api-spec.md](api-spec.md). All protected endpoints use the existing session
 | AC-07 | Staff dashboard numbers and lists match backend queries, support drill-down, and never expose Administrator-only controls to Staff. |
 | AC-08 | Migration preserves prior data; seed safely repeats and provides the required demonstration states. |
 | AC-09 | Lab 1-3 regressions and final Lab 4 API/UI/E2E tests pass on final main. |
+| AC-10 | Staff/Admin sees only the preview/count of Actions originally recorded by their signed-in account (BR-17), explicit empty state and working Ticket links. Completing delegated work does not change original recorder attribution. Requesters are denied before Action queries. A failed Action query yields safe Dashboard failure; the actor filter, five-row limit and deterministic ordering are verified by tests. |
 
 ## 10. Product Definition of Done
 

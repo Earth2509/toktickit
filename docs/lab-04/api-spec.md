@@ -6,7 +6,8 @@ Status: Reviewed Lab 4 contract, implemented on `lab4-staging`; final `main` ver
 
 - `ActionTaken`: `{ id, ticketId, actionAt, completedAt, description, result, performedBy: {id,displayName,role}, assignedTo: {id,displayName,role}, status: "OPEN"|"COMPLETED"|"CANCELLED", followUpRequired, followUpNote, attachmentNotes, version, createdAt, updatedAt }`
 - `RequesterDashboard`: `{ metrics: { openTickets, waitingForRequester, recentlyUpdated, recentlyResolved }, recentTickets: TicketRow[] }`
-- `StaffDashboard`: `{ metrics: { unassignedTickets, ownedByMe, urgentTickets, waitingForRequester }, recentTickets: TicketRow[] }`
+- `StaffDashboard`: `{ metrics: { unassignedTickets, ownedByMe, urgentTickets, waitingForRequester }, recentTickets: TicketRow[], totalPerformedActions: number, recentActions: StaffDashboardAction[] }`
+- `StaffDashboardAction`: `{ id, actionAt, completedAt, description, status, followUpRequired, assignedTo: {id,displayName}, ticket: {id,ticketNumber,currentStatus} }`.
 
 Dates are UTC ISO-8601 strings. DTOs never expose session secrets, hashes, private notes or cross-owner data.
 
@@ -28,6 +29,12 @@ The server obtains performer from the session. Unknown fields and performer/owne
 | GET `/staff/dashboard` | Staff, Admin | 200 StaffDashboard | `unassignedTickets`: every nonterminal Ticket with null owner; drill-down `?currentStatus=NEW,OPEN,IN_PROGRESS,WAITING_FOR_REQUESTER,REOPENED&owner=unassigned`. `ownedByMe`: every nonterminal Ticket owned by the session user; drill-down `?currentStatus=NEW,OPEN,IN_PROGRESS,WAITING_FOR_REQUESTER,REOPENED&owner=me`. `urgentTickets`: nonterminal `HIGH,URGENT`; drill-down `?currentStatus=NEW,OPEN,IN_PROGRESS,WAITING_FOR_REQUESTER,REOPENED&itPriority=HIGH,URGENT`. `waitingForRequester`: `WAITING_FOR_REQUESTER`; drill-down `?currentStatus=WAITING_FOR_REQUESTER`. `recentTickets` is a separate five-row list ordered `updatedAt desc,id desc`. |
 
 Every `metrics` property is an integer count, returns zero rather than null, and lists are separate DTO properties that return `[]` when empty. `currentStatus` and `itPriority` accept comma-separated enum values. For the Staff Queue, `owner=me|unassigned` is a new Lab 4 dashboard alias; the existing `ownerId=<number>|unassigned` remains supported, and a request may not supply both. `updatedWithinDays=30` and `resolvedWithinDays=30` are accepted only by the Requester My Tickets route (`GET /tickets`); the Staff Queue route (`GET /staff/tickets`) does not accept either date filter. Dashboard endpoints return concise summaries rather than full collections. Current local database timestamps are interpreted in UTC; the 30-day boundary is `now - 30*24 hours` at query time.
+
+### Current-user Actions Taken (2 October 2026 correction)
+
+GET `/staff/dashboard` additionally returns `totalPerformedActions` and `recentActions`. Both queries use **only** `performedById = authenticated session user id`, including for Administrators. This means work recorded by this user, not Tickets owned by them or Actions merely assigned to them. Query parameters cannot override the actor. The count includes all their Action statuses and all Ticket statuses, with no date cutoff. The list includes at most five rows ordered `actionAt DESC, id DESC`; tied timestamps have stable order. Empty count/list are `0` / `[]`. Each row opens the existing Staff Ticket Detail using its nested Ticket ID; the full Action list is available there. This is a bounded history preview, not a paginated all-Actions screen. The response omits credentials, private notes, attachment notes and full Ticket collections. Failure in either Action query returns the existing safe 503 for the entire Dashboard, without partial success data. No schema migration is required because `performedById, actionAt` is already indexed.
+
+The existing name `totalPerformedActions` is retained for API compatibility, but its meaning is **originally recorded by me**, consistent with BR-02, BR-09 and BR-17. `performedById` is fixed at creation; it is not completion attribution. For example, if Kamon records an Action assigned to Lalita and Lalita completes it, the completed row still belongs to Kamon's count/preview and is not added to Lalita's. The UI explanation “Work recorded by your signed-in account” describes this same contract. This clarification changes neither the query nor the Action lifecycle.
 
 ## Workflow increment
 

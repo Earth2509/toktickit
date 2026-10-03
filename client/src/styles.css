@@ -271,6 +271,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 .dashboard-metric strong { margin: .55rem 0; color: #075c37; font-size: clamp(2rem, 4vw, 2.7rem); line-height: 1; }
 .dashboard-metric small { margin-top: auto; color: #075c37; font-size: .86rem; font-weight: 700; }
 .dashboard-recent h2 { margin: 0 0 .9rem; font-size: 1.3rem; }
+.dashboard-recent + .dashboard-recent { margin-top: 1.5rem; }
 .dashboard-recent ul { margin: 0; padding: 0; list-style: none; border: 1px solid #d8e3db; border-radius: 10px; }
 .dashboard-recent li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-width: 0; padding: .85rem 1rem; border-bottom: 1px solid #d8e3db; }
 .dashboard-recent li:last-child { border-bottom: 0; }
