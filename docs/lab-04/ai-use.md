@@ -24,10 +24,6 @@ AI suggestions are treated as proposals. Requirements are checked against the La
 
 ## My Reflection
 
-Pending the student's own reflection after implementation and peer review. The final reflection will explain how the specification-agent work clarified business rules and traceability, and how the coding-agent work was verified through tests, manual inspection and review rather than accepted without checking.
-
-### Suggested reflection draft - awaiting student confirmation
-
 Using a specification assistant helped me translate the handout into explicit requirements, authorization rules and acceptance criteria. The coding assistant supported implementation and test preparation, but I remained responsible for checking the behavior, running commands and responding to peer-review findings. The process showed why passing automated tests alone is not enough: a later handout audit identified the missing current-user Action preview, and live screenshot collection exposed a local database migration that had not been applied. I would improve the process by maintaining a requirement-to-evidence checklist from the start and verifying both the released branch and the actual demonstration environment before preparing the submission.
 
-This paragraph is an AI-assisted proposed draft, not an assertion that the student has adopted it as their personal reflection. Replace or confirm it before final PDF export.
+Authorship disclosure: this paragraph was drafted with AI assistance and reviewed and explicitly adopted by the student on 4 October 2026. The student's confirmation concerns this reflection, not a claim that all remaining submission requirements are complete.

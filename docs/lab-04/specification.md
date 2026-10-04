@@ -1,6 +1,6 @@
 # Lab 4 Engineering Contract
 
-Status: Contract reviewed before implementation; the release is merged into `main` at `ffe6e0e`. Automated main verification is recorded in [final-main-verification.md](final-main-verification.md). Product Definition of Done sign-off remains pending; [submission-completion-audit.md](submission-completion-audit.md) identifies unresolved product and submission evidence requirements.
+Status: Contract reviewed before implementation. The latest application release was merged into `main` by PR #69 at `7329652`; PR #70 subsequently merged its documentation record at `55f8200`. The earlier `ffe6e0e` release remains historical evidence. Automated main verification is recorded in [final-main-verification.md](final-main-verification.md). Product Definition of Done sign-off remains pending; [submission-completion-audit.md](submission-completion-audit.md) identifies unresolved submission evidence requirements.
 
 ## 1. Sprint Goal
 

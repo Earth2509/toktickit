@@ -12,7 +12,7 @@ Use a responsive card grid for Unassigned, Owned by me, Urgent, and Waiting for 
 
 ### Staff current-user Action preview
 
-Below Staff metric cards and above recent operational Tickets, show `Actions Taken by me`. Explain that these are records performed by the signed-in account, regardless of Ticket owner or assignee. Show the latest five of the total count, description, textual OPEN/COMPLETED/CANCELLED status, action date/time in browser locale, assignee and follow-up flag. Each uniquely labelled View Ticket button opens the corresponding Staff Detail. Render an explicit no-recorded-Actions state without hiding operational Tickets. Reuse wrapped, stacked dashboard rows at smaller breakpoints and existing loading/forbidden/Retry feedback for the whole Dashboard. This addition is pending feature-branch test completion and peer review; older screenshots do not prove its layout.
+Below Staff metric cards and above recent operational Tickets, show `Actions Taken by me`. Explain that these are records performed by the signed-in account, regardless of Ticket owner or assignee. Show the latest five of the total count, description, textual OPEN/COMPLETED/CANCELLED status, action date/time in browser locale, assignee and follow-up flag. Each uniquely labelled View Ticket button opens the corresponding Staff Detail. Render an explicit no-recorded-Actions state without hiding operational Tickets. Reuse wrapped, stacked dashboard rows at smaller breakpoints and existing loading/forbidden/Retry feedback for the whole Dashboard. This correction was approved in PR #68, promoted to main by PR #69 and verified as recorded in [final-main-verification.md](final-main-verification.md). The separately labelled current-user Action screenshots prove the captured layout; older pre-correction screenshots do not.
 
 ## Requester Dashboard
 
@@ -39,6 +39,9 @@ Desktop is >=992px, tablet 768-991px and mobile <768px. Metric cards flow 4/2/1 
 - [x] Local isolated-fixture create/edit, description/follow-up/result validation, completion/cancellation and real two-tab version conflict inspected; full images and fixture provenance are in [the main evidence record](evidence/main/README.md). This does not complete the combined item above: submitting and remaining role-state checks are outstanding.
 - [x] Local isolated-fixture Ticket resolution rejected for missing summary and an OPEN Action; Ticket remained OPEN after Reload. Other resolution guards and successful transitions remain outstanding.
 - [ ] Keyboard focus order, labels, errors, non-colour badges and drill-down actions checked.
+- [x] Staff Dashboard metric-card Tab/Shift+Tab order, accessible count labels, actual focus-visible outlines and Enter drill-down inspected in the local browser; scope and limitations are recorded in [manual keyboard verification](manual-accessibility-verification.md).
+- [x] Staff Queue field labels, Tab order, keyboard Sort/search/Clear filters and disabled-button skipping inspected; two full-page focus images were visually checked. This does not complete Ticket Detail/Requester/Admin form or error-state checks.
+- [x] Fixture TT-2026-000021 Detail control order and unsaved Action Description/Follow-up/Result validation inspected with keyboard actions; native labels, alert text and invalid-field error references were verified. Drafts were cancelled without changing persisted work. Opening-form focus and error-focus observations are explicitly retained in [manual keyboard verification](manual-accessibility-verification.md), not claimed as a complete focus-management pass.
 - [ ] Long action text/notes and narrow screens have no clipping, overlap or horizontal overflow.
 
 ### Captured responsive evidence (2026-09-29)

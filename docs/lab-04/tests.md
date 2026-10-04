@@ -1,6 +1,12 @@
 # Lab 4 Test Plan and Traceability
 
-Status: Initial plan created before implementation; feature-branch results are recorded below. [PR #66](https://github.com/Earth2509/toktickit/pull/66) was peer-reviewed and merged into `lab4-staging` as `510b3eb`. Integrated staging and final `main` test evidence are tracked separately; the feature-branch runs below are not labelled as final `main` results.
+Status: Initial plan created before implementation. The latest application release is PR #69 / main `7329652`, with its verification and review-history documentation merged through PR #70 / `55f8200`. Latest main evidence is consolidated in [final-main-verification.md](final-main-verification.md): default server 134 passed / 8 intentional skips, client 41 passed, browser 19 passed, both builds passed, and all eight opt-in cases passed separately. Earlier feature/release results below retain their original provenance and are not relabelled as current runs. Visual, reflection and final submission sign-off remain incomplete.
+
+## Submission-completion attempts, 4 October 2026
+
+The assistant attempted the default server/client commands on `feature/lab4-submission-completion`. Both Vitest processes failed before test collection with sandbox `EPERM` errors on `node_modules/vitest/dist/spy.js`. A retry after requesting read access still failed before collection and reported cache-write permission errors as well. Both runs reported no tests, not failing test assertions or new passing totals. These attempts do not supersede the developer/peer main results. Complete original main-run output remains a separate submission-evidence gap; no terminal screenshot or full log is fabricated from prior summaries.
+
+Manual Staff Dashboard/Queue/Detail keyboard observations and unsaved Action validation are recorded in [manual-accessibility-verification.md](manual-accessibility-verification.md), separately from automated tests. The read-only local database helper matched Dashboard metrics 17/2/8/0, two owned Ticket numbers and three original-recorder Actions; see [evidence provenance](evidence/main/README.md). This is live data evidence, not a new regression test suite.
 
 ## Latest correction verification, 2026-10-02
 
@@ -51,7 +57,7 @@ The [post-merge verification record](final-main-verification.md) retains the sup
 
 ## Execution commands
 
-### Current-user Actions correction: pending verification
+### Current-user Actions correction: historical execution notes
 
 Developer-supplied unfiltered browser regression result on 2 October 2026, after `npm run e2e`: **19 tests passed using 1 worker in 55.5s**. This is the full discovered browser suite on the correction feature branch, not just the three Dashboard cases and not a post-merge main result. The added Action-preview assertions are within existing tests, so the discovered total remains 19. The performance smoke rerun is still pending because this correction adds two Action queries to the Staff Dashboard.
 

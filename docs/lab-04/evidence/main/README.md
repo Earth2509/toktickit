@@ -1,5 +1,48 @@
 # Post-merge responsive screenshot evidence
 
+## Partial manual keyboard evidence — 4 October 2026
+
+The local IT Staff Dashboard and Queue were traversed with Tab/Shift+Tab and activated using Enter; the Sort select was operated using ArrowDown. Keyboard search found TT-2026-000021 and keyboard Clear filters restored all 19 local Tickets. Native labels and computed focus-visible outlines were inspected. The [manual keyboard verification record](../../manual-accessibility-verification.md) contains the exact observations and remaining gaps; it is not a full accessibility sign-off.
+
+- [Dashboard card focus, full page](staff-dashboard-keyboard-card-focus-live.jpg).
+- [Queue search focus and matching Ticket, full page](staff-queue-keyboard-search-focus-live.jpg).
+
+Both images were visually inspected and preserve the full rendered page without cropping or stretching, at a 614 × 507 viewport. No Ticket, Action, password or session state was changed; only list navigation/filter state was exercised. All-role form/error checks remain outstanding.
+
+A subsequent fixture-only keyboard inspection added unsaved [Description](action-keyboard-description-validation-live.jpg), [Follow-up note](action-keyboard-follow-up-validation-live.jpg) and [Result](action-keyboard-result-validation-live.jpg) validation images. Each field referenced its alert text through `aria-describedby` and exposed `aria-invalid=true`. All drafts were cancelled; the final UI retained Ticket OPEN and the same three Action states. The complete [manual verification record](../../manual-accessibility-verification.md) records focus-management limitations and the partially typed unsaved draft rather than claiming an uninterrupted or complete accessibility pass. These full-page images were visually inspected without cropping or stretching; their tall page heights require a readable final-document layout.
+
+## Supplementary live card drill-down evidence — 4 October 2026
+
+Local server/client development processes were started by the developer from this checkout. Collection used `feature/lab4-submission-completion`, based on main documentation merge `55f8200`; the application code is the released `7329652` source. These captures use the existing local development database, not the isolated E2E fixtures. No Ticket or Action was created, edited or deleted during this read-only collection.
+
+Signed in as Kamon IT Support, the Staff Dashboard displayed Unassigned 17, Owned by me 2, Urgent 8 and Waiting for Requester 0. The original-recorder Action preview showed three Actions on TT-2026-000021 in OPEN, CANCELLED and COMPLETED states.
+
+| Observation | Full image |
+|---|---|
+| Dashboard card counts and current-account Action preview | [Dashboard](staff-dashboard-card-counts-live.jpg) |
+| Waiting for Requester zero-count card opens a filtered Queue with the no-matching-Tickets message and clear-filter controls | [Zero-count drill-down](staff-waiting-zero-drilldown-live.jpg) |
+| Owned by me two-count card opens TT-2026-000021 and TT-2026-000001, with the pager reporting 1–2 of 2 | [Two matching Tickets](staff-owned-two-drilldown-live.jpg) |
+
+The browser viewport was 614 × 507; the images preserve the complete page at its rendered height, without cropping or stretching. This is supplementary interaction evidence, not a named desktop/tablet/mobile breakpoint run. The zero-count drill-down image was visually inspected for complete text and controls. The browser reported a document width of 599px at a 614px viewport on the owned list, with no page-level horizontal overflow in that observed state.
+
+These observations prove UI card/list correspondence for the two selected cards, not an independently executed database aggregate comparison. The zero-count destination is a filtered Queue empty state, not a completely empty Dashboard. Loading was observed in the accessibility snapshot but not captured as a screenshot; API failure, forbidden, submitting and full keyboard-audit claims remain uncompleted. Previous dated records below retain their historical provenance.
+
+### Subsequent independent database read
+
+The assistant then ran `node server/scripts/verify-lab4-live-dashboard.mjs` from the repository root. The helper permits local database hosts only, selects the unique active Kamon IT Support account, prints no credentials, and uses a Repeatable Read transaction containing SELECT/count queries only. The initial sandbox attempt could not initialize Prisma; after network access was granted, the command completed with exit code 0. This subsequent successful read supersedes the database-comparison limitation in the preceding paragraph, but not the remaining visual-state limitations.
+
+| Item | Live UI | Independent database read |
+|---|---|---|
+| Unassigned operational Tickets | 17 | 17 |
+| Operational Tickets owned by Kamon | 2 | 2 |
+| HIGH/URGENT operational Tickets | 8 | 8 |
+| Waiting for Requester Tickets | 0 | 0 |
+| Original-recorder Actions | 3 | 3 |
+| Owned Ticket list | TT-2026-000021 OPEN; TT-2026-000001 NEW | Same two Ticket numbers and statuses |
+| Latest Action order/status | 3 OPEN; 2 CANCELLED; 1 COMPLETED | Same three IDs/statuses; all on TT-2026-000021 |
+
+This is assistant-executed live database read evidence, not a screenshot of terminal output, a complete regression run, or evidence about production data. The account resolved to local user ID 32. The helper compares the observed identity rather than reading browser authentication tokens; no session token or password was extracted.
+
 Status: Twelve populated-state images preserved and visually inspected. Additional interaction/state evidence is still pending; this is not a completed submission checklist.
 
 ## Source and provenance
@@ -100,3 +143,33 @@ These are full-page screenshots of real local UI states, not mocked responses. T
 At collection time, `localhost:5173` was unavailable. Assistant-side dev-server startup was blocked by sandbox runtime/configuration access errors. No replacement UI states were fabricated and no checklist item was marked complete on that basis.
 
 For the final PDF, preserve each full image's aspect ratio. Tall mobile images need an appropriately sized full-image page or accessible original-image link; do not stretch or crop them to fit a standard page.
+
+## Requester live evidence — 4 October 2026
+
+The developer signed into Aree Chaiyasit's existing Requester account. The assistant did not enter credentials, reset a password or create a Ticket. The local app/source provenance is unchanged from the 4 October Staff checks: released runtime `7329652`, documentation baseline `55f8200`, viewport 614 × 507. These are genuine local development states, not intercepted responses or a new automated test run.
+
+| Observed state | Full original image |
+|---|---|
+| Dashboard: all four cards show zero and Recent Tickets says `You have no Tickets yet.` | [Genuine empty Dashboard](requester-dashboard-genuine-empty-live.jpg) |
+| Enter on Waiting for You opens My Tickets with a Dashboard filter banner and `No Tickets match your search or filters.` | [Zero-result drill-down](requester-waiting-zero-drilldown-live.jpg) |
+| Clearing the Dashboard filter restores `No Tickets have been created for this Requester yet.` | [Unfiltered empty My Tickets](requester-my-tickets-genuine-empty-live.jpg) |
+| Create Ticket displays the session-selected read-only Requester and loaded reference options | [Initial Create Ticket](requester-create-ticket-initial-regression-live.jpg) |
+| Enter on Submit Ticket with required fields empty displays all five validation messages; no Ticket created | [Keyboard validation](requester-create-ticket-keyboard-validation-live.jpg) |
+
+All five full-page images were opened for visual inspection and retained uncropped and unstretched. The Dashboard's page-level horizontal overflow check was false at the stated viewport. This is not a complete responsive or long-content audit. The all-zero metrics are observed UI values, not an independent Requester database aggregate check. Loading appeared in the navigation snapshot, but no loading screenshot is claimed. The browser was returned to Requester Dashboard after verification.
+
+## Administrator live evidence — 4 October 2026
+
+GitHub engineering chronology images are separately documented in [git-workflow-verification.md](../../git-workflow-verification.md#genuine-github-screenshots-collected-on-4-october): original contract and first Actions Taken foundation commit overviews. They use GitHub's actual UI and the temporary tab's default 1280 × 720 viewport, not the 614 × 507 local application viewport below.
+
+The developer signed into System Administrator's existing account. The same released runtime and local development environment described above were used, at 614 × 507. No credentials were entered by the assistant, no user was created or changed, and no password-reset control was activated. These screenshots supplement earlier-lab regression evidence; they do not establish new Lab 4 automated results.
+
+| Observed state | Full original image |
+|---|---|
+| Selecting Administrator and activating Search displays the active System Administrator row | [Role filter](admin-users-role-filter-live.jpg) |
+| Enter on Edit opens the self-edit form; Active account is disabled with `You cannot deactivate your own account.` | [Self-deactivation protection](admin-self-deactivation-disabled-live.jpg) |
+| Enter on Create User opens an unsaved form with default Requester role | [Initial form](admin-create-user-initial-live.jpg) |
+| Enter on Create user with blank fields shows name, email and initial-password validation | [Empty-field validation](admin-create-user-empty-validation-live.jpg) |
+| Search `lab4-no-such-user-evidence` with Administrator filter shows `No matching users` | [No-results search](admin-users-search-no-results-live.jpg) |
+
+All five originals were opened for visual inspection and retained full, uncropped and unstretched. In the validation state, the name/email/password controls exposed `aria-invalid=true` and references to their respective error IDs. Focus remained on the submit button, and no `role=alert` region was observed; screen-reader announcement is not claimed. Page-level horizontal overflow was false in that state at the recorded viewport. Both forms were cancelled, filters cleared, and the unfiltered Users list restored. Successful account creation/edit/reset, duplicate-email rejection, last-Administrator concurrency and all keyboard paths are not newly verified by this read-only/invalid-input collection.
