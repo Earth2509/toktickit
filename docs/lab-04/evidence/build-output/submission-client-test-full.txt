@@ -1,0 +1,17 @@
+ ✓ tests/App.test.tsx (1)
+ ✓ tests/lab-03/AuthenticatedShell.test.tsx (6) 504ms
+ ✓ tests/lab-03/UserManagement.test.tsx (1)
+ ✓ tests/lab-02/CreateTicketForm.test.tsx (5) 857ms
+ ✓ tests/lab-02/MyTickets.test.tsx (8) 1802ms
+ ✓ tests/lab-02/RequesterTicketDetail.test.tsx (2) 683ms
+ ✓ tests/lab-02/ZenGreen.styles.test.tsx (1) 596ms
+ ✓ tests/lab-04/ActionsTaken.test.tsx (6) 693ms
+ ✓ tests/lab-04/RequesterDashboard.test.tsx (2)
+ ✓ tests/lab-04/StaffDashboard.test.tsx (4)
+ ✓ tests/lab-04/TicketWorkflow.test.tsx (2)
+ ✓ tests/lab-04/ZenGreenLab4.styles.test.tsx (3) 351ms
+
+ Test Files  12 passed (12)
+      Tests  41 passed (41)
+   Start at  11:53:25
+   Duration  17.52s (transform 1.12s, setup 22.87s, collect 18.63s, tests 6.49s, environment 119.98s, prepare 7.21s)

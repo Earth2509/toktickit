@@ -1,0 +1,24 @@
+{
+  "measuredAt": "2026-10-04T09:38:51.781Z",
+  "cutoff": "2026-09-04T09:38:51.781Z",
+  "user": {
+    "id": 1,
+    "displayName": "Anan Chaiyasit",
+    "role": "REQUESTER",
+    "isActive": true
+  },
+  "ownedTicketCount": 13,
+  "metrics": {
+    "openTickets": 13,
+    "waitingForRequester": 0,
+    "recentlyUpdated": 2,
+    "recentlyResolved": 0
+  },
+  "recentTickets": [
+    { "id": 21, "ticketNumber": "TT-2026-000021", "requesterId": 1, "currentStatus": "OPEN", "updatedAt": "2026-10-04T08:35:09.675Z" },
+    { "id": 19, "ticketNumber": "TT-2026-000001", "requesterId": 1, "currentStatus": "NEW", "updatedAt": "2026-09-22T12:08:49.686Z" },
+    { "id": 18, "ticketNumber": "TT-2026-000018", "requesterId": 1, "currentStatus": "NEW", "updatedAt": "2026-09-02T15:33:48.357Z" },
+    { "id": 17, "ticketNumber": "TT-2026-000017", "requesterId": 1, "currentStatus": "NEW", "updatedAt": "2026-09-02T15:33:48.357Z" },
+    { "id": 16, "ticketNumber": "TT-2026-000016", "requesterId": 1, "currentStatus": "NEW", "updatedAt": "2026-09-02T15:33:48.357Z" }
+  ]
+}

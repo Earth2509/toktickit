@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { claimTicket, createComment, createInternalNote, fetchComments, fetchInternalNotes, fetchStaffAssignees, fetchTicket, requestedPriorities, TicketApiError, type AuthUser, type RequestedPriority, type Ticket, type TicketDetail, updateTicketOwner, updateTicketPriority, updateTicketStatus } from "./api";
 import ActionsTakenSection from "./ActionsTakenSection";
 import DiscussionPanel from "./DiscussionPanel";
@@ -16,8 +16,30 @@ export default function StaffTicketDetail({ ticketId, user, onBack }: { ticketId
   const [ownerId, setOwnerId] = useState<string>(""); const [priority, setPriority] = useState<RequestedPriority>("MEDIUM");
   const [status, setStatus] = useState<Ticket["currentStatus"]>("NEW"); const [reason, setReason] = useState(""); const [resolutionSummary, setResolutionSummary] = useState("");
   const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(""); const [error, setError] = useState("");
-  const load = () => { setLoading(true); setError(""); Promise.all([fetchTicket(ticketId), fetchStaffAssignees()]).then(([value, users]) => { setTicket(value); setAssignees(users); setOwnerId(value.ownerId ? String(value.ownerId) : ""); setPriority(value.itPriority ?? value.requestedPriority); setStatus(nextStatuses[value.currentStatus][0] ?? value.currentStatus); setResolutionSummary(value.resolutionSummary ?? ""); }).catch(caught => setError(caught instanceof TicketApiError ? caught.message : "Unable to load the Ticket. Please retry.")).finally(() => setLoading(false)); };
-  useEffect(load, [ticketId]);
+  const loadSequence = useRef(0);
+  const loadTicket = (inPlace: boolean) => {
+    const sequence = ++loadSequence.current;
+    // Action writes already update their own rows. Keep that section mounted so its
+    // close-form effect can restore focus while the parent refreshes Ticket data.
+    if (!inPlace) setLoading(true);
+    setError("");
+    void Promise.all([fetchTicket(ticketId), fetchStaffAssignees()]).then(([value, users]) => {
+      if (sequence !== loadSequence.current) return;
+      setTicket(value); setAssignees(users);
+      setOwnerId(value.ownerId ? String(value.ownerId) : "");
+      setPriority(value.itPriority ?? value.requestedPriority);
+      setStatus(nextStatuses[value.currentStatus][0] ?? value.currentStatus);
+      setResolutionSummary(value.resolutionSummary ?? "");
+    }).catch(caught => {
+      if (sequence !== loadSequence.current) return;
+      setError(caught instanceof TicketApiError ? caught.message : "Unable to load the Ticket. Please retry.");
+    }).finally(() => {
+      if (sequence === loadSequence.current) setLoading(false);
+    });
+  };
+  // Initial/Ticket-ID loading may replace the screen; same-Ticket refreshes must not.
+  const load = () => loadTicket(true);
+  useEffect(() => { loadTicket(false); return () => { ++loadSequence.current; }; }, [ticketId]);
   const canEdit = !!ticket && !terminal.has(ticket.currentStatus);
   const eligibleStatuses = useMemo(() => ticket ? nextStatuses[ticket.currentStatus] : [], [ticket]);
   async function save(action: string, task: () => Promise<unknown>) { setSaving(action); setError(""); try { await task(); load(); } catch (caught) { const api = caught instanceof TicketApiError ? caught : undefined; setError(api?.status === 409 && api.message.startsWith("This Ticket changed.") ? "This Ticket changed. Reload and try again." : api?.message ?? "Unable to save this change."); } finally { setSaving(""); } }

@@ -1,0 +1,18 @@
+{
+  "measuredAt": "2026-10-04T09:09:39.513Z",
+  "cutoff": "2026-09-04T09:09:39.513Z",
+  "user": {
+    "id": 27,
+    "displayName": "Aree Chaiyasit",
+    "role": "REQUESTER",
+    "isActive": true
+  },
+  "ownedTicketCount": 0,
+  "metrics": {
+    "openTickets": 0,
+    "waitingForRequester": 0,
+    "recentlyUpdated": 0,
+    "recentlyResolved": 0
+  },
+  "recentTickets": []
+}

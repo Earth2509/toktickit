@@ -13,7 +13,7 @@ const accounts = {
 
 const fixtureTicket = "TT-2026-000003";
 
-test("Requester indication, Staff discussion, and note privacy work through the browser", async ({ page }) => {
+test("Requester indication, Staff discussion, and note privacy work through the browser", async ({ page }, testInfo) => {
   await signIn(page, accounts.requester);
   await openRequesterTicket(page, fixtureTicket);
 
@@ -55,6 +55,9 @@ test("Requester indication, Staff discussion, and note privacy work through the 
   await page.getByRole("textbox", { name: "Internal note", exact: true }).fill("Staff E2E private-note evidence.");
   await page.getByRole("button", { name: "Add internal note" }).click();
   await expect(page.getByText("Staff E2E private-note evidence.")).toBeVisible();
+  const staffEvidencePath = testInfo.outputPath("evidence-completion", "staff-existing-private-note-visible.png");
+  await page.screenshot({ path: staffEvidencePath, fullPage: true });
+  await testInfo.attach("staff-existing-private-note-visible", { path: staffEvidencePath, contentType: "image/png" });
 
   await signOut(page);
   await signIn(page, accounts.requester);
@@ -62,6 +65,12 @@ test("Requester indication, Staff discussion, and note privacy work through the 
   await expect(page.getByText("Staff E2E public reply.")).toBeVisible();
   await expect(page.getByText("Staff E2E private-note evidence.")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Internal notes" })).toHaveCount(0);
+  const privateNotesDenied = await page.request.get(`/api/tickets/${protectedResource.ticketId}/internal-notes`);
+  expect(privateNotesDenied.status()).toBe(403);
+  expect(await privateNotesDenied.text()).not.toContain("Staff E2E private-note evidence.");
+  const requesterEvidencePath = testInfo.outputPath("evidence-completion", "requester-same-ticket-public-reply-private-note-hidden.png");
+  await page.screenshot({ path: requesterEvidencePath, fullPage: true });
+  await testInfo.attach("requester-same-ticket-public-reply-private-note-hidden", { path: requesterEvidencePath, contentType: "image/png" });
 
   await signOut(page);
   await signIn(page, accounts.otherRequester);

@@ -1,5 +1,38 @@
 # Lab 4 post-merge main verification
 
+## Latest complete output — 4 October 2026
+
+Eight complete developer-run logs now include branch `main` and full commit `55f8200d373577977d2205499d1c29732fe6b9ec`. Server 134 passed / 8 skipped, client 41 passed, browser 19 passed, and all eight opt-in server cases passed separately. See [full output verification](main-full-output-verification.md) for originals, timings, hashes and scope. This newer record supersedes the excerpt-only limitation below for these test runs; new complete build logs and final visual/PDF sign-off remain outstanding.
+
+## Latest verification — PR #69 merged main, 2026-10-03
+
+Tested source: `7329652011d406ca0a9c5466f5b4c1c93f7cf8ad` (`main` and `origin/main`), merge of [PR #69](https://github.com/Earth2509/toktickit/pull/69). The assistant confirmed the local HEAD before recording these results. The developer supplied the output below after updating to this source and running each requested command. The output excerpts do not independently include SHA headers or complete logs; the assistant did not independently rerun these suites.
+
+| Check | Developer-supplied result | Start / duration |
+| --- | --- | --- |
+| Default server suite | 25 files passed / 5 skipped; 134 tests passed / 8 skipped | 14:54:33 / 9.38s |
+| Default client suite | 12 files / 41 tests passed | 14:55:27 / 16.90s |
+| Server build | `tsc`, no reported error; later passing opt-in runners also build the server first | Not supplied |
+| Client production build | Vite 6.4.3; 37 modules; built successfully | 633ms |
+| Unfiltered browser E2E | 19 tests passed, one worker | 1.0m |
+| Lab 4 migration | 1 file / 1 test passed | 15:06:51 / 6.38s |
+| Lab 4 logical recovery | 1 file / 1 test passed | 15:14:11 / 2.55s |
+| Dashboard performance | 1 file / 2 tests passed | 15:15:45 / 2.57s |
+| Lab 3 migration | 1 file / 2 tests passed | 15:20:51 / 9.62s |
+| Administrator integration | 1 file / 2 tests passed | 15:30:22 / 1.68s |
+
+All eight default-skipped cases passed in separate opt-in runs (1 + 1 + 2 + 2 + 2). The default run remains **134 passed / 8 skipped**, not 142 passed. Client build assets were `index-BxP1s5g_.css` (24.41 kB) and `index-CgTo7x62.js` (229.87 kB).
+
+Administrator integration explicitly passed concurrent deactivation protection (one active Administrator survives) and session revocation with atomic active-work unassignment and audit history. Recovery passed application-row and attachment-byte restoration into a separate disposable schema; this is not physical PostgreSQL backup/PITR verification. Both dashboard endpoints passed p95 <= 500ms across twenty warm requests. The displayed 486ms is a test duration, not a reported p95 value.
+
+These database tests reset only the named local disposable schemas used by their guarded runners. The Prisma upgrade notice was informational; no dependency upgrade was performed. No terminal screenshot was fabricated or captured for this record.
+
+Automated post-merge verification is complete for this source. Remaining visual evidence, student-confirmed reflection and final report checklist still require completion before Issue #60 can be marked Done. The evidence branch `feature/lab4-dashboard-main-evidence` changes documentation only; this record does not claim tests of a later documentation commit.
+
+## Historical verification — PR #67 merged main
+
+The following record is retained for provenance. Its 130 server / 39 client counts describe the earlier `ffe6e0e` source, not the latest PR #69 source above.
+
 Status: Automated checks completed with developer-supplied results on the merged main source. Final visual/submission evidence remains in progress; Issue #60 is not complete.
 
 ## Verified source

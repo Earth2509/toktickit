@@ -1,0 +1,56 @@
+55f8200d373577977d2205499d1c29732fe6b9ec
+main
+
+> toktickit-client@1.0.0 test
+> vitest run --reporter=verbose
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/client[39m
+
+ [32m✓[39m tests/lab-04/ActionsTaken.test.tsx[2m > [22mLab 4 Actions Taken[2m > [22mshows Requesters a read-only Action list
+ [32m✓[39m tests/lab-04/RequesterDashboard.test.tsx[2m > [22mLab 4 Requester Dashboard[2m > [22mshows four own Ticket metrics, a recent row, and exact drill-down filters
+ [32m✓[39m tests/lab-04/RequesterDashboard.test.tsx[2m > [22mLab 4 Requester Dashboard[2m > [22mshows explicit zero state and a Create Ticket path
+ [32m✓[39m tests/lab-04/TicketWorkflow.test.tsx[2m > [22mLab 4 Ticket resolution UI[2m > [22mshows the server's actionable resolution-gate message instead of hiding it behind a generic conflict
+ [32m✓[39m tests/lab-04/ActionsTaken.test.tsx[2m > [22mLab 4 Actions Taken[2m > [22mlets Staff open an Action form with an eligible assignee
+ [32m✓[39m tests/lab-03/UserManagement.test.tsx[2m > [22mLab 3 Administrator user management[2m > [22mloads safe user records, combines filters, and protects self-deactivation in the edit form
+ [32m✓[39m tests/lab-04/StaffDashboard.test.tsx[2m > [22mLab 4 IT Staff Dashboard[2m > [22mopens exact operational drill-downs and recent Ticket detail
+ [32m✓[39m tests/lab-04/StaffDashboard.test.tsx[2m > [22mLab 4 IT Staff Dashboard[2m > [22mshows a safe failure with Retry
+ [32m✓[39m tests/lab-04/ZenGreenLab4.styles.test.tsx[2m > [22mLab 4 Zen Green and accessibility contract[2m > [22mkeeps visible focus, wrapping Action text, and 4/2/1 dashboard columns
+ [32m✓[39m tests/lab-04/ActionsTaken.test.tsx[2m > [22mLab 4 Actions Taken[2m > [22mshows validation before an incomplete Action is created
+ [32m✓[39m tests/lab-04/StaffDashboard.test.tsx[2m > [22mLab 4 IT Staff Dashboard[2m > [22mshows performed Actions independently of operational Tickets and opens their Ticket
+ [32m✓[39m tests/lab-04/StaffDashboard.test.tsx[2m > [22mLab 4 IT Staff Dashboard[2m > [22mshows the own-Action empty state without suppressing the operational Ticket list
+ [32m✓[39m tests/lab-04/TicketWorkflow.test.tsx[2m > [22mLab 4 Ticket resolution UI[2m > [22mstill provides a reload instruction for a stale Ticket version
+ [32m✓[39m tests/lab-04/ZenGreenLab4.styles.test.tsx[2m > [22mLab 4 Zen Green and accessibility contract[2m > [22mannounces loading and exposes labelled, keyboard-focusable dashboard drill-downs
+ [32m✓[39m tests/lab-04/ActionsTaken.test.tsx[2m > [22mLab 4 Actions Taken[2m > [22mallows an assignee to complete an Action with a transition-only request body
+ [32m✓[39m tests/lab-04/ActionsTaken.test.tsx[2m > [22mLab 4 Actions Taken[2m > [22mloads the next Actions Taken page instead of silently hiding older items
+ [32m✓[39m tests/lab-03/AuthenticatedShell.test.tsx[2m > [22mLab 3 authenticated shell[2m > [22mshows a neutral startup state and then the public Login without requester selection
+ [32m✓[39m tests/lab-03/AuthenticatedShell.test.tsx[2m > [22mLab 3 authenticated shell[2m > [22muses safe invalid-login feedback and does not retain the password
+ [32m✓[39m tests/lab-04/ZenGreenLab4.styles.test.tsx[2m > [22mLab 4 Zen Green and accessibility contract[2m > [22mbinds Action controls to labels and announces validation in text
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx[2m > [22mMy Tickets[2m > [22mrenders only the selected Requester's Tickets and a usable table
+ [32m✓[39m tests/lab-02/CreateTicketForm.test.tsx[2m > [22mCreate Ticket[2m > [22mshows inline validation and does not call the create API for an incomplete form
+ [32m✓[39m tests/lab-03/AuthenticatedShell.test.tsx[2m > [22mLab 3 authenticated shell[2m > [22mgates an initial-password session and opens My Tickets after a valid change
+ [32m✓[39m tests/lab-02/RequesterTicketDetail.test.tsx[2m > [22mRequester Ticket Detail[2m > [22mshows only owned detail data, active and removed metadata, and no removed download action[33m 371[2mms[22m[39m
+ [32m✓[39m tests/lab-04/ActionsTaken.test.tsx[2m > [22mLab 4 Actions Taken[2m > [22mreloads page one after creating an Action so totals and later pages stay accurate
+ [32m✓[39m tests/lab-03/AuthenticatedShell.test.tsx[2m > [22mLab 3 authenticated shell[2m > [22mrestores requester identity, sends no requesterId, and returns to Login after logout
+ [32m✓[39m tests/lab-03/AuthenticatedShell.test.tsx[2m > [22mLab 3 authenticated shell[2m > [22mreturns to Login when a protected request reports an expired session
+ [32m✓[39m tests/lab-03/AuthenticatedShell.test.tsx[2m > [22mLab 3 authenticated shell[2m > [22mdoes not expose the Administrator Users workspace to IT Staff
+ [32m✓[39m tests/lab-02/CreateTicketForm.test.tsx[2m > [22mCreate Ticket[2m > [22msubmits the selected Requester data once and shows the backend Ticket number after success
+ [32m✓[39m tests/lab-02/RequesterTicketDetail.test.tsx[2m > [22mRequester Ticket Detail[2m > [22muploads a permitted file and soft-removes an active attachment with a required reason
+ [32m✓[39m tests/lab-02/ZenGreen.styles.test.tsx[2m > [22mZen Green UI style[2m > [22mkeeps the labelled, busy and focusable Ticket controls aligned with the Zen Green tokens[33m 568[2mms[22m[39m
+ [32m✓[39m tests/lab-02/CreateTicketForm.test.tsx[2m > [22mCreate Ticket[2m > [22mpreserves entered values after a recoverable API failure and allows the same Ticket to be retried
+ [32m✓[39m tests/lab-02/CreateTicketForm.test.tsx[2m > [22mCreate Ticket[2m > [22mkeeps permitted attachments and names every rejected file in a mixed selection
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx[2m > [22mMy Tickets[2m > [22msends resettable search and filter controls to the Ticket API[33m 505[2mms[22m[39m
+ [32m✓[39m tests/lab-02/CreateTicketForm.test.tsx[2m > [22mCreate Ticket[2m > [22mvalidates an overlong Summary instead of silently truncating it
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx[2m > [22mMy Tickets[2m > [22mdebounces search input so one completed term produces one Ticket request[33m 438[2mms[22m[39m
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx[2m > [22mMy Tickets[2m > [22menables Clear filters for a sort-only change and restores the default order
+ [32m✓[39m tests/App.test.tsx[2m > [22mTokTickIT application shell[2m > [22mrenders the public Login without the retired Development Requester selector
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx[2m > [22mMy Tickets[2m > [22mshows a no-results state separately from an empty requester and returns to page one when filters change[33m 377[2mms[22m[39m
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx[2m > [22mMy Tickets[2m > [22muses only the authenticated identity and does not expose requester switching
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx[2m > [22mMy Tickets[2m > [22mshows the empty requester state and refreshes the current list
+ [32m✓[39m tests/lab-02/MyTickets.test.tsx[2m > [22mMy Tickets[2m > [22moffers a safe retry message when the Ticket API is unavailable
+
+[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[32m41 passed[39m[22m[90m (41)[39m
+[2m   Start at [22m 14:52:59
+[2m   Duration [22m 16.05s[2m (transform 1.16s, setup 23.02s, collect 18.76s, tests 5.99s, environment 109.02s, prepare 4.14s)[22m
+
