@@ -79,10 +79,13 @@ for (const viewport of [
     await page.keyboard.type("Verify the diagnostic result after one business day.");
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
+    const createRefresh = page.waitForResponse(response => /\/api\/tickets\/\d+$/.test(new URL(response.url()).pathname) && response.request().method() === "GET");
     await page.keyboard.press("Enter");
+    await createRefresh;
     const item = page.locator('.action-item').filter({ has: page.getByRole("heading", { name: fixture, exact: true }) });
     await expect(item).toBeVisible();
     await expect(item.locator('.action-status')).toHaveText("OPEN");
+    await expect(add).toBeFocused();
     const edit = item.getByRole("button", { name: "Edit action", exact: true });
     await edit.focus();
     await page.keyboard.press("Enter");
@@ -122,6 +125,20 @@ for (const viewport of [
     await expect(edit).toBeFocused();
     await expect(item.getByRole("heading", { name: fixture, exact: true })).toBeVisible();
     await expect(item.getByRole("heading", { name: draft, exact: true })).toHaveCount(0);
+    // The next write is real, unlike the controlled edit conflict above.
+    await page.unroute("**/api/staff/tickets/*/actions-taken/*");
+    const complete = item.getByRole("button", { name: "Complete action", exact: true });
+    await complete.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByLabel(/^Result/)).toBeFocused();
+    await page.keyboard.type("Keyboard regression fixture completed successfully.");
+    const completeRefresh = page.waitForResponse(response => /\/api\/tickets\/\d+$/.test(new URL(response.url()).pathname) && response.request().method() === "GET");
+    await page.getByRole("button", { name: "Complete action", exact: true }).focus();
+    await page.keyboard.press("Enter");
+    await completeRefresh;
+    await expect(item.locator('.action-status')).toHaveText("COMPLETED");
+    await expect(complete).toHaveCount(0);
+    await expect(add).toBeFocused();
   });
 
   test(`Evidence completion: keyboard drill-down and long Action rendering at ${viewport.name}`, async ({ page }, info) => {

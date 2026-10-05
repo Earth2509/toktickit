@@ -27,6 +27,8 @@ describe.skipIf(!url)("Lab 4 real workflow audit history", () => {
     // No IF NOT EXISTS: refuse to reuse another run's data.
     await database.$executeRawUnsafe(`CREATE SCHEMA "${schema}"`);
     createdSchema = true;
+    // Tests API history on the current Prisma model via db push, not migration execution.
+    // Migration preservation is verified by the separate Lab 4 migration integration suite.
     execFileSync(process.execPath, [path.join(process.cwd(), "node_modules/prisma/build/index.js"), "db", "push", "--schema", "prisma/schema.prisma", "--skip-generate"], {
       cwd: process.cwd(), env: { ...process.env, DATABASE_URL: url!.toString() }, stdio: "pipe",
     });

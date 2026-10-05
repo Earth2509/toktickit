@@ -150,7 +150,7 @@ text_segment([
     p('Not ready for final submission. This copy assembles the currently verified engineering documents, full test output and uncropped evidence in Answer Part 1-9 order. Unobserved states are not marked complete.'),
     p('Repository: [Earth2509/toktickit](https://github.com/Earth2509/toktickit)'),
     p('Main output baseline: 55f8200. Application release lineage: 7329652. Four additional evidence cases passed across separate developer runs on the submission workspace; they are not a new main run.'),
-    p('Visual/accessibility checklist: representative documented checks signed off, including the additional three-viewport Action focus/edit-submitting run (3 passed in 17.0 seconds). The subsequent client suite passed 41/41 and production build passed. The dedicated pre/post audit-history check also passed separately (1 test, 3.98 seconds). These are submission-branch results. Outstanding: peer-reviewed main publication/source-link verification and final all-Done Kanban. Issue #60 remains open.'),
+    p('Visual/accessibility checklist: PR #71 review identified a successful-save focus gap not covered by the historical 17.0-second Cancel-dismissal run. Same-Ticket refresh now preserves the Action section. Four parent-component regressions were red before the fix and green afterwards; the current client suite passed 45/45 and production build passed. The developer reran the corrected three-viewport browser checks: 3 passed in 24.0 seconds, including focus after successful Create and Complete. The dedicated pre/post audit-history check passed separately (1 test, 3.98 seconds). These are submission-branch results, not a new main run. Outstanding: peer re-review, main publication/source-link verification and final all-Done Kanban. Issue #60 remains open.'),
     p('Reading note: long screenshots use proportionally tall pages at full content width. They are not cropped, split or squeezed into narrow A4 thumbnails. Evidence links not yet published are identified as local references rather than claimed working public URLs.'),
 ])
 for number,(title,files,images) in enumerate(parts,1):
@@ -193,7 +193,7 @@ for number,(title,files,images) in enumerate(parts,1):
             else:
                 provenance += ' Seeded disposable lab3_e2e data with real API assertions.'
             if 'action-edit-' in rel or 'action-keyboard-follow-up-validation-' in rel:
-                provenance += ' Final checklist run: three cases passed in 17.0 seconds. The valid fixture Action was stored; the attempted edit was not persisted.'
+                provenance += ' Historical form/Cancel checklist capture: three cases passed in 17.0 seconds. These images are not relabelled as successful-save focus proof; the later corrected run passed in 24.0 seconds, recorded separately. The valid fixture Action was stored; the attempted edit was not persisted.'
         if rel == 'requester-anan-owned-detail-readonly-actions-live.jpg':
             provenance += ' Requester Detail displays Public Comments and no Internal Notes section. This live image alone does not prove that the same Ticket contains an existing private note.'
         if rel == 'completion/staff-existing-private-note-visible.png':

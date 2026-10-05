@@ -1,5 +1,9 @@
 # Lab 4 submission completion audit
 
+## PR #71 correction status - 5 October 2026
+
+The peer review found a successful-save keyboard focus regression on the real Staff Detail, despite passing historical form/Cancel checks. Same-Ticket refreshes now keep the Action section mounted. Four new real-parent component regressions failed on the reviewed application source and pass after the correction; the complete client suite passes 45 tests and the production build passes. Successful Create/Complete focus assertions were added to the three-viewport browser cases. After assistant-side Prisma preparation stopped before tests executed, the developer reran those cases successfully: 3 passed, one worker, 24.0 seconds. The scoped successful-save sign-off is restored using that result, with the historical Cancel-only evidence kept separate in [current checklist provenance](final-checklist-verification.md). No assistant browser negative control, peer approval, public publication, main result or Issue #60 Done transition is claimed.
+
 ## Current submission increment - 5 October 2026
 
 The local representative visual/accessibility checklist is signed off using the attributed live/manual evidence, real disposable-database API assertions and explicitly labelled controlled states. Three final Action keyboard/edit-submitting cases passed in 17.0s, with nine full images inspected. The subsequent full client suite passed 12 files / 41 tests in 17.52s and the production build passed with 37 modules in 636ms. The corrected form manages opening, validation/error and return focus and exposes its saving state. The supplied results and their working-tree limits are recorded in [final checklist verification](final-checklist-verification.md).

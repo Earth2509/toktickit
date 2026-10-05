@@ -1,0 +1,6 @@
+Running 3 tests using 1 worker
+  3 passed (24.0s)
+
+To open last HTML report run:
+
+  npx playwright show-report artifacts\lab-03\playwright-report

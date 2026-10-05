@@ -4,6 +4,14 @@ Status: Initial plan created before implementation; Final columns updated from c
 
 ## Submission-completion attempts, 4 October 2026
 
+### PR #71 parent-screen focus regression - 5 October 2026
+
+The review of `e6037e6` found lost focus after successful Action writes because the parent's reload unmounted the Action section. Four new `client/tests/lab-04/StaffActionFocus.test.tsx` cases render the real parent and child, hold the post-save Ticket GET, and check mounted section identity and invoking/fallback focus before and after the refreshed summary is applied. Create, Edit, Complete and Cancel all failed on the pre-fix application source and passed after same-Ticket reloads were made in-place. Mocked HTTP responses are used; this is component integration, not database/browser evidence.
+
+Assistant working-tree results on `feature/lab4-submission-completion`: **13 files / 45 client tests passed**, start 20:30:34, duration 6.54s; TypeScript/Vite build passed, **37 modules / 638ms**, asset `index-B5PnQ1t8.js`. The sandbox workaround was the process-only `VITE_PRESERVE_SYMLINKS=true`; no package/config changes were made. These do not alter the historical main 41-test baseline or the server's 134-test count.
+
+Updated `e2e/lab-04/evidence-completion.spec.ts` asserts focus on Add action after real Create and Complete, including the parent's refresh, at all three viewports. Assistant attempts stopped in Prisma before test execution. The developer then supplied **3 tests passed, one worker, 24.0 seconds** for the requested focused command. That is a passing corrected-working-tree browser result, not a main run or independent assistant reproduction. A browser red/green comparison on the old source is not claimed; the four parent-component controls supply separately recorded red/green evidence. The earlier 17.0-second run checked Cancel dismissal, not the successful-save focus contract. See [correction provenance](final-checklist-verification.md).
+
 ### Action focus correction verified - 5 October 2026
 
 The developer ran the complete client suite in the submission workspace after the Action form focus correction and supplied all file results and the summary: **12 files / 41 tests passed**, start 11:53:25, duration 17.52s. The subsequent client production build passed: **37 modules transformed; 636ms**, with `index-Cf6ifF05.js` emitted. Supplied excerpts are retained under `evidence/build-output/`; they have no embedded source/command header. They cover the local submission working tree based at `674561c`, including the uncommitted focus correction, and do not replace the preserved main baseline. The separate final Action keyboard browser run passed **3/3** viewport cases in 17.0s; see [final checklist verification](final-checklist-verification.md). These results complete regression/build verification for the local correction. Peer review, main promotion and final board evidence remain to be completed.
@@ -66,11 +74,12 @@ The [post-merge verification record](final-main-verification.md) retains the sup
 | E2E-02 | E2E | AC-06-07 | Requester/Staff dashboards calculate, drill down and respect roles at three viewports | `e2e/lab-04/dashboards.spec.ts` | Passed on main 55f8200, 4 Oct 2026; included in browser 19. |
 | REG-01 | Regression | AC-09 | Run Labs 1-3 server/client/auth/attachment/comment/note/admin tests | existing suites | Passed on main 55f8200, 4 Oct 2026; server 134 passed / 8 skipped, all 8 opt-in cases passed separately; client 41 / browser 19. |
 
-All Final cells above refer to the complete developer-run main logs in [full output verification](main-full-output-verification.md). Shared test-file totals are not added together. Historical notes below retain their dated results, not current pending-test status. Manual visual checks and final PDF remain separate.
+Unless explicitly attributed to the submission branch (INT-03), Final cells above refer to the complete developer-run main logs in [full output verification](main-full-output-verification.md). Shared test-file totals are not added together. Historical notes below retain their dated results, not current pending-test status. Manual visual checks and final PDF remain separate.
 
 | Added correction tests | Type | AC | Coverage / actual files | Final |
 | --- | --- | --- | --- | --- |
 | API-07 / UI-05 | API / UI / E2E | AC-10 | Session-performed Action preview/count, stable bounded rows, role denial, Administrator own empty state, safe query failure and Ticket links; `server/tests/lab-04/dashboards.api.test.ts`, `client/tests/lab-04/StaffDashboard.test.tsx`, `e2e/lab-04/dashboards.spec.ts` | Passed on main 55f8200; included in Dashboard API 11 / Staff UI 4 / browser 19 totals, not additional tests. |
+| UI-06 | UI integration / E2E | AC-01, AC-09 | Keep the real Staff Detail Action section mounted and restore invoking/fallback focus after successful create/edit/complete/cancel during and after parent refresh; `client/tests/lab-04/StaffActionFocus.test.tsx`. Browser Create/Complete checks: `e2e/lab-04/evidence-completion.spec.ts`, three viewports. | Four component regressions failed before the fix and passed after it; included in the 45-test submission working-tree result. Developer browser rerun passed 3/3 in 24.0s; not a main result. |
 
 ## Execution commands
 
