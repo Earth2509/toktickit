@@ -34,7 +34,7 @@ figure = 0
 
 def clean(text):
     text = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', text)
-    for old, new in [('—', '-'), ('–', '-'), ('‑', '-'), ('→', ' -> '), ('✅', '[verified]'), ('⚠️', '[note]')]:
+    for old, new in [('—', '-'), ('–', '-'), ('‑', '-'), ('→', ' -> '), ('✅', '[verified]'), ('⚠️', '[note]'), ('✓', '[passed]'), ('↓', '[skipped]'), ('โ“', '[passed]'), ('โ”', '|')]:
         text = text.replace(old, new)
     return text
 
@@ -150,7 +150,7 @@ text_segment([
     p('Not ready for final submission. This copy assembles the currently verified engineering documents, full test output and uncropped evidence in Answer Part 1-9 order. Unobserved states are not marked complete.'),
     p('Repository: [Earth2509/toktickit](https://github.com/Earth2509/toktickit)'),
     p('Main output baseline: 55f8200. Application release lineage: 7329652. Four additional evidence cases passed across separate developer runs on the submission workspace; they are not a new main run.'),
-    p('Visual/accessibility checklist: representative documented checks signed off, including the additional three-viewport Action focus/edit-submitting run (3 passed in 17.0 seconds). The subsequent client suite passed 41/41 and production build passed on the submission working tree. Outstanding: dedicated pre/post audit-history test execution, peer-reviewed main publication/source-link verification and final all-Done Kanban. Issue #60 remains open.'),
+    p('Visual/accessibility checklist: representative documented checks signed off, including the additional three-viewport Action focus/edit-submitting run (3 passed in 17.0 seconds). The subsequent client suite passed 41/41 and production build passed. The dedicated pre/post audit-history check also passed separately (1 test, 3.98 seconds). These are submission-branch results. Outstanding: peer-reviewed main publication/source-link verification and final all-Done Kanban. Issue #60 remains open.'),
     p('Reading note: long screenshots use proportionally tall pages at full content width. They are not cropped, split or squeezed into narrow A4 thumbnails. Evidence links not yet published are identified as local references rather than claimed working public URLs.'),
 ])
 for number,(title,files,images) in enumerate(parts,1):
@@ -165,9 +165,11 @@ for number,(title,files,images) in enumerate(parts,1):
             story += [p(f'GitHub source: [{file}](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/{file})'), p('The rendered local copy includes labelled submission-workspace updates. Publication of those updates is pending; do not assume the main URL already contains them.')]
         story += markdown(DOCS/file)
     if number == 3:
-        story += [p('Rendered output below removes terminal ANSI colour/control sequences only and wraps long lines for readability. Files ending in full.txt preserve the available recorded logs; the new submission client results and correction build are developer-supplied excerpts without a source header. The original main logs remain unchanged; test outcomes and recorded values are not rewritten.')]
+        story += [p('Rendered output below removes terminal ANSI colour/control sequences, displays check/skip glyphs as readable [passed]/[skipped] labels, and wraps long lines. Original source bytes remain unchanged. The supplied submission client results, correction build and history result are explicitly labelled excerpts without an embedded source header, even where an older filename says full. Main logs retain their full recorded output; test outcomes and recorded values are not rewritten.')]
         for log in sorted((EVIDENCE/'test-output').glob('*.txt')) + sorted((DOCS/'evidence/build-output').glob('*.txt')):
-            story += [p('Complete recorded output: '+log.name,'Heading4')]
+            excerpt = 'excerpt' in log.name or log.name == 'submission-client-test-full.txt'
+            label = 'Developer-supplied output excerpt: ' if excerpt else 'Complete recorded output: '
+            story += [p(label+log.name,'Heading4')]
             for line in log.read_text(encoding='utf-8-sig').splitlines():
                 for wrapped in textwrap.wrap(clean(line),90,replace_whitespace=False) or [' ']:
                     story.append(p(wrapped))

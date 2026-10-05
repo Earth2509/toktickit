@@ -26,6 +26,10 @@ npm run e2e -- --grep "final Action keyboard"
 
 The runner forces the disposable `lab3_e2e` schema. Do not enable server reuse against the public development app. Preserve full screenshots for validation, edit-submitting and conflict from the passing run before generating the next report.
 
+## Dedicated history check passed - 5 October 2026
+
+The developer's separately executed opt-in history case passed: 1 file / 1 test, start 12:24:00, duration 3.98s. It verifies prior event-row preservation across real workflow writes, chronological ID tie-breaking, repeated-read equality and no history change after stale/Requester-denied writes in a fresh local schema. See [history verification](workflow-history-verification.md) for the preserved excerpt and scope limitations. The ordinary server result remains 134 passed / 9 intentional skips; no combined main run is claimed. This closes the local history-verification gap, not the publication or final-board gates.
+
 ## Publication and final report gate
 
 The GitHub CLI is not authenticated in this sandbox. Publication is not yet verified. Publish selected source/doc/evidence files (not all artifacts, traces, temporary output or `server/.review-pr96`), obtain peer review, merge through the required staging/main workflow, and verify final main results and document URLs. Only then mark genuinely completed Issues Done, capture the final board and remove active draft/pending notices. Preserve historical review wording as historical context rather than deleting evidence of earlier review rounds. No final-submission PDF or completed Project Board is claimed by this progress record.

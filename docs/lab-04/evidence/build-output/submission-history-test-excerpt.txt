@@ -1,0 +1,8 @@
+ ✓ tests/lab-04/workflow-history.integration.test.ts (1) 3527ms
+   ✓ Lab 4 real workflow audit history (1) 3472ms
+     ✓ appends immutable prior events, orders equal timestamps by ID, and leaves history unchanged after denied writes
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  12:24:00
+   Duration  3.98s (transform 121ms, setup 0ms, collect 128ms, tests 3.53s, environment 0ms, prepare 89ms)
