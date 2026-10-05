@@ -1,0 +1,26 @@
+55f8200d373577977d2205499d1c29732fe6b9ec
+main
+
+> toktickit-server@1.0.0 test:lab4-performance
+> npm run build --silent && node dist/scripts/run-lab4-dashboard-performance.js
+
+Running against disposable local lab4_dashboard_perf_test; this schema will be reset.
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server[39m
+
+[90mstdout[2m | tests/lab-04/dashboard-performance.smoke.test.ts[2m > [22m[2mLab 4 dashboard performance smoke
+[22m[39mLab 4 performance context: 28 seeded Tickets; PostgreSQL 18.4; Node v24.14.0; win32 x64; 11th Gen Intel(R) Core(TM) i7-11600H @ 2.90GHz.
+
+[90mstdout[2m | tests/lab-04/dashboard-performance.smoke.test.ts[2m > [22m[2mLab 4 dashboard performance smoke[2m > [22m[2mkeeps the Requester dashboard p95 at or below 500 ms across 20 warm requests
+[22m[39mRequester dashboard: 5 warm-up requests, 20 measured requests; p95 7.5 ms; max 8.7 ms.
+
+[90mstdout[2m | tests/lab-04/dashboard-performance.smoke.test.ts[2m > [22m[2mLab 4 dashboard performance smoke[2m > [22m[2mkeeps the Staff dashboard p95 at or below 500 ms across 20 warm requests
+[22m[39mStaff dashboard: 5 warm-up requests, 20 measured requests; p95 7.4 ms; max 8.3 ms.
+
+ [32m✓[39m tests/lab-04/dashboard-performance.smoke.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1855[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 15:12:24
+[2m   Duration [22m 2.53s[2m (transform 125ms, setup 0ms, collect 352ms, tests 1.86s, environment 0ms, prepare 103ms)[22m
+

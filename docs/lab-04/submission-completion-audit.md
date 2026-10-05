@@ -1,5 +1,31 @@
 # Lab 4 submission completion audit
 
+## Current submission increment - 5 October 2026
+
+The local representative visual/accessibility checklist is signed off using the attributed live/manual evidence, real disposable-database API assertions and explicitly labelled controlled states. Three final Action keyboard/edit-submitting cases passed in 17.0s, with nine full images inspected. The subsequent full client suite passed 12 files / 41 tests in 17.52s and the production build passed with 37 modules in 636ms. The corrected form manages opening, validation/error and return focus and exposes its saving state. The supplied results and their working-tree limits are recorded in [final checklist verification](final-checklist-verification.md).
+
+README verification instructions and the six local engineering documents now include the supplementary evidence and the correction's verification. Earlier pending statements below are chronological records, superseded for the states explicitly covered by the later records. The remaining release steps are to publish the selected source/docs/evidence, obtain peer review through staging and main, confirm the public source links/final main results, then complete Issue #60 and capture the final all-Done Project board. The report remains a review copy until those steps are verified; local visual sign-off alone does not complete the GitHub workflow.
+
+The Part 7 pre/post preservation gap is addressed by the newly implemented opt-in [history integration check](workflow-history-verification.md), not by relabelling the earlier after-snapshot. Server TypeScript passes, but the dedicated test still needs execution outside the sandbox. The developer's subsequent default-suite summary (134 passed / 9 skipped) leaves this new case intentionally skipped. The current rendered review copy passes structural QA with 143 pages, 70 sequential figures, all nine Parts, no blank pages and 106 link annotations; representative table and full-image pages were visually inspected. No final-submit claim or Done transition is made.
+
+## Additional evidence runner — 4 October 2026
+
+Update: the developer ran the suite outside the sandbox. Three cases passed initially; the fourth passed alone after correcting two test assumptions (Administrator landing screen and shared Detail read route). All four cases have now passed across separate runs. Eight full-page images are preserved; see [focused verification](evidence-completion-verification.md). Earlier runner-blocked wording below is historical. Remaining publication, final board and complete manual sign-off are not automatically closed by this result.
+
+Four focused browser cases are prepared in `e2e/lab-04/evidence-completion.spec.ts`; see [run instructions and provenance limits](evidence-completion-run.md). Assistant execution is blocked by Vite `EPERM` while resolving `client/src/main.tsx`, even after narrowly scoped permissions were granted. No passing result or new completed visual check is claimed. Preserve the existing main results separately. The PDF remains a review draft and Issue #60 stays open pending actual verification and final sign-off.
+
+## Full output update — 4 October 2026
+
+The populated Anan Dashboard is now independently compared against the developer-run read-only query: 13/0/2/0 and the same five recent rows in order. Genuine populated Dashboard, two-row drill-down and owned Detail/read-only Action images are recorded in [Requester populated verification](live-requester-populated-verification-20261004.md). Aree's genuine empty Dashboard is independently compared separately in [Requester empty verification](live-requester-metric-verification-20261004.md). These observations do not establish a populated waiting state or replace direct authorization tests.
+
+The genuine Administrator-session operational Dashboard failure and same-tab Retry recovery are now captured after the developer stopped/restarted the local API. See [outage/recovery verification](live-dashboard-recovery-20261004.md). This closes that safe-failure visual path, not loading, wholly empty or forbidden states.
+
+The subsequent authorized live lifecycle and developer-run read-only history snapshot are now recorded in [workflow verification](live-workflow-verification-20261004.md). Six genuine images close successful Resolve/Close/Reopen, Reopen-reason and post-reopen rejection visual gaps. Actual event IDs 9–12 confirm version 1→5 and final OPEN with unchanged owner/priority. This is a single after-snapshot; initial database access failed, so full pre/post immutability is not claimed. Other state evidence and final PDF remain outstanding.
+
+Subsequent client build: the complete local log shows TypeScript followed by Vite passing, 37 modules, 639 ms. It is retained under `evidence/build-output/` and attributed to the submission branch, not a new main run. Client source is unchanged from main `55f8200`. The complete server-build log is also retained: `tsc`, no reported diagnostics, with developer-reported completion. Both build-output collection steps are now finished; remaining visual/PDF work is not.
+
+All eight complete main logs are now preserved and checked at `55f8200`: server 134 passed / 8 skipped, client 41 passed, E2E 19 passed, and all eight default-skipped cases passed separately. See [full output verification](main-full-output-verification.md). Complete build logs are also retained with their separate provenance. This closes output collection, but logs are not terminal screenshots. Remaining visual evidence and final PDF sign-off remain incomplete. Issue #60 is not marked Done by this update.
+
 ## Current status — 4 October 2026
 
 [PR #70](https://github.com/Earth2509/toktickit/pull/70) is approved and merged into `main` as [`55f8200`](https://github.com/Earth2509/toktickit/commit/55f8200d373577977d2205499d1c29732fe6b9ec). It records the post-release checks and completes the PR #69 review history. The tested application source remains `7329652`; the subsequent merge is documentation-only and is not described as a new runtime test run.

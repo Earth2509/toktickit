@@ -1,6 +1,6 @@
 # Lab 4 manual keyboard verification
 
-Checked: 4 October 2026. Status: partial; Staff Dashboard/Queue navigation and selected Ticket Detail/Action validation checks verified. This is not a complete accessibility audit or a WCAG conformance claim.
+Checked: 4 October 2026. This is a historical partial manual record. Its pending Action-focus/edit-submitting observations are superseded by the [passing 5 October final checklist](final-checklist-verification.md); other limits remain as documented. The representative Lab visual checklist is now signed off, but no WCAG conformance claim is made.
 
 ## Environment and scope
 
@@ -38,7 +38,7 @@ Checked: 4 October 2026. Status: partial; Staff Dashboard/Queue navigation and s
 
 The original full images are retained at their rendered page heights. These images supplement keyboard observations; they do not prove every key action by themselves. Rendered outline presence does not establish contrast ratios, screen-reader speech, or all disability access requirements.
 
-## Still unverified
+## Historical outstanding items at the 4 October inspection
 
 - Keyboard traversal and activation of every Action preview/detail control and all pagination paths.
 - All remaining Ticket Detail/Action edit and workflow error paths, submitting/conflict feedback and preserved drafts with keyboard-only interaction. The three selected Action validation paths and their observed focus behavior are recorded below.
@@ -46,7 +46,7 @@ The original full images are retained at their rendered page heights. These imag
 - Screen-reader announcements, focus restoration after all route changes/dialogs, measured focus contrast and complete 1440/820/390 viewport keyboard checks.
 - Full manual long-content, error, empty, forbidden and failure-state inspection.
 
-The combined keyboard/labels/errors/badges/drill-down checklist remains incomplete. No existing automatic test total is increased by these manual observations; Issue #60 remains open.
+At this inspection the combined keyboard/labels/errors/badges/drill-down checklist was incomplete. The subsequent 5 October final record supplies the Action-focus and edit-submitting correction and sign-off. No historical automatic test total is increased by these manual observations; Issue #60 is still awaiting publication and final board sign-off.
 
 ## Follow-up: Ticket Detail and Action validation
 

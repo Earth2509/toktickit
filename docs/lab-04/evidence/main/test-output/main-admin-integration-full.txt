@@ -1,0 +1,21 @@
+55f8200d373577977d2205499d1c29732fe6b9ec
+main
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server[39m
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "toktickit", schema "lab3_admin_users_test" at "localhost:5432"
+
+The PostgreSQL database "toktickit" schema "lab3_admin_users_test" at "localhost:5432" was successfully reset.
+
+Your database is now in sync with your Prisma schema. Done in 117ms
+
+ [32m✓[39m tests/lab-03/users-admin.integration.test.ts[2m > [22mLab 3 Administrator user management integration[2m > [22mserializes concurrent Administrator deactivations so one active Administrator survives[33m 441[2mms[22m[39m
+ [32m✓[39m tests/lab-03/users-admin.integration.test.ts[2m > [22mLab 3 Administrator user management integration[2m > [22mrevokes the changed account's sessions and atomically unassigns only active work with audit history
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 15:22:51
+[2m   Duration [22m 1.88s[2m (transform 117ms, setup 0ms, collect 128ms, tests 1.44s, environment 0ms, prepare 92ms)[22m
+

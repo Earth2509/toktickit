@@ -1,0 +1,5 @@
+# Evidence transcripts and JSON snapshots are byte-preserved for recorded SHA-256.
+# Deliberate terminal trailing blank lines are original evidence, not source lint.
+docs/lab-04/evidence/main/test-output/*.txt -text whitespace=-blank-at-eof
+docs/lab-04/evidence/build-output/*.txt -text whitespace=-blank-at-eof
+docs/lab-04/evidence/main/*.json -text

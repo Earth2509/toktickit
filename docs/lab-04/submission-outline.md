@@ -1,6 +1,6 @@
 # Lab 4 final submission assembly
 
-Status: assembly plan, not the completed submission. Rechecked against SE+Lab+4.pdf pages 10–11 on 4 October 2026. Produce exactly one PDF using Answer Part 1–9 in the handout's order. Do not remove the Answer headings for this lab or rename Part 5 to Engineering Design. Repository main remains the application source of truth.
+Status: assembly plan, not the completed submission. Rechecked against SE+Lab+4.pdf pages 10–11 on 5 October 2026. Produce exactly one PDF using Answer Part 1–9 in the handout's order. Do not remove the Answer headings for this lab or rename Part 5 to Engineering Design. Repository main remains the application source of truth. Later dated evidence records supersede earlier collection-pending observations only within their stated scope.
 
 ## Answer Part 1: Git Use with Engineering Workflow
 
@@ -18,7 +18,7 @@ Use [Git chronology verification](git-workflow-verification.md) for actual recor
 
 Include source link and full rendered [tests.md](tests.md), all planned-test/AC mapping rows, actual file paths and status. Add [final-main-verification.md](final-main-verification.md) with latest 134 server / 41 client / 19 E2E counts and eight separately passed opt-in cases. Explain that both Dashboard APIs share dashboards.api.test.ts and resolution browser coverage shares actions-taken-flow.spec.ts; the lab-03 artifact directory is a retained runner path containing Lab 4 cases.
 
-Complete main-run output is still required. Prior supplied terminal summaries and independent reviewer reproductions support their stated results, but are not complete output logs. Sandbox attempts on 4 October did not collect tests and must not be shown as passing runs.
+Complete main-run test logs are now preserved in [main-full-output-verification.md](main-full-output-verification.md): eight developer-run logs with full main SHA/branch headers, including every opt-in suite. Both subsequent submission-branch build logs are preserved separately with their stated provenance. These are genuine output transcripts, not terminal screenshots. Sandbox attempts on 4 October did not collect tests and must not be shown as passing runs.
 
 ## Answer Part 4: AI Use with Reflection
 
@@ -26,19 +26,29 @@ Include full rendered [ai-use.md](ai-use.md), eight selected standardized prompt
 
 ## Answer Part 5: Working IT Staff Dashboard UI
 
-Reuse the responsive Dashboard images and original-recorder Action-preview captures. Add the live card/list correspondence and independent database read evidence: 17 unassigned, 2 owned, 8 HIGH/URGENT operational Tickets, zero Waiting for Requester and 3 recorded Actions. The two owned rows and ordered Action IDs match the query. The zero-card destination is Queue no-results, not a fully empty Dashboard. Dashboard loading, wholly empty, forbidden and safe-failure screenshots remain outstanding.
+A [genuine API-outage and recovery pair](live-dashboard-recovery-20261004.md) now shows safe failure and Retry while the developer-stopped API is unavailable, followed by successful populated Dashboard recovery after restart and activation of Retry in the same tab/session. The session is Administrator; do not label it Requester failure or forbidden access.
+
+The [4 October read-only increment](live-evidence-increment-20261004.md) adds a genuine Administrator-session own-Action empty-state image. Recent operational Tickets remain populated; do not call it a wholly empty Dashboard or relabel the account as IT Staff.
+
+Reuse the responsive Dashboard images and original-recorder Action-preview captures. Add the live card/list correspondence and independent database read evidence: 17 unassigned, 2 owned, 8 HIGH/URGENT operational Tickets, zero Waiting for Requester and 3 recorded Actions. The two owned rows and ordered Action IDs match the query. The zero-card destination is Queue no-results, not a fully empty Dashboard. Supplementary loading, fully empty and forbidden images are now included: loading delays a real request, while empty/forbidden are explicitly controlled rendering fixtures. Actual API authorization is verified separately. The genuine operational safe-failure/Retry pair is complete.
 
 ## Answer Part 6: Working Actions Taken UI
 
-Reuse create/edit/complete/cancel, distinct Action statuses, safe-failure/recovery, responsive and real two-tab conflict evidence. Add the unsaved keyboard Description/Follow-up/Result validation images and verified field-to-error relationships. Link the complete rendered [api-spec.md](api-spec.md) here; it must not be merely referenced. Inactive-assignee rejection, remaining distinct-performer/assignee restriction evidence and submitting screenshots are still pending. API tests are supporting coverage, not substitutes for unobserved visual states.
+Reuse create/edit/complete/cancel, distinct Action statuses, safe-failure/recovery, responsive and real two-tab conflict evidence. The unsaved keyboard Description/Follow-up/Result validation, edit-submitting and preserved-draft conflict images are now included, with regression verification (client 41/41 and build passed on the submission working tree). Focused evidence also records a real inactive-assignee 422 and a non-performer/non-assignee read-only screen. The latter demonstrates the observed completed-Action state; it does not establish every possible status combination. Link the complete rendered [api-spec.md](api-spec.md) here; it must not be merely referenced. These branch results are not a new main verification run.
 
 ## Answer Part 7: Working Ticket Workflow
 
-Reuse missing-summary and open-Action resolution rejection. Automated E2E covers resolve/close, but successful transition/history visual evidence, stable ordering/append-only demonstration and remaining post-reopen/follow-up safeguards are not yet fully captured. Persisted mutation demonstrations must remain confined to the specifically approved local fixture, with every actual change recorded.
+The [authorized live lifecycle increment](live-workflow-verification-20261004.md) supplies six full original images for completion, RESOLVED, CLOSED, missing-reason rejection, REOPENED and post-reopen resolution rejection. The subsequent genuine database snapshot confirms event IDs 9–12, actor 36, version chain 1→5, unchanged owner/priority and final OPEN state, with two completed and one cancelled Actions. Include its readable event table and link to full JSON. The single after-snapshot does not independently prove byte-for-byte pre/post immutability or database-wide append-only enforcement.
+
+Reuse missing-summary and open-Action resolution rejection together with the successful transitions and post-reopen rejection above. A focused real-database test now supplements the single live after-snapshot: `npm --prefix server run test:lab4-history` creates a fresh local schema, applies two real workflow API transitions and compares all prior event fields before/after, repeated ordered reads and rejected stale/Requester writes. Execution remains pending because the sandbox stopped before Vitest collection. Do not claim it passed until the actual result is recorded. Existing resolution API/unit cases cover follow-up guards; neither controlled screenshots nor this history test are a new screenshot of every guard.
 
 ## Answer Part 8: Working Requester Dashboard and Final Regression UI
 
-Reuse existing three-viewport Requester Dashboard/read-only Action images with their original run provenance. Live Requester keyboard inspection and remaining ownership/regression UI evidence require the user's authenticated role sessions. Administrator live inspection likewise requires an authorized account. Do not reset credentials or mark uninspected role screens complete to bypass this dependency.
+The [populated Anan increment](live-requester-populated-verification-20261004.md) adds full genuine Dashboard, two-result Recently Updated drill-down and owned Ticket Detail/read-only Actions evidence. The developer's independent database query confirms cards 13/0/2/0 and the same five recent rows in order. Include its comparison tables and attributed JSON transcription. Do not label the account as having a populated waiting state.
+
+The [4 October independent Requester metric comparison](live-requester-metric-verification-20261004.md) now confirms that active Aree user 27 owns zero Tickets: all four Dashboard metrics are zero and recent rows are empty. Include the comparison table and link to the preserved real JSON. This closes the empty-account metric comparison, not the populated-account or cross-requester authorization cases.
+
+Reuse existing three-viewport Requester Dashboard/read-only Action images with their original run provenance. Recorded live Requester and Administrator keyboard inspections, plus supplementary seeded ownership and private-note checks, now provide representative role/regression evidence. Do not reset credentials or infer uninspected role/status combinations from these scoped observations.
 
 The 4 October authenticated sessions now add the following genuine full-page originals. They close selected empty/validation/regression gaps, not every role requirement:
 
@@ -47,11 +57,11 @@ The 4 October authenticated sessions now add the following genuine full-page ori
 - [Administrator role-filtered Users](evidence/main/admin-users-role-filter-live.jpg), [self-deactivation disabled with explanation](evidence/main/admin-self-deactivation-disabled-live.jpg), and [no-results search](evidence/main/admin-users-search-no-results-live.jpg).
 - [Create User initial form](evidence/main/admin-create-user-initial-live.jpg) and [empty-field validation](evidence/main/admin-create-user-empty-validation-live.jpg). No account or credential was changed.
 
-Read the corresponding dated sections of [evidence provenance](evidence/main/README.md) and [manual checks](manual-accessibility-verification.md) before assigning captions or checklist results. Requester populated ownership/Detail, remaining role/error paths and successful Administrator mutations are not newly verified by these sessions.
+Read the corresponding dated sections of [evidence provenance](evidence/main/README.md) and [manual checks](manual-accessibility-verification.md) before assigning captions or checklist results. Requester populated ownership/Detail is verified by the separate Anan increment. These read-only Administrator sessions do not claim new successful account mutations; preserved main regression cases cover those operations.
 
 ## Answer Part 9: Zen Green UI, Responsive, Accessibility and Final Polish
 
-Include full rendered [ui-spec.md](ui-spec.md), desktop/tablet/mobile major-screen evidence and the completed checklist only after remaining checks are observed. Add [manual-accessibility-verification.md](manual-accessibility-verification.md) for actual Staff navigation, fields and validation checks. Keep focus-management limitations and all-role checks explicit; computed outline presence is not a contrast or WCAG certification.
+Include full rendered [ui-spec.md](ui-spec.md), desktop/tablet/mobile major-screen evidence and the completed representative checklist. Add [manual-accessibility-verification.md](manual-accessibility-verification.md) for actual role navigation, fields and validation checks and [final-checklist-verification.md](final-checklist-verification.md) for the subsequent focus correction. Historical focus limitations are retained alongside later correction/results, not represented as current failures. Computed outline presence is not a contrast or WCAG certification.
 
 Preserve full images without cropping/stretching. Full-width tall-image pages should have height proportional to the original, rather than shrinking a 5000px form to a narrow thumbnail on A4. Use dark table-header text on a light background, repeat headers across pages, number figures in reading order, remove genuinely blank pages, and verify working source links after export. Do not add a submission date or invented student details.
 
@@ -62,7 +72,7 @@ Preserve full images without cropping/stretching. Full-width tall-image pages sh
 1. Reflection adoption is complete as of 4 October; retain the student's confirmed text and AI-assistance disclosure in the rendered document.
 2. Reuse existing automated evidence where it proves the requested behavior. Collect missing loading/failure/submitting and populated-role states with recorded provenance; do not duplicate the new empty/validation images.
 3. Verify successful workflow/history and remaining safeguards only in the approved isolated Ticket fixture, recording any persisted changes. Do not change unrelated Tickets or user accounts for evidence.
-4. Obtain complete test-run output associated with main, then complete the scoped manual checklist honestly. Existing summary totals alone are not complete logs.
+4. Complete main output collection is finished. Include those full logs and complete the scoped manual checklist honestly, retaining observed limitations.
 5. Assemble and visually verify the PDF; only after all required work is complete move Issue #60 to Done and obtain the final board evidence.
 
-Final PDF export/sign-off is blocked on the missing required evidence and verification above, not Reflection adoption. An incomplete draft may be prepared if clearly labelled, but must not be named or presented as ready to submit. No final PDF has been generated by this assembly plan. Issue #60 remains open.
+The 5 October rendered review copy at `output/pdf/TokTickIT_Lab4_Review_Draft.pdf` currently contains 142 pages and 70 sequential figures, full rendered copies of all six engineering documents, complete attributed main test output and full proportional screenshot pages. Automated checks found no blank pages, nine ordered Parts and 106 link annotations; contact sheets and representative table/image pages were visually inspected. It is not a final submission. The added pre/post history test still needs a passing run, then peer-reviewed publication, final main/source-link verification and the all-Done Project board. Remote main was read-verified as `55f8200` on 5 October; it does not yet contain this local increment. Issue #60 remains open.
