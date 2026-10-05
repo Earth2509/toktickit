@@ -4,6 +4,12 @@ Status: Initial plan created before implementation; Final columns updated from c
 
 ## Submission-completion attempts, 4 October 2026
 
+### PR #71 approval and release preparation - 5 October 2026
+
+[Round-two approval](https://github.com/Earth2509/toktickit/pull/71#pullrequestreview-5415787303) independently reports default server 134 passed / 9 skipped (25 files / 6 skipped), client 45 passed (13 files), both builds, dedicated history 1/1 and unfiltered browser 29/29 on a fresh clone of `56a95c1` with a separate local database. The reviewer reproduced both negative controls by reverting only the parent: component 4/4 and focused browser 3/3 failed with the old parent and passed with the corrected parent. These reviewer-run checks supplement the separately attributed assistant/developer results below. Staging merge `381e123` is complete; [release verification](submission-release-verification.md) records new preparation runs without reusing these as fresh main results. Main remains `55f8200` until the reviewed release is merged.
+
+New release-preparation checks on `feature/lab4-submission-release` retain the identical staging runtime/tests: assistant client 13 files / 45 tests passed (21:47:59, 92.92s), server TypeScript build exited 0, and client TypeScript/Vite build passed (37 modules, 4.99s). The attempted server Vitest run collected no tests and exited 1 with 31 sandbox `realpath` EPERM errors; a developer rerun is pending. These are not new main results or new browser/database checks. Commands and process-only workaround are recorded in the linked release verification.
+
 ### PR #71 parent-screen focus regression - 5 October 2026
 
 The review of `e6037e6` found lost focus after successful Action writes because the parent's reload unmounted the Action section. Four new `client/tests/lab-04/StaffActionFocus.test.tsx` cases render the real parent and child, hold the post-save Ticket GET, and check mounted section identity and invoking/fallback focus before and after the refreshed summary is applied. Create, Edit, Complete and Cancel all failed on the pre-fix application source and passed after same-Ticket reloads were made in-place. Mocked HTTP responses are used; this is component integration, not database/browser evidence.

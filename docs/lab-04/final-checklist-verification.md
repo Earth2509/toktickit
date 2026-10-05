@@ -1,5 +1,9 @@
 # Final visual and accessibility checklist verification
 
+## Peer approval and staging publication - 5 October 2026
+
+[PR #71 round two](https://github.com/Earth2509/toktickit/pull/71#pullrequestreview-5415787303) approves `56a95c1`. The reviewer independently passed all 29 browser cases and reproduced the three-viewport focus negative control: replacing only the parent with its old `e6037e6` version failed all three post-create focus assertions, while the corrected parent passed all three. The four parent-component controls similarly failed/passed 4/4. This resolves the browser-negative-control gap at reviewer attribution; it does not retroactively turn the developer summary below into assistant-run evidence. The approved change merged into staging as `381e123`. Publication and peer re-review are complete for staging; promotion, new final-main checks and final board/PDF gates remain open in [release verification](submission-release-verification.md). Historical pending statements below describe their original review stage.
+
 ## PR #71 review correction - 5 October 2026
 
 The [review of `e6037e6`](https://github.com/Earth2509/toktickit/pull/71#pullrequestreview-5410695311) identified a gap in the earlier sign-off: the successful-save callback reloaded the parent Staff Detail with a full-screen loading state. This unmounted Actions Taken and lost keyboard focus. The historical run below verified Cancel dismissal, not focus after successful Create/Complete. Its passing result and original images remain valid only within that narrower scope.
