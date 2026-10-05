@@ -28,7 +28,7 @@ The browser control was run by the reviewer, not the assistant. It closes the in
 
 ## New release-preparation checks
 
-The assistant reran the checks below on the release working tree, whose runtime/test source is exactly staging merge `381e123`. `git diff --quiet origin/lab4-staging -- client server e2e playwright.config.ts package.json package-lock.json` exited 0. Pending documentation edits mean this is not a clean committed run SHA. Main `55f8200` is an ancestor of this source.
+The checks below were executed on the release checkout, whose runtime/test source is exactly staging merge `381e123`, with attribution retained per row. `git diff --quiet origin/lab4-staging -- client server e2e playwright.config.ts package.json package-lock.json` exited 0. The assistant checks preceded the documentation commit `70da546`; the developer's server excerpt has no embedded command/branch/SHA header. No clean run SHA is invented for either set of results. Main `55f8200` is an ancestor of this source.
 
 | Check | New preparation result | Attribution and scope |
 | --- | --- | --- |
@@ -36,15 +36,16 @@ The assistant reran the checks below on the release working tree, whose runtime/
 | Server production build | TypeScript exited 0 | Assistant-run package-local compiler; no new runtime test result |
 | Client production build | TypeScript and Vite 6.4.3 exited 0; 37 modules, 4.99s | Assistant-run, CSS `index-BxP1s5g_.css`, JS `index-B5PnQ1t8.js` |
 | Default server attempt | No tests collected; 31 unhandled sandbox errors, exit 1 | `EPERM` resolving `server/node_modules/vitest/dist/spy.js`; not test assertion failures or a passing run |
+| Default server rerun | 25 files passed / 6 skipped; 134 tests passed / 9 skipped; start 21:51:40, duration 31.84s | Developer-supplied summary after the requested `npm --prefix server test` on this release checkout |
 
-The process-only `VITE_PRESERVE_SYMLINKS=true` workaround was used for the client run/build and attempted server run; no package, configuration or dependency files were edited. The server's Vite 5 resolver still reported `realpath` EPERM. The developer has been asked to run `npm --prefix server test` from this release checkout. That result remains pending. No fresh release browser/database run or post-merge main run is claimed; the independent reviewer runs above retain their own attribution.
+The process-only `VITE_PRESERVE_SYMLINKS=true` workaround was used for the assistant's client run/build and attempted server run; no package, configuration or dependency files were edited. The server's Vite 5 resolver still reported `realpath` EPERM. The developer subsequently supplied a passing server summary, closing the default-server verification gap. The [supplied excerpt](evidence/build-output/submission-release-server-test-excerpt.txt) retains the reported timing and totals, not a fabricated complete log or terminal screenshot. The developer workaround/environment is not inferred. No fresh release browser/database run or post-merge main run is claimed; the independent reviewer runs above retain their own attribution.
 
 ## Release and final-submission gates
 
 - [x] PR #71 approved on the corrected head and merged into staging.
 - [x] Preparation branch starts from the confirmed staging merge.
 - [x] Record new default client and both successful build outcomes on this preparation source.
-- [ ] Obtain the developer's default server result after the sandbox stopped before collection.
+- [x] Obtain the developer's passing default server result after the sandbox stopped before collection.
 - [ ] Push this branch and open the release PR into `main` for peer review.
 - [ ] Obtain approval and merge the release; record its actual main merge SHA.
 - [ ] Run and preserve the final main default suites, both builds, unfiltered browser suite and separately enabled database checks, including the new workflow-history case.
