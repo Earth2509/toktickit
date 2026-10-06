@@ -1,0 +1,432 @@
+Reviewed runtime/test source: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Checkout HEAD: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Branch: feature/lab4-final-publication
+Working directory: server
+Command: node node_modules/vitest/vitest.mjs run
+Started UTC: 2026-10-06T09:08:56.850Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 31 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+ Test Files  no tests
+      Tests  no tests
+     Errors  31 errors
+   Start at  16:08:58
+   Duration  2.27s (transform 18ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 0ms)
+
+
+STDERR
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+
+Completed UTC: 2026-10-06T09:09:01.665Z
+Exit code: 1

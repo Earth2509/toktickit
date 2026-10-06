@@ -46,11 +46,15 @@ The process-only `VITE_PRESERVE_SYMLINKS=true` workaround was used for the assis
 - [x] Preparation branch starts from the confirmed staging merge.
 - [x] Record new default client and both successful build outcomes on this preparation source.
 - [x] Obtain the developer's passing default server result after the sandbox stopped before collection.
-- [ ] Push this branch and open the release PR into `main` for peer review.
-- [ ] Obtain approval and merge the release; record its actual main merge SHA.
+- [x] Push this branch and open [release PR #72](https://github.com/Earth2509/toktickit/pull/72) into `main` for peer review.
+- [x] Obtain approval and merge the release; actual main merge SHA is `73faa8b0cee5adce1718cd97c5e32fc4bba9ec84`.
 - [ ] Run and preserve the final main default suites, both builds, unfiltered browser suite and separately enabled database checks, including the new workflow-history case.
-- [ ] Verify working public main links to all required source documents and evidence.
+- [x] Verify working public main links to all six engineering documents: each returned HTTP 200 on 6 October. Later local status updates and new logs still need reviewed publication.
 - [ ] Finish Issue #60 and its Project Done status only after its remaining deliverables are verified; preserve the actual all-Done board.
 - [ ] Regenerate and visually inspect the final PDF before removing active draft notices.
 
 The default server command intentionally skips nine cases; it is not a single 143-passed run. The prior eight opt-in cases and the new history case require separately attributed executions. The history test uses `prisma db push` for the current model; migration preservation remains a separate check. The legacy browser output path `artifacts/lab-03/playwright-report` also contains Lab 4 scenarios. Do not include `.env`, credentials, cookies, traces or uncurated artifacts in the release commit.
+
+### Post-merge update — 6 October 2026
+
+The developer has supplied passing summaries for every requested main suite and both build outputs after confirming checkout `73faa8b`: server 134 / 9 skipped, client 45, E2E 29 and nine opt-in cases passed separately. [Post-merge verification](submission-post-merge-verification.md) records this new evidence and its limits. Complete fresh raw logs were not supplied, so the full-output preservation gate above remains unchecked; the supplied summaries must not be described as complete terminal logs or screenshots. The older no-main-run statements describe release preparation, not the later verification.

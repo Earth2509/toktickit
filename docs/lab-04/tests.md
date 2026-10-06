@@ -1,5 +1,9 @@
 # Lab 4 Test Plan and Traceability
 
+## Latest main verification - 6 October 2026
+
+Release PR #72 is merged into main at `73faa8b0cee5adce1718cd97c5e32fc4bba9ec84`. After confirming that checkout, the developer supplied default server **134 passed / 9 skipped**, client **45 passed**, E2E **29 passed**, both successful build outputs and **all nine opt-in cases passed separately**. This includes the successful-save focus regressions and history case introduced by PR #71. See [post-merge verification](submission-post-merge-verification.md) for commands, timing, attribution and supplied-excerpt limitations. The nine separate passes are not a single 143-passed invocation. Final cells and complete logs below retain their historical main `55f8200` provenance; this dated section is the latest outcome, not a rewrite of those logs. Online link/board verification, publication of this local update and final PDF sign-off remain outstanding.
+
 Status: Initial plan created before implementation; Final columns updated from complete developer-run main output at `55f8200` on 4 October 2026, with separately attributed submission-branch corrections below. The application release is PR #69 / `7329652`, with documentation merged through PR #70 / `55f8200`. Historical main results: server 134 passed / 8 intentional skips, client 41 passed, browser 19 passed, with all eight opt-in cases passing separately. Subsequent submission-branch build logs retain their own provenance in [full output verification](main-full-output-verification.md). The student adopted My Reflection on 4 October. Representative visual checks and the supplemental history check are now verified; publication, final main verification, final board and PDF sign-off remain separate gates.
 
 ## Submission-completion attempts, 4 October 2026

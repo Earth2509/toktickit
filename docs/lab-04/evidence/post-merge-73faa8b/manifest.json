@@ -1,0 +1,48 @@
+{
+  "source": "73faa8b0cee5adce1718cd97c5e32fc4bba9ec84",
+  "attribution": "Executed by this collector; local documentation may differ, runtime/test tracked files match source.",
+  "checks": {
+    "server": {
+      "startedAt": "2026-10-06T09:08:56.850Z",
+      "completedAt": "2026-10-06T09:09:01.665Z",
+      "exitCode": 1,
+      "file": "server-full.txt",
+      "passed": false
+    },
+    "client": {
+      "startedAt": "2026-10-06T09:09:31.294Z",
+      "completedAt": "2026-10-06T09:09:52.678Z",
+      "exitCode": 0,
+      "file": "client-full.txt",
+      "passed": true
+    },
+    "server-build": {
+      "startedAt": "2026-10-06T09:09:52.997Z",
+      "completedAt": "2026-10-06T09:09:55.823Z",
+      "exitCode": 0,
+      "file": "server-build-full.txt",
+      "passed": true
+    },
+    "client-types": {
+      "startedAt": "2026-10-06T09:09:56.152Z",
+      "completedAt": "2026-10-06T09:09:58.536Z",
+      "exitCode": 0,
+      "file": "client-types-full.txt",
+      "passed": true
+    },
+    "client-build": {
+      "startedAt": "2026-10-06T09:09:58.859Z",
+      "completedAt": "2026-10-06T09:10:00.265Z",
+      "exitCode": 0,
+      "file": "client-build-full.txt",
+      "passed": true
+    },
+    "history": {
+      "startedAt": "2026-10-06T09:10:26.509Z",
+      "completedAt": "2026-10-06T09:10:28.076Z",
+      "exitCode": 1,
+      "file": "history-full.txt",
+      "passed": false
+    }
+  }
+}

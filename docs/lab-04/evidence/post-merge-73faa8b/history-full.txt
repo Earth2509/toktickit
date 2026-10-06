@@ -1,0 +1,65 @@
+Reviewed runtime/test source: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Checkout HEAD: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Branch: feature/lab4-final-publication
+Working directory: server
+Command: node scripts/run-lab4-history-test.mjs
+Started UTC: 2026-10-06T09:10:26.509Z
+
+STDOUT
+History verification uses a new disposable local schema: lab4_history_test_f53c125cc979. Public data is not modified.
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+ Test Files  no tests
+      Tests  no tests
+     Errors  1 error
+   Start at  16:10:27
+   Duration  416ms (transform 11ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 0ms)
+
+
+STDERR
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: EPERM: operation not permitted, realpath 'C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\dist\spy.js'
+ ❯ node:fs:2837:18
+ ❯ getRealPath node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45901:16
+ ❯ Object.tryResolveRealFileOrType node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:45892:20
+ ❯ tryCleanFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46337:30
+ ❯ tryFsResolve node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46323:15
+ ❯ ResolveIdContext.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:46145:19
+ ❯ PluginContainer.resolveId node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49018:17
+ ❯ process.processTicksAndRejections node:internal/process/task_queues:104:5
+ ❯ EventEmitter.onMessage node_modules/vitest/dist/chunks/index.68735LiX.js:91:20
+
+
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: C:\Program Files\nodejs\node.exe C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\vitest\vitest.mjs run tests/lab-04/workflow-history.integration.test.ts
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at file:///C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server/scripts/run-lab4-history-test.mjs:15:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 43156,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v24.14.0
+
+Completed UTC: 2026-10-06T09:10:28.076Z
+Exit code: 1

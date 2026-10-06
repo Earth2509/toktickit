@@ -1,6 +1,6 @@
 # Lab 4 Zen Green UI Specification
 
-Status: Reviewed Lab 4 contract with representative visual/accessibility observations recorded on 5 October. PR #71 review found that the earlier keyboard sign-off did not cover focus after successful Action saves on the parent Staff Detail. The in-place refresh correction passes four real-parent component regressions and the developer's updated three-viewport browser run (3 passed, 24.0 seconds). Publication and final main verification remain separate release gates. Post-merge baseline results are recorded in [final-main-verification.md](final-main-verification.md), and supplementary checks are attributed below.
+Status: Reviewed Lab 4 contract with representative visual/accessibility observations recorded on 5 October. PR #71 corrected successful-save focus on the parent Staff Detail; PR #72 published that reviewed correction into main at `73faa8b`. The developer's post-merge full client suite (45 tests), unfiltered browser suite (29 tests), both builds and all server/opt-in cases passed on the confirmed main checkout; see [post-merge verification](submission-post-merge-verification.md). The historical observations and controlled/live evidence below retain their original scope and attribution. Final online link/Project Board verification, publication of this local status update and report sign-off remain separate gates.
 
 ## Application shell and navigation
 

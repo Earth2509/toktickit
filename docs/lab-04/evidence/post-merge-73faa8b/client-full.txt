@@ -1,0 +1,44 @@
+Reviewed runtime/test source: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Checkout HEAD: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Branch: feature/lab4-final-publication
+Working directory: client
+Command: node node_modules/vitest/vitest.mjs run
+Started UTC: 2026-10-06T09:09:31.294Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/client
+
+ ✓ tests/lab-04/RequesterDashboard.test.tsx (2 tests) 185ms
+ ✓ tests/lab-04/StaffDashboard.test.tsx (4 tests) 297ms
+ ✓ tests/lab-04/TicketWorkflow.test.tsx (2 tests) 300ms
+ ✓ tests/lab-04/ZenGreenLab4.styles.test.tsx (3 tests) 408ms
+ ✓ tests/lab-04/ActionsTaken.test.tsx (6 tests) 776ms
+   ✓ Lab 4 Actions Taken > reloads page one after creating an Action so totals and later pages stay accurate 360ms
+ ✓ tests/lab-03/AuthenticatedShell.test.tsx (6 tests) 707ms
+ ✓ tests/lab-02/ZenGreen.styles.test.tsx (1 test) 921ms
+   ✓ Zen Green UI style > keeps the labelled, busy and focusable Ticket controls aligned with the Zen Green tokens 919ms
+ ✓ tests/lab-04/StaffActionFocus.test.tsx (4 tests) 1107ms
+   ✓ Staff Ticket Detail Action focus integration > keeps the real section mounted and restores focus after successful create 371ms
+ ✓ tests/lab-02/RequesterTicketDetail.test.tsx (2 tests) 966ms
+   ✓ Requester Ticket Detail > shows only owned detail data, active and removed metadata, and no removed download action 543ms
+   ✓ Requester Ticket Detail > uploads a permitted file and soft-removes an active attachment with a required reason 421ms
+ ✓ tests/lab-02/CreateTicketForm.test.tsx (5 tests) 1124ms
+   ✓ Create Ticket > shows inline validation and does not call the create API for an incomplete form 351ms
+ ✓ tests/lab-02/MyTickets.test.tsx (8 tests) 1778ms
+   ✓ My Tickets > sends resettable search and filter controls to the Ticket API 540ms
+   ✓ My Tickets > debounces search input so one completed term produces one Ticket request 449ms
+   ✓ My Tickets > shows a no-results state separately from an empty requester and returns to page one when filters change 393ms
+ ✓ tests/lab-03/UserManagement.test.tsx (1 test) 114ms
+ ✓ tests/App.test.tsx (1 test) 75ms
+
+ Test Files  13 passed (13)
+      Tests  45 passed (45)
+   Start at  16:09:33
+   Duration  19.25s (transform 1.53s, setup 26.67s, collect 21.75s, tests 8.76s, environment 126.92s, prepare 6.54s)
+
+
+STDERR
+
+Completed UTC: 2026-10-06T09:09:52.678Z
+Exit code: 0

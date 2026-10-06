@@ -1,6 +1,6 @@
 # Lab 4 Engineering Contract
 
-Status: Contract reviewed before implementation. The latest application release was merged into `main` by PR #69 at `7329652`; PR #70 subsequently merged its documentation record at `55f8200`. The earlier `ffe6e0e` release remains historical evidence. Automated main verification is recorded in [final-main-verification.md](final-main-verification.md). Product Definition of Done sign-off remains pending; [submission-completion-audit.md](submission-completion-audit.md) identifies unresolved submission evidence requirements.
+Status: Contract reviewed before implementation. The latest submission/application correction is peer-approved and merged into `main` through PR #72 at `73faa8b0cee5adce1718cd97c5e32fc4bba9ec84`. The developer's post-merge default suites, both builds, browser suite and all nine opt-in database cases passed as recorded in [post-merge verification](submission-post-merge-verification.md). Earlier PR #69/#70 and `ffe6e0e` records remain historical evidence. Product Definition of Done final sign-off remains pending only for the unverified publication/Project Board/report gates; see [submission-completion-audit.md](submission-completion-audit.md).
 
 ## 1. Sprint Goal
 
@@ -106,7 +106,7 @@ See [api-spec.md](api-spec.md). All protected endpoints use the existing session
 - [x] API authorization, validation, stale-write and safe failure checks pass in the preserved main suite; see [main output verification](main-full-output-verification.md).
 - [x] Desktop, tablet and mobile representative screens have no observed clipping, overlap or page-level horizontal overflow. Refreshed main images and the supplementary long-content and final form-state browser assertions/images are recorded in [ui-spec.md](ui-spec.md) and [final checklist evidence](final-checklist-verification.md); this is scoped to documented screens and fixtures, not every possible content permutation.
 - [x] Existing Labs 1-3 flows pass regression verification in the preserved main suites and separately passing opt-in database cases. See [main output verification](main-full-output-verification.md).
-- [x] README/setup/test instructions and all six local Lab 4 documents are current, including supplementary verification commands, the adopted reflection and scoped visual checklist. The submission correction and evidence still require peer-reviewed publication before the final main URLs can be treated as matching these rendered local copies.
+- [x] README/setup/test instructions and all six local Lab 4 documents include supplementary verification commands, the adopted reflection and scoped visual checklist. PR #72 published the reviewed submission correction and evidence into main. This later local post-merge verification update still requires publication; live URL accessibility could not be reverified because GitHub DNS failed on 6 October.
 - [ ] Feature PRs are peer-reviewed into `lab4-staging`, then release-reviewed into `main`; completed Issues are in Done.
 
 ## 11. Assumptions and Decisions
