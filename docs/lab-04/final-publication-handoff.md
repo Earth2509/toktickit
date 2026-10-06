@@ -4,6 +4,8 @@
 
 Runtime/test source: reviewed main `73faa8b0cee5adce1718cd97c5e32fc4bba9ec84`, release PR #72. Developer-supplied summaries confirm server 134 passed / 9 intentional skips, client 45, E2E 29, both builds and all nine optional cases passed separately. Client and both builds additionally have new complete assistant-run logs. Six required document links returned HTTP 200.
 
+Update, 6 October: complete collection is finished for every required invocation. Server/browser/history/migration/recovery/performance/Lab 3 migration were collected by the developer; client/builds and the final Administrator integration by the assistant. All twelve manifest entries have exit 0. The Administrator invocation used a disclosed temporary path-resolution config plus network permission; runtime/assertions and reviewed server config remain unchanged. Collection HEAD `488e760` is a documentation-only branch with tracked runtime/tests identical to main `73faa8b`. The collection commands below are historical/reproduction instructions, not a request to rerun passing checks. Proceed to publication and final acceptance.
+
 The handout's Part 3 requires **complete passing output from main**, not only totals. Historical complete logs at `55f8200` remain intact; they are not relabelled with the newer source. Obtain the current-source complete server, browser and optional logs using the collector. It compares application/tests with reviewed main even when invoked from this documentation-only branch.
 
 Run from Command Prompt, one command at a time:

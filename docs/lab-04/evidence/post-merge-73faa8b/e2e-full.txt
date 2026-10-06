@@ -1,0 +1,53 @@
+Reviewed runtime/test source: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Checkout HEAD: 488e760a01a07d9b8bca5f06a80bd9b01ed7b77f
+Branch: feature/lab4-final-publication
+Working directory: .
+Command: node node_modules/@playwright/test/cli.js test
+Node: v24.14.0
+VITE_PRESERVE_SYMLINKS: (unset)
+Attribution: collector invocation; not a fabricated terminal screenshot. Credentials, if present, are redacted.
+Started UTC: 2026-10-06T09:29:20.336Z
+
+STDOUT
+
+Running 29 tests using 1 worker
+
+
+
+[1/29] e2e\lab-02\requester-flow.spec.ts:12:5 › Requester can create, find, inspect, and soft-remove a real attachment
+[2/29] e2e\lab-02\requester-flow.spec.ts:38:5 › Authenticated Requester sessions keep the integrated ticket list owner-scoped
+[3/29] e2e\lab-02\requester-flow.spec.ts:58:7 › Requester screens remain usable at desktop width
+[4/29] e2e\lab-02\requester-flow.spec.ts:58:7 › Requester screens remain usable at tablet width
+[5/29] e2e\lab-02\requester-flow.spec.ts:58:7 › Requester screens remain usable at mobile width
+[6/29] e2e\lab-03\authentication-foundation.spec.ts:3:5 › same-origin proxy preserves the authentication cookie, Origin, CSRF, and logout revocation
+[7/29] e2e\lab-03\role-workflows.spec.ts:16:5 › Requester indication, Staff discussion, and note privacy work through the browser
+[8/29] e2e\lab-03\role-workflows.spec.ts:87:5 › Administrator creates and resets a user while IT Staff is denied the Users API and screen
+[9/29] e2e\lab-03\role-workflows.spec.ts:131:7 › major authenticated screens have no horizontal overflow at desktop
+[10/29] e2e\lab-03\role-workflows.spec.ts:131:7 › major authenticated screens have no horizontal overflow at tablet
+[11/29] e2e\lab-03\role-workflows.spec.ts:131:7 › major authenticated screens have no horizontal overflow at mobile
+[12/29] e2e\lab-04\actions-taken-flow.spec.ts:31:5 › an open Action blocks resolution until Staff completes it; Requesters can only read it
+[13/29] e2e\lab-04\actions-taken-flow.spec.ts:111:5 › another Staff member can record and edit work without becoming the Ticket owner
+[14/29] e2e\lab-04\dashboards.spec.ts:35:7 › Requester and Staff dashboards drill down at desktop size
+[15/29] e2e\lab-04\dashboards.spec.ts:35:7 › Requester and Staff dashboards drill down at tablet size
+[16/29] e2e\lab-04\dashboards.spec.ts:35:7 › Requester and Staff dashboards drill down at mobile size
+[17/29] e2e\lab-04\evidence-completion.spec.ts:44:7 › Evidence completion: final Action keyboard and edit-submitting checklist at desktop
+[18/29] e2e\lab-04\evidence-completion.spec.ts:144:7 › Evidence completion: keyboard drill-down and long Action rendering at desktop
+[19/29] e2e\lab-04\evidence-completion.spec.ts:44:7 › Evidence completion: final Action keyboard and edit-submitting checklist at tablet
+[20/29] e2e\lab-04\evidence-completion.spec.ts:144:7 › Evidence completion: keyboard drill-down and long Action rendering at tablet
+[21/29] e2e\lab-04\evidence-completion.spec.ts:44:7 › Evidence completion: final Action keyboard and edit-submitting checklist at mobile
+[22/29] e2e\lab-04\evidence-completion.spec.ts:144:7 › Evidence completion: keyboard drill-down and long Action rendering at mobile
+[23/29] e2e\lab-04\evidence-completion.spec.ts:184:5 › Evidence completion: Staff loading, controlled empty and controlled forbidden render safely
+[24/29] e2e\lab-04\evidence-completion.spec.ts:220:5 › Evidence completion: pending Action save disables controls and preserves draft after controlled failure
+[25/29] e2e\lab-04\evidence-completion.spec.ts:246:5 › Evidence completion: seeded Requester attention drill-down and real API ownership denial
+[26/29] e2e\lab-04\evidence-completion.spec.ts:271:5 › Evidence completion: real inactive-assignee rejection and non-performer controls
+[27/29] e2e\lab-04\responsive.spec.ts:59:7 › Lab 4 dashboards and Action details fit desktop
+[28/29] e2e\lab-04\responsive.spec.ts:59:7 › Lab 4 dashboards and Action details fit tablet
+[29/29] e2e\lab-04\responsive.spec.ts:59:7 › Lab 4 dashboards and Action details fit mobile
+  29 passed (1.4m)
+
+STDERR
+(node:17956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Completed UTC: 2026-10-06T09:30:44.245Z
+Exit code: 0

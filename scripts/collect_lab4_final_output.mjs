@@ -37,6 +37,21 @@ const jobs = [
   ['admin-integration', 'server', ['node_modules/vitest/vitest.mjs', 'run', 'tests/lab-03/users-admin.integration.test.ts'], { ADMIN_USERS_TEST_DATABASE_URL: schemaUrl('lab3_admin_users_test') }],
 ];
 const selected = process.argv[2] || 'plan';
+const sandboxResolver = process.argv[3] === '--sandbox-resolver';
+if (process.argv.length > 4 || (process.argv[3] && !sandboxResolver) || (sandboxResolver && selected !== 'admin-integration')) {
+  throw new Error('The optional --sandbox-resolver is allowed only for admin-integration.');
+}
+if (sandboxResolver) {
+  // Preserve the reviewed config file and all assertions. Override only Vite's
+  // path-resolution strategy for this explicitly labelled sandbox invocation.
+  const temporary = path.join(root, 'tmp/lab4-admin-sandbox-vitest.config.mjs');
+  mkdirSync(path.dirname(temporary), { recursive: true });
+  writeFileSync(temporary, 'export default ' + JSON.stringify({
+    root: path.join(root, 'server'), resolve: { preserveSymlinks: true },
+    test: { environment: 'node', include: ['tests/**/*.test.ts'] },
+  }, null, 2) + ';\n', 'utf8');
+  jobs.find(j => j[0] === selected)[2].push('--config', temporary);
+}
 if (selected === 'plan') {
   console.log(`Runtime/tests match reviewed main ${source}.`);
   console.log('Checks: ' + jobs.map(j => j[0]).join(', ') + ', all');
@@ -52,12 +67,23 @@ try { manifest = JSON.parse(readFileSync(manifestPath, 'utf8')); } catch { manif
 if (manifest.source !== source) throw new Error('Refusing to mix source versions.');
 const redact = (text) => String(text).replace(/(postgres(?:ql)?:\/\/)[^\s/]+@/gi, '$1[credentials-redacted]@').replaceAll(database.password, database.password ? '[password-redacted]' : '');
 for (const [name, dir, args, extra] of jobs.filter(j => selected === 'all' || j[0] === selected)) {
+  const previous = manifest.checks[name];
+  if (previous) {
+    const archived = path.join(out, 'attempts');
+    mkdirSync(archived, { recursive: true });
+    const stem = `${name}-${previous.startedAt.replaceAll(':', '-')}`;
+    try {
+      const prior = readFileSync(path.join(out, `${name}-full.txt`), 'utf8');
+      writeFileSync(path.join(archived, `${stem}.txt`), prior, 'utf8');
+      writeFileSync(path.join(archived, `${stem}.json`), JSON.stringify(previous, null, 2) + '\n', 'utf8');
+    } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
   const startedAt = new Date().toISOString();
   console.log(`Starting ${name}; reviewed main ${source.slice(0, 7)}.`);
   const cwd = path.resolve(root, dir);
   const r = spawnSync(process.execPath, args, { cwd, env: { ...environment, ...extra }, encoding: 'utf8', timeout: 600000, maxBuffer: 32 * 1024 * 1024 });
   const completedAt = new Date().toISOString();
-  const header = `Reviewed runtime/test source: ${source}\nCheckout HEAD: ${git('rev-parse', 'HEAD')}\nBranch: ${git('branch', '--show-current')}\nWorking directory: ${dir}\nCommand: node ${args.join(' ')}\nNode: ${process.version}\nVITE_PRESERVE_SYMLINKS: ${environment.VITE_PRESERVE_SYMLINKS || '(unset)'}\nAttribution: collector invocation; not a fabricated terminal screenshot. Credentials, if present, are redacted.\nStarted UTC: ${startedAt}\n`;
+  const header = `Reviewed runtime/test source: ${source}\nCheckout HEAD: ${git('rev-parse', 'HEAD')}\nBranch: ${git('branch', '--show-current')}\nWorking directory: ${dir}\nCommand: node ${args.join(' ')}\nNode: ${process.version}\nVITE_PRESERVE_SYMLINKS: ${environment.VITE_PRESERVE_SYMLINKS || '(unset)'}\nInvocation workaround: ${sandboxResolver ? 'Temporary equivalent Node test config with resolve.preserveSymlinks=true; reviewed server config and assertions unchanged.' : '(none)'}\nAttribution: collector invocation; not a fabricated terminal screenshot. Credentials, if present, are redacted.\nStarted UTC: ${startedAt}\n`;
   const log = header + '\nSTDOUT\n' + redact(r.stdout || '') + '\nSTDERR\n' + redact(r.stderr || '') + `\nCompleted UTC: ${completedAt}\nExit code: ${r.status}\n` + (r.error ? `Process error: ${redact(r.error.message)}\n` : '');
   writeFileSync(path.join(out, `${name}-full.txt`), log, 'utf8');
   manifest.checks[name] = { startedAt, completedAt, exitCode: r.status, file: `${name}-full.txt`, passed: r.status === 0 && !r.error };

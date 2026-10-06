@@ -2,6 +2,8 @@
 
 ## Current post-merge status — 6 October 2026
 
+Later collection update: all twelve complete-output entries now exit 0 for reviewed runtime/test source `73faa8b`: server 134 passed / 9 skipped, client 45, E2E 29, both builds and nine separately enabled cases. Actual headers identify documentation-only checkout `488e760`; Administrator integration was assistant-run with a temporary equivalent Node config that changes only path resolution, after network permission enabled local database setup. Original assertions, application source and reviewed server config are unchanged. Prior failed attempts and collection sequence are disclosed in [post-merge verification](submission-post-merge-verification.md). Current-source complete-output collection is finished, superseding earlier pending wording below. Reviewed publication, actual final all-Done board and final PDF sign-off remain open.
+
 [PR #72](https://github.com/Earth2509/toktickit/pull/72) is approved and merged into main at `73faa8b0cee5adce1718cd97c5e32fc4bba9ec84`. After confirming that checkout, the developer supplied server 134 passed / 9 skipped, client 45 passed, both successful build outputs, E2E 29 passed and all nine opt-in database cases passed separately. See [post-merge verification](submission-post-merge-verification.md) for commands, timings, attribution and excerpt limitations. These new main results supersede earlier statements below that the release/main verification is pending; they do not relabel earlier feature or historical-main runs. Public source-link checks, publication of this local record, final PDF QA and actual all-Done board evidence still remain. Automated tests alone do not close Issue #60.
 
 ## Current release status - 5 October 2026
