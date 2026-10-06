@@ -1,0 +1,35 @@
+Reviewed runtime/test source: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Checkout HEAD: 488e760a01a07d9b8bca5f06a80bd9b01ed7b77f
+Branch: feature/lab4-final-publication
+Working directory: server
+Command: node node_modules/vitest/vitest.mjs run tests/lab-03/users-admin.integration.test.ts --config C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\tmp\lab4-admin-sandbox-vitest.config.mjs
+Node: v24.14.0
+VITE_PRESERVE_SYMLINKS: (unset)
+Invocation workaround: Temporary equivalent Node test config with resolve.preserveSymlinks=true; reviewed server config and assertions unchanged.
+Attribution: collector invocation; not a fabricated terminal screenshot. Credentials, if present, are redacted.
+Started UTC: 2026-10-06T09:51:12.397Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "[password-redacted]", schema "lab3_admin_users_test" at "localhost:5432"
+
+The PostgreSQL database "[password-redacted]" schema "lab3_admin_users_test" at "localhost:5432" was successfully reset.
+
+Your database is now in sync with your Prisma schema. Done in 114ms
+
+ ✓ tests/lab-03/users-admin.integration.test.ts (2 tests) 1402ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  16:51:12
+   Duration  2.05s (transform 137ms, setup 0ms, collect 192ms, tests 1.40s, environment 0ms, prepare 162ms)
+
+
+STDERR
+
+Completed UTC: 2026-10-06T09:51:15.016Z
+Exit code: 0

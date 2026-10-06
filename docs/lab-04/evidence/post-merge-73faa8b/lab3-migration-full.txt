@@ -1,0 +1,46 @@
+Reviewed runtime/test source: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Checkout HEAD: 488e760a01a07d9b8bca5f06a80bd9b01ed7b77f
+Branch: feature/lab4-final-publication
+Working directory: server
+Command: node node_modules/vitest/vitest.mjs run tests/lab-03/migration.test.ts
+Node: v24.14.0
+VITE_PRESERVE_SYMLINKS: (unset)
+Attribution: collector invocation; not a fabricated terminal screenshot. Credentials, if present, are redacted.
+Started UTC: 2026-10-06T09:43:07.764Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server
+
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+ ✓ tests/lab-03/migration.test.ts (2 tests) 9297ms
+   ✓ Lab 3 requester-to-user migration > retains an existing ID, Ticket ownership, and attachment removal attribution 6305ms
+   ✓ Lab 3 requester-to-user migration > stops before renaming tables when normalized requester emails collide 2963ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  16:43:08
+   Duration  10.01s (transform 139ms, setup 0ms, collect 373ms, tests 9.30s, environment 0ms, prepare 103ms)
+
+
+STDERR
+Error: ERROR: Requester emails collide after trim/lower normalization; resolve collisions before the Lab 3 migration.
+
+
+
+Completed UTC: 2026-10-06T09:43:18.201Z
+Exit code: 0

@@ -1,0 +1,48 @@
+Reviewed runtime/test source: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Checkout HEAD: 488e760a01a07d9b8bca5f06a80bd9b01ed7b77f
+Branch: feature/lab4-final-publication
+Working directory: server
+Command: node node_modules/vitest/vitest.mjs run tests/lab-03/users-admin.integration.test.ts --config C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\tmp\lab4-admin-sandbox-vitest.config.mjs
+Node: v24.14.0
+VITE_PRESERVE_SYMLINKS: (unset)
+Invocation workaround: Temporary equivalent Node test config with resolve.preserveSymlinks=true; reviewed server config and assertions unchanged.
+Attribution: collector invocation; not a fabricated terminal screenshot. Credentials, if present, are redacted.
+Started UTC: 2026-10-06T09:49:52.442Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "[password-redacted]", schema "lab3_admin_users_test" at "localhost:5432"
+
+ ❯ tests/lab-03/users-admin.integration.test.ts (2 tests | 2 skipped) 476ms
+
+ Test Files  1 failed (1)
+      Tests  2 skipped (2)
+   Start at  16:49:52
+   Duration  1.10s (transform 36ms, setup 0ms, collect 192ms, tests 476ms, environment 0ms, prepare 154ms)
+
+
+STDERR
+Error: Schema engine error:
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/lab-03/users-admin.integration.test.ts > Lab 3 Administrator user management integration
+Error: Command failed: C:\Program Files\nodejs\node.exe C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract\server\node_modules\prisma\build\index.js db push --schema prisma/schema.prisma --skip-generate --force-reset
+ ❯ resetSchema tests/lab-03/users-admin.integration.test.ts:110:3
+    108| function resetSchema(databaseUrl: string) {
+    109|   const prismaCli = path.join(process.cwd(), "node_modules", "prisma",…
+    110|   execFileSync(process.execPath, [prismaCli, "db", "push", "--schema",…
+       |   ^
+    111|     cwd: process.cwd(),
+    112|     env: { ...process.env, DATABASE_URL: databaseUrl },
+ ❯ tests/lab-03/users-admin.integration.test.ts:23:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+Completed UTC: 2026-10-06T09:49:54.124Z
+Exit code: 1
