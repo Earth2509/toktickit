@@ -30,8 +30,10 @@ if FINAL:
     assert signoff['publishedMain'] == MAIN_SHA
     assert signoff['issue60Closed'] and signoff['allLab4IssuesDone'] and signoff['pdfAcceptancePassed']
     assert signoff['boardSourceUrl'].startswith('https://github.com/users/Earth2509/projects/')
-    assert signoff['verifiedAt'] and signoff['boardImage']
-    assert (EVIDENCE / signoff['boardImage']).is_file(), 'A genuine final Board image is required.'
+    assert signoff['verifiedAt'] and signoff['boardImages']
+    assert signoff['lab4IssueNumbers'] == [55, 56, 57, 58, 59, 60]
+    for board_image in signoff['boardImages']:
+        assert (EVIDENCE / board_image).is_file(), 'Genuine final Board images are required.'
 PUBLISHED_PATHS = set(subprocess.check_output(
     ['git', '-c', f'safe.directory={ROOT.as_posix()}', 'ls-tree', '-r', '--name-only', MAIN_SHA],
     cwd=ROOT, text=True).splitlines())
@@ -179,6 +181,10 @@ for number,(title,files,images) in enumerate(parts,1):
         dirs = [x for x in ['client/src','client/tests','server/src','server/prisma','server/tests','server/scripts','e2e/lab-04','docs/lab-04'] if (ROOT/x).is_dir()]
         story += [p('Directory evidence: actual workspace directory inventory (not an IDE screenshot).','Heading4')]+[p(d) for d in dirs]
         story += markdown(DOCS/'pdf-acceptance-verification.md')
+        if FINAL:
+            story += markdown(DOCS/'final-acceptance-signoff.md')
+            if signoff['boardVisibility'] == 'public':
+                story += [p('Later Board access update: after explicit student permission, this Board was changed to Public and its public visibility indicator was verified. This supersedes the earlier Private access observation in the dated acceptance record.')]
     if number == 2 and FINAL:
         story += [p('Current Product Definition of Done sign-off', 'Heading4'),
                   p('Dated final acceptance at ' + signoff['verifiedAt'] + '. This completed sign-off supersedes the older publication/Board checkbox in the full published specification below; it does not rewrite that historical source.')]
@@ -230,7 +236,8 @@ for number,(title,files,images) in enumerate(parts,1):
                     story.append(p(wrapped))
     text_segment(story)
     if number == 1 and FINAL:
-        image_segment(signoff['boardImage'], 'Genuine final GitHub Project Board. Six Lab 4 Issues (#55-#60) in Done, separate from nine older Lab 3 items. Source: ' + signoff['boardSourceUrl'] + '; verified ' + signoff['verifiedAt'] + '.')
+        for position, board_image in enumerate(signoff['boardImages'], 1):
+            image_segment(board_image, 'Genuine final GitHub Project Board, capture ' + str(position) + ' of ' + str(len(signoff['boardImages'])) + ', original full browser extent at a different vertical scroll position. Filter: Lab 4. Six Lab 4 Issues (#55-#60) in Done, separate from nine older Lab 3 items. Source: ' + signoff['boardSourceUrl'] + '; verified ' + signoff['verifiedAt'] + '. Board visibility: ' + signoff['boardVisibility'] + '; do not infer anonymous access from the owner-session capture.')
     for rel in images:
         label = rel.rsplit('/',1)[-1].rsplit('.',1)[0].replace('-',' ')
         provenance = 'Recorded provenance: dated evidence/main/README.md and the corresponding verification record. Historical responsive captures are not relabelled as 4 October live images.'

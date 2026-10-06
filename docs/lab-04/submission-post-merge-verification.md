@@ -2,7 +2,7 @@
 
 ## Source and attribution
 
-**Current collection status:** All twelve collector entries now have complete output and exit 0 for reviewed runtime/test source `73faa8b`: server 134 passed / 9 skipped, client 45, unfiltered E2E 29, both builds (including client TypeScript), and all nine optional cases passed separately. The client suite, server build, client TypeScript and client Vite build headers identify checkout `73faa8b`; the other eight headers identify documentation-only checkout `488e760`. All identify branch `feature/lab4-final-publication`, not a clean main-branch invocation. Administrator integration used an explicitly recorded temporary path-resolution config after normal sandbox attempts failed. PR #74 published this reviewed evidence into main at `083962c`; the dated entries below retain the collection sequence and earlier "remaining" statements are historical. Publication of the new review follow-up, final Issue/Board acceptance and final PDF export remain open.
+**Current collection status:** All twelve collector entries now have complete output and exit 0 for reviewed runtime/test source `73faa8b`: server 134 passed / 9 skipped, client 45, unfiltered E2E 29, both builds (including client TypeScript), and all nine optional cases passed separately. The client suite, server build, client TypeScript and client Vite build headers identify checkout `73faa8b`; the other eight headers identify documentation-only checkout `488e760`. All identify branch `feature/lab4-final-publication`, not a clean main-branch invocation. Administrator integration used an explicitly recorded temporary path-resolution config after normal sandbox attempts failed. PR #74 published this reviewed evidence into main at `083962c`. The student then confirmed Issue #60 completion: it is closed as completed and all six Lab 4 Issues are verified in Done. The 177-page acceptance copy passed layout checks; the dated [final acceptance](final-acceptance-signoff.md) records the actual Board images and the Private-access limitation. Final-export render results are recorded separately. This new local follow-up is not falsely claimed as content already published in PR #74. Earlier "remaining" statements below retain the historical collection sequence, not the current Issue/Board status.
 
 ## PR #74 actual main publication and review follow-up - 6 October 2026
 
@@ -22,7 +22,7 @@ Between 23:14 and 23:17 (+07:00), all six public main document URLs below return
 | [ai-use.md](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/ai-use.md) | HTTP 200 |
 | [Immutable published output manifest](https://raw.githubusercontent.com/Earth2509/toktickit/083962c2ec75202acae4f5e2cfebef62ee17c007/docs/lab-04/evidence/post-merge-73faa8b/manifest.json) | HTTP 200; twelve passing entries inspected |
 
-This new review follow-up is prepared on `feature/lab4-post-merge-signoff` from the actual main merge. It was not added to the already approved release tree. Publication of this follow-up, final PDF acceptance and the actual Issue #60/Done Board remain separate gates. `dc500e8` is the staging release head; `083962c` is the actual main documentation merge; `73faa8b` remains the tested runtime source. Earlier pending statements below describe the dated sequence and are superseded only for publication of PR #73/#74's selected contents.
+This new review follow-up is prepared on `feature/lab4-post-merge-signoff` from the actual main merge. It was not added to the already approved release tree. Its repository publication is separate from the completed main publication and actual Issue/Board acceptance. The [public completion comment](https://github.com/Earth2509/toktickit/issues/60#issuecomment-6020822193) records the later acceptance facts online. `dc500e8` is the staging release head; `083962c` is the actual main documentation merge; `73faa8b` remains the tested runtime source. Earlier pending statements below describe the dated sequence; the current acceptance record supersedes those earlier Issue/Board observations without changing log provenance.
 
 ### Older output headers and invocation workarounds
 
@@ -67,7 +67,9 @@ The final two commands derived their connection from server `.env`, rejected non
 
 The opt-in counts total **1 + 1 + 1 + 2 + 2 + 2 = 9 passed**, covering the nine cases intentionally skipped by the default server invocation. This is **134 default-server passes plus 9 separate opt-in passes**, not one 143-passed run. The performance output's 304ms is a test-case duration, not a measured p95 value; no exact p95 is asserted here. The history suite uses the current-model setup and does not replace migration preservation tests.
 
-## Remaining publication and submission gates
+## Historical checklist before final publication and Issue acceptance
+
+This checklist records the earlier state before PR #74 and the later Issue #60 closure. Consult the current status and final acceptance at the start of this document for the completed publication/Board outcomes; unchecked items here are not a current task list.
 
 - [x] Peer-approved release merged into main and actual merge SHA identified.
 - [x] Developer supplied passing default suites, both build outputs, unfiltered E2E and all nine separately enabled database cases after confirming main checkout.

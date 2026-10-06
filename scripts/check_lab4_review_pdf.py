@@ -35,7 +35,8 @@ for index,page in enumerate(reader.pages):
     if index%16==15 or index==len(reader.pages)-1:
         sheet.save(out/f'contact-{index//16+1}.jpg')
 assert not blank, blank
-assert [f for _,f in figures] == list(range(1,72 if final else 71)), figures
+board_count = len(json.loads((root/'docs/lab-04/evidence/final-signoff.json').read_text(encoding='utf-8'))['boardImages']) if final else 0
+assert [f for _,f in figures] == list(range(1,71+board_count)), figures
 assert len(parts)==9, parts
 summary = dict(pages=len(reader.pages),blankPages=blank,partPages=parts,figures=len(figures),linkAnnotations=links)
 (out/'checks.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')

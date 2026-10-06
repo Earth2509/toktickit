@@ -17,4 +17,8 @@ The assistant rendered and inspected all 176 pages of the post-merge acceptance 
 - [x] All six required documents are fully rendered, not replaced with summaries.
 - [x] Public source links, actual publication SHA and tested-source attribution are distinguished.
 
-Final acceptance additionally requires the actual Issue #60 completion and genuine all-Done Project Board evidence. These external actions await the student's action-time confirmation. The builder refuses `--final` without a recorded sign-off and an existing genuine Board image. The Final PDF must be rendered and visually inspected again after those additions; this acceptance record does not pre-approve an uninspected final file.
+The later acceptance copy, with this dated inspection record included, has 177 pages, the same 70 Figures and 259 links, and no blank pages. Its changed pages were rendered and inspected again.
+
+The student subsequently confirmed the external actions: Issue #60 was closed as completed with a detailed English summary, moved to Done, and the refreshed Board showed all six Lab 4 Issues in Done. Two genuine complete browser captures cover the upper and lower scroll positions of that column. See [current final acceptance](final-acceptance-signoff.md) and the machine-readable [sign-off](evidence/final-signoff.json). The Board is currently Private; authenticated visibility is not falsely claimed as anonymous/public access.
+
+The builder refuses `--final` without the recorded acceptance sign-off and existing genuine Board images. The Final PDF must still be rendered and visually inspected after those additions; this acceptance record does not pre-approve an uninspected final export.
