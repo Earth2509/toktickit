@@ -6,8 +6,8 @@ from pypdf import PdfReader
 from PIL import Image, ImageDraw
 
 root = Path(__file__).resolve().parents[1]
-path = root/'output/pdf/TokTickIT_Lab4_Review_Draft.pdf'
-out = root/'tmp/pdfs/lab4-review-qa'
+path = root/'output/pdf/TokTickIT_Lab4_PostMerge_Review.pdf'
+out = root/'tmp/pdfs/lab4-postmerge-qa'
 out.mkdir(parents=True, exist_ok=True)
 reader = PdfReader(path)
 doc = pdfium.PdfDocument(str(path))
@@ -15,7 +15,8 @@ parts,figures,blank,links = [],[],[],0
 sheet = None
 for index,page in enumerate(reader.pages):
     text = page.extract_text() or ''
-    if len(text.replace('REVIEW DRAFT - remaining evidence/sign-off pending','').strip()) < 20:
+    content = re.sub(r'Page \d+ of \d+', '', text.replace('POST-MERGE REVIEW - final output/publication/board pending',''))
+    if len(content.strip()) < 20 and not page.images:
         blank.append(index+1)
     parts += [(index+1, m.group(0)) for m in re.finditer(r'Answer Part \d: [^\n]+',text)]
     figures += [(index+1,int(m.group(1))) for m in re.finditer(r'Figure (\d+)\.',text)]

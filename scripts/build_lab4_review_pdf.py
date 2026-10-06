@@ -1,9 +1,11 @@
-"""Build an explicitly incomplete review copy from real, attributed evidence."""
+"""Build a post-merge review copy; online/board gates remain explicit."""
 from pathlib import Path
 from html import escape
 from io import BytesIO
 import re
 import textwrap
+import subprocess
+import json
 from PIL import Image as PILImage
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -17,7 +19,11 @@ from pypdf import PdfReader, PdfWriter
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / 'docs/lab-04'
 EVIDENCE = DOCS / 'evidence/main'
-OUT = ROOT / 'output/pdf/TokTickIT_Lab4_Review_Draft.pdf'
+OUT = ROOT / 'output/pdf/TokTickIT_Lab4_PostMerge_Review.pdf'
+MAIN_SHA = '73faa8b0cee5adce1718cd97c5e32fc4bba9ec84'
+PUBLISHED_PATHS = set(subprocess.check_output(
+    ['git', '-c', f'safe.directory={ROOT.as_posix()}', 'ls-tree', '-r', '--name-only', MAIN_SHA],
+    cwd=ROOT, text=True).splitlines())
 OUT.parent.mkdir(parents=True, exist_ok=True)
 pdfmetrics.registerFont(TTFont('Report', 'C:/Windows/Fonts/arial.ttf'))
 pdfmetrics.registerFont(TTFont('ReportBold', 'C:/Windows/Fonts/arialbd.ttf'))
@@ -45,8 +51,9 @@ def rich(text, base=DOCS):
         if target.startswith(('https://', 'http://')):
             return f'<a href="{target}" color="#007247">{label}</a>'
         local = (base / target).resolve()
-        # Draft links for unpublished evidence remain labelled local references.
-        if local in [DOCS / n for n in ['specification.md','tests.md','api-spec.md','ui-spec.md','reviewer.md','ai-use.md']] or local in [ROOT/'README.md', ROOT/'.gitignore']:
+        # Published source existence is checked against the actual merge tree;
+        # URL accessibility is not inferred from this local Git inspection.
+        if local.is_relative_to(ROOT) and local.relative_to(ROOT).as_posix() in PUBLISHED_PATHS:
             rel = local.relative_to(ROOT).as_posix()
             return f'<a href="https://github.com/Earth2509/toktickit/blob/main/{rel}" color="#007247">{label}</a>'
         return label + ' (local source: ' + target + ')'
@@ -124,7 +131,7 @@ def image_segment(rel, caption):
 parts = [
  ('Git Use with Engineering Workflow',['reviewer.md','git-workflow-verification.md'], ['github-original-specification-commit-live.jpg','github-actions-foundation-commit-live.jpg','github-network-feature-staging-main-live.jpg']),
  ('Spec DD',['specification.md'], []),
- ('Test DD and Traceability',['tests.md','main-full-output-verification.md','evidence-completion-verification.md'], []),
+ ('Test DD and Traceability',['submission-post-merge-verification.md','tests.md','main-full-output-verification.md','evidence-completion-verification.md'], []),
  ('AI Use with Reflection',['ai-use.md'], []),
  ('Working IT Staff Dashboard UI',['live-dashboard-recovery-20261004.md'], ['staff-dashboard-card-counts-live.jpg','staff-owned-two-drilldown-live.jpg','staff-waiting-zero-drilldown-live.jpg','admin-dashboard-own-actions-empty-live.jpg','dashboard-api-unavailable-live.jpg','dashboard-api-retry-recovered-live.jpg']),
  ('Working Actions Taken UI',['api-spec.md'], ['action-create-form-live.jpg','action-created-live.jpg','action-edited-live.jpg','action-completed-live.jpg','action-cancel-form-live.jpg','actions-completed-cancelled-live.jpg','action-keyboard-description-validation-live.jpg','action-keyboard-follow-up-validation-live.jpg','action-keyboard-result-validation-live.jpg','action-stale-version-conflict.jpg','action-conflict-reloaded.jpg','actions-safe-failure-live.jpg']),
@@ -144,27 +151,47 @@ parts[8][2].extend([f'completion/action-edit-submitting-controlled-{viewport}.pn
 
 text_segment([
     p('TokTickIT Lab 4','Title4'),
-    p('Evidence Review Draft','Title4'),
+    p('Post-Merge Evidence Review','Title4'),
     p('Pattharapon Kijjanukij','Heading4'),
     p('Student ID: 67070501069 | Section: 1'),
-    p('Not ready for final submission. This copy assembles the currently verified engineering documents, full test output and uncropped evidence in Answer Part 1-9 order. Unobserved states are not marked complete.'),
+    p('Developer-supplied post-merge passing summaries are complete, and the six engineering-document links work. Complete current-source server/browser/optional output, reviewed publication of the local update and all-Done Project Board evidence remain unresolved. This is not yet the unconditional final submission. Answer Parts 1-9 include all six rendered engineering documents and full proportional images.'),
     p('Repository: [Earth2509/toktickit](https://github.com/Earth2509/toktickit)'),
-    p('Main output baseline: 55f8200. Application release lineage: 7329652. Four additional evidence cases passed across separate developer runs on the submission workspace; they are not a new main run.'),
-    p('Visual/accessibility checklist: PR #71 review identified a successful-save focus gap not covered by the historical 17.0-second Cancel-dismissal run. Same-Ticket refresh now preserves the Action section. Four parent-component regressions were red before the fix and green afterwards; the current client suite passed 45/45 and production build passed. The developer reran the corrected three-viewport browser checks: 3 passed in 24.0 seconds, including focus after successful Create and Complete. The dedicated pre/post audit-history check passed separately (1 test, 3.98 seconds). These are submission-branch results, not a new main run. Outstanding: peer re-review, main publication/source-link verification and final all-Done Kanban. Issue #60 remains open.'),
-    p('Reading note: long screenshots use proportionally tall pages at full content width. They are not cropped, split or squeezed into narrow A4 thumbnails. Evidence links not yet published are identified as local references rather than claimed working public URLs.'),
+    p(f'Latest main source: [{MAIN_SHA[:7]}](https://github.com/Earth2509/toktickit/commit/{MAIN_SHA}), merge of peer-approved [PR #72](https://github.com/Earth2509/toktickit/pull/72). Developer-supplied post-merge outcomes: server 134 passed / 9 skipped, all 9 opt-in cases passed separately, client 45 passed, browser E2E 29 passed and both builds passed. Supplied excerpts and historical complete logs are kept distinct.'),
+    p('Visual/accessibility evidence: the successful-save focus correction was reviewed through PR #71 and promoted through PR #72. Historical live/controlled images and reviewer/developer runs retain their original attribution; they are not relabelled as new images taken on the final main merge.'),
+    p('Reading note: long screenshots use proportionally tall pages at full content width, without cropping or stretching. All six engineering-document URLs returned HTTP 200 on 6 October after the temporary DNS outage resolved. Later locally updated contents and complete-output records are not yet claimed published or byte-identical to public main. Unpublished supplementary records remain labelled local references. Current-source complete server/browser/opt-in output and the final Board remain acceptance gates.'),
 ])
 for number,(title,files,images) in enumerate(parts,1):
     story = [p(f'Answer Part {number}: {title}','Title4')]
     if number == 1:
-        story += [p('Final Kanban is still pending; the issue is not prematurely marked Done.')]
+        story += [p('PR #72 is approved and merged into main. The live Project has five completed Lab 4 issues (#55-#59). The final-evidence Issue #60 was moved from Backlog to In progress on 6 October. It is not yet closed or Done. The Project also contains nine completed older Lab 3 items; those are not counted as Lab 4 issues. Final all-Done Board evidence must follow completion, not precede it.')]
         story += markdown(ROOT/'README.md') + markdown(ROOT/'.gitignore')
         dirs = [x for x in ['client/src','client/tests','server/src','server/prisma','server/tests','server/scripts','e2e/lab-04','docs/lab-04'] if (ROOT/x).is_dir()]
         story += [p('Directory evidence: actual workspace directory inventory (not an IDE screenshot).','Heading4')]+[p(d) for d in dirs]
     for file in files:
         if file in ['specification.md', 'tests.md', 'api-spec.md', 'ui-spec.md', 'reviewer.md', 'ai-use.md']:
-            story += [p(f'GitHub source: [{file}](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/{file})'), p('The rendered local copy includes labelled submission-workspace updates. Publication of those updates is pending; do not assume the main URL already contains them.')]
+            note = 'The source path exists in the recorded main merge and its public GitHub URL returned HTTP 200 on 6 October.'
+            if file in ['specification.md', 'tests.md', 'ui-spec.md', 'api-spec.md', 'reviewer.md']:
+                note += ' This rendered local copy includes a later 6 October post-merge status update not yet published; the online file is not claimed byte-identical.'
+            story += [p(f'GitHub source: [{file}](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/{file})'), p(note)]
         story += markdown(DOCS/file)
     if number == 3:
+        collected = DOCS/'evidence/post-merge-73faa8b'
+        manifest_path = collected/'manifest.json'
+        if manifest_path.exists():
+            manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+            assert manifest['source'] == MAIN_SHA, 'Do not mix collected runtime sources.'
+            for name, result in manifest['checks'].items():
+                if not result['passed'] or result['exitCode'] != 0:
+                    continue
+                log = collected/result['file']
+                assert log.parent == collected and log.is_file()
+                body = log.read_text(encoding='utf-8')
+                assert f'Reviewed runtime/test source: {MAIN_SHA}' in body
+                assert 'Exit code: 0' in body
+                story += [p(f'New complete current-source output: {name}', 'Heading4'), p('Runtime/test tracked files match reviewed main; documentation-only branch and actual checkout are recorded in the output header. This is a collector run, not a terminal screenshot. The assistant client/build collection used the process-only VITE_PRESERVE_SYMLINKS=true workaround; attribution is in the dated post-merge record.')]
+                for line in body.splitlines():
+                    for wrapped in textwrap.wrap(clean(line),90,replace_whitespace=False) or [' ']:
+                        story.append(p(wrapped))
         story += [p('Rendered output below removes terminal ANSI colour/control sequences, displays check/skip glyphs as readable [passed]/[skipped] labels, and wraps long lines. Original source bytes remain unchanged. The supplied submission client results, correction build and history result are explicitly labelled excerpts without an embedded source header, even where an older filename says full. Main logs retain their full recorded output; test outcomes and recorded values are not rewritten.')]
         for log in sorted((EVIDENCE/'test-output').glob('*.txt')) + sorted((DOCS/'evidence/build-output').glob('*.txt')):
             excerpt = 'excerpt' in log.name or log.name == 'submission-client-test-full.txt'
@@ -214,11 +241,11 @@ for index,page in enumerate(writer.pages,1):
     cv = canvas.Canvas(stream,pagesize=(width,height))
     cv.setFont('Report',8)
     cv.setFillColor(INK)
-    cv.drawString(48,22,'REVIEW DRAFT - remaining evidence/sign-off pending')
+    cv.drawString(48,22,'POST-MERGE REVIEW - final output/publication/board pending')
     cv.drawRightString(width-48,22,f'Page {index} of {total}')
     cv.save()
     page.merge_page(PdfReader(BytesIO(stream.getvalue())).pages[0])
-writer.add_metadata({'/Title':'TokTickIT Lab 4 Evidence Review Draft','/Subject':'Incomplete review copy; not final submission'})
+writer.add_metadata({'/Title':'TokTickIT Lab 4 Post-Merge Evidence Review','/Subject':'Main summaries verified; complete-output/publication/board gates remain'})
 with OUT.open('wb') as file:
     writer.write(file)
 print(f'Created {OUT}; pages={total}; figures={figure}')

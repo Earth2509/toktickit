@@ -1,6 +1,6 @@
 # Lab 4 REST API Contract
 
-Status: Reviewed Lab 4 contract, implemented on `lab4-staging`; final `main` verification pending. Base path: `/api`. Existing Lab 3 session cookie, Origin, CSRF and safe-error conventions remain unchanged.
+Status: Reviewed Lab 4 contract implemented and promoted through peer-reviewed PR #72 into `main` at `73faa8b`. The developer's post-merge server/API regression and all nine opt-in database cases passed as recorded in [post-merge verification](submission-post-merge-verification.md). Final online source-link/Project Board and report sign-off remain separate gates. Base path: `/api`. Existing Lab 3 session cookie, Origin, CSRF and safe-error conventions remain unchanged.
 
 ## DTOs
 

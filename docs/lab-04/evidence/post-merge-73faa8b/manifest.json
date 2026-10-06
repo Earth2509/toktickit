@@ -1,0 +1,90 @@
+{
+  "source": "73faa8b0cee5adce1718cd97c5e32fc4bba9ec84",
+  "attribution": "Executed by this collector; local documentation may differ, runtime/test tracked files match source.",
+  "checks": {
+    "server": {
+      "startedAt": "2026-10-06T09:23:22.779Z",
+      "completedAt": "2026-10-06T09:23:33.660Z",
+      "exitCode": 0,
+      "file": "server-full.txt",
+      "passed": true
+    },
+    "client": {
+      "startedAt": "2026-10-06T09:09:31.294Z",
+      "completedAt": "2026-10-06T09:09:52.678Z",
+      "exitCode": 0,
+      "file": "client-full.txt",
+      "passed": true
+    },
+    "server-build": {
+      "startedAt": "2026-10-06T09:09:52.997Z",
+      "completedAt": "2026-10-06T09:09:55.823Z",
+      "exitCode": 0,
+      "file": "server-build-full.txt",
+      "passed": true
+    },
+    "client-types": {
+      "startedAt": "2026-10-06T09:09:56.152Z",
+      "completedAt": "2026-10-06T09:09:58.536Z",
+      "exitCode": 0,
+      "file": "client-types-full.txt",
+      "passed": true
+    },
+    "client-build": {
+      "startedAt": "2026-10-06T09:09:58.859Z",
+      "completedAt": "2026-10-06T09:10:00.265Z",
+      "exitCode": 0,
+      "file": "client-build-full.txt",
+      "passed": true
+    },
+    "history": {
+      "startedAt": "2026-10-06T09:32:34.917Z",
+      "completedAt": "2026-10-06T09:32:37.061Z",
+      "exitCode": 0,
+      "file": "history-full.txt",
+      "passed": true
+    },
+    "e2e": {
+      "startedAt": "2026-10-06T09:29:20.336Z",
+      "completedAt": "2026-10-06T09:30:44.245Z",
+      "exitCode": 0,
+      "file": "e2e-full.txt",
+      "passed": true
+    },
+    "migration": {
+      "startedAt": "2026-10-06T09:33:51.175Z",
+      "completedAt": "2026-10-06T09:33:57.640Z",
+      "exitCode": 0,
+      "file": "migration-full.txt",
+      "passed": true
+    },
+    "recovery": {
+      "startedAt": "2026-10-06T09:37:29.455Z",
+      "completedAt": "2026-10-06T09:37:32.474Z",
+      "exitCode": 0,
+      "file": "recovery-full.txt",
+      "passed": true
+    },
+    "performance": {
+      "startedAt": "2026-10-06T09:38:48.854Z",
+      "completedAt": "2026-10-06T09:38:52.019Z",
+      "exitCode": 0,
+      "file": "performance-full.txt",
+      "passed": true
+    },
+    "lab3-migration": {
+      "startedAt": "2026-10-06T09:43:07.764Z",
+      "completedAt": "2026-10-06T09:43:18.201Z",
+      "exitCode": 0,
+      "file": "lab3-migration-full.txt",
+      "passed": true
+    },
+    "admin-integration": {
+      "startedAt": "2026-10-06T09:51:12.397Z",
+      "completedAt": "2026-10-06T09:51:15.016Z",
+      "exitCode": 0,
+      "file": "admin-integration-full.txt",
+      "passed": true
+    }
+  }
+}

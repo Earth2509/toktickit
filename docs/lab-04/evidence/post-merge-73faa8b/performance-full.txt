@@ -1,0 +1,37 @@
+Reviewed runtime/test source: 73faa8b0cee5adce1718cd97c5e32fc4bba9ec84
+Checkout HEAD: 488e760a01a07d9b8bca5f06a80bd9b01ed7b77f
+Branch: feature/lab4-final-publication
+Working directory: server
+Command: node dist/scripts/run-lab4-dashboard-performance.js
+Node: v24.14.0
+VITE_PRESERVE_SYMLINKS: (unset)
+Attribution: collector invocation; not a fabricated terminal screenshot. Credentials, if present, are redacted.
+Started UTC: 2026-10-06T09:38:48.854Z
+
+STDOUT
+Running against disposable local lab4_dashboard_perf_test; this schema will be reset.
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server
+
+stdout | tests/lab-04/dashboard-performance.smoke.test.ts > Lab 4 dashboard performance smoke
+Lab 4 performance context: 28 seeded Tickets; PostgreSQL 18.4; Node v24.14.0; win32 x64; 11th Gen Intel(R) Core(TM) i7-11600H @ 2.90GHz.
+
+stdout | tests/lab-04/dashboard-performance.smoke.test.ts > Lab 4 dashboard performance smoke > keeps the Requester dashboard p95 at or below 500 ms across 20 warm requests
+Requester dashboard: 5 warm-up requests, 20 measured requests; p95 7.8 ms; max 9.4 ms.
+
+stdout | tests/lab-04/dashboard-performance.smoke.test.ts > Lab 4 dashboard performance smoke > keeps the Staff dashboard p95 at or below 500 ms across 20 warm requests
+Staff dashboard: 5 warm-up requests, 20 measured requests; p95 7.9 ms; max 8.0 ms.
+
+ ✓ tests/lab-04/dashboard-performance.smoke.test.ts (2 tests) 1994ms
+   ✓ Lab 4 dashboard performance smoke > keeps the Requester dashboard p95 at or below 500 ms across 20 warm requests 385ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  16:38:49
+   Duration  2.68s (transform 131ms, setup 0ms, collect 359ms, tests 1.99s, environment 0ms, prepare 89ms)
+
+
+STDERR
+
+Completed UTC: 2026-10-06T09:38:52.019Z
+Exit code: 0
