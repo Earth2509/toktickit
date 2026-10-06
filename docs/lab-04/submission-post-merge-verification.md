@@ -2,7 +2,39 @@
 
 ## Source and attribution
 
-**Current collection status:** All twelve collector entries now have complete output and exit 0 for reviewed runtime/test source `73faa8b`: server 134 passed / 9 skipped, client 45, unfiltered E2E 29, both builds (including client TypeScript), and all nine optional cases passed separately. Collection was on documentation-only checkout `488e760`, not falsely relabelled as a clean main-branch invocation. Administrator integration used an explicitly recorded temporary path-resolution config after normal sandbox attempts failed. The dated entries below retain the collection sequence; earlier "remaining" statements are historical. Reviewed publication, final Issue/Board acceptance and final PDF export remain open.
+**Current collection status:** All twelve collector entries now have complete output and exit 0 for reviewed runtime/test source `73faa8b`: server 134 passed / 9 skipped, client 45, unfiltered E2E 29, both builds (including client TypeScript), and all nine optional cases passed separately. The client suite, server build, client TypeScript and client Vite build headers identify checkout `73faa8b`; the other eight headers identify documentation-only checkout `488e760`. All identify branch `feature/lab4-final-publication`, not a clean main-branch invocation. Administrator integration used an explicitly recorded temporary path-resolution config after normal sandbox attempts failed. PR #74 published this reviewed evidence into main at `083962c`; the dated entries below retain the collection sequence and earlier "remaining" statements are historical. Publication of the new review follow-up, final Issue/Board acceptance and final PDF export remain open.
+
+## PR #74 actual main publication and review follow-up - 6 October 2026
+
+[Nuggetkub approved PR #74 at release head `dc500e8`](https://github.com/Earth2509/toktickit/pull/74#pullrequestreview-5431071740). The reviewer confirmed that its tree is identical to approved feature head `42854d2` and reported no blocking change. The non-blocking note requests that the older collector-header limitation be recorded here, rather than left only in the PR description.
+
+After the student's explicit confirmation, PR #74 was merged into `main` on **6 October 2026 at 16:12:56 UTC (23:12:56 +07:00)** as [`083962c2ec75202acae4f5e2cfebef62ee17c007`](https://github.com/Earth2509/toktickit/commit/083962c2ec75202acae4f5e2cfebef62ee17c007). The assistant verified the GitHub success state and public PR API (`closed`, `merged: true`, that merge SHA), then fetched `origin/main`. `git diff 42854d2 083962c` is empty: the published tree is identical to the approved feature tree. The diff from tested application source `73faa8b` outside `docs/` and `scripts/` is also empty. No runtime test rerun on `083962c` is claimed.
+
+Between 23:14 and 23:17 (+07:00), all six public main document URLs below returned HTTP 200. The raw manifest at the immutable `083962c` URL was separately read and verified: twelve entries, all `passed: true`, all exit codes 0, runtime/test source `73faa8b`. This verifies publication after PR #74, not merely file existence in a local checkout.
+
+| Public main source | Post-merge check |
+| --- | --- |
+| [specification.md](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/specification.md) | HTTP 200 |
+| [tests.md](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/tests.md) | HTTP 200 |
+| [ui-spec.md](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/ui-spec.md) | HTTP 200 |
+| [api-spec.md](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/api-spec.md) | HTTP 200 |
+| [reviewer.md](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/reviewer.md) | HTTP 200 |
+| [ai-use.md](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/ai-use.md) | HTTP 200 |
+| [Immutable published output manifest](https://raw.githubusercontent.com/Earth2509/toktickit/083962c2ec75202acae4f5e2cfebef62ee17c007/docs/lab-04/evidence/post-merge-73faa8b/manifest.json) | HTTP 200; twelve passing entries inspected |
+
+This new review follow-up is prepared on `feature/lab4-post-merge-signoff` from the actual main merge. It was not added to the already approved release tree. Publication of this follow-up, final PDF acceptance and the actual Issue #60/Done Board remain separate gates. `dc500e8` is the staging release head; `083962c` is the actual main documentation merge; `73faa8b` remains the tested runtime source. Earlier pending statements below describe the dated sequence and are superseded only for publication of PR #73/#74's selected contents.
+
+### Older output headers and invocation workarounds
+
+Eleven of the twelve currently linked complete-output files were collected before the collector added its explicit `Invocation workaround` header field. They have been preserved without retroactively inserting that field or changing their timestamps, commands, checkout identity or output. An absent field is a historical logging limitation, not evidence that no workaround was used.
+
+| Preserved output group | Actual header checkout and limitation | Invocation attribution |
+| --- | --- | --- |
+| `client-full.txt`, `server-build-full.txt`, `client-types-full.txt`, `client-build-full.txt` | Checkout `73faa8b`, branch `feature/lab4-final-publication`; these earlier headers do not contain the later Node, environment or `Invocation workaround` fields. | Assistant-run collection. The dated collection narrative discloses the process-only `VITE_PRESERVE_SYMLINKS=true` sandbox workaround. It is not newly inferred from the older headers and did not change reviewed application source, tests or committed configuration. |
+| `server-full.txt`, `e2e-full.txt`, `history-full.txt`, `migration-full.txt`, `recovery-full.txt`, `performance-full.txt`, `lab3-migration-full.txt` | Checkout `488e760`, same branch; Node and `VITE_PRESERVE_SYMLINKS: (unset)` are recorded, but the later `Invocation workaround` field is absent. | Developer-run collection outside the sandbox, as attributed in the dated entries below. The unset environment field is not a claim that these older headers comprehensively record every invocation setting. |
+| `admin-integration-full.txt` | Checkout `488e760`, same branch; the new `Invocation workaround` field is present. | Assistant-run collection with an explicitly selected temporary equivalent Node test config using `resolve.preserveSymlinks=true`. Reviewed server config, application source and assertions were unchanged; earlier failed attempts remain separately preserved. |
+
+The twelve manifest exit codes remain 0 and their counts are unchanged. This clarification is documentation only: no test is claimed to have been rerun for this follow-up, no earlier run is relabelled as a post-PR-#74 main invocation, and no old log is rewritten to appear to have a newer header format.
 
 [PR #72](https://github.com/Earth2509/toktickit/pull/72) was peer-approved and merged into `main` as [`73faa8b0cee5adce1718cd97c5e32fc4bba9ec84`](https://github.com/Earth2509/toktickit/commit/73faa8b0cee5adce1718cd97c5e32fc4bba9ec84). The developer supplied the successful fast-forward output and `git log` showing HEAD, main and origin/main at that commit. The assistant also read-verified the local HEAD. Subsequent results below were supplied by the developer in response to one-at-a-time commands on that checkout; they are not assistant-run tests.
 

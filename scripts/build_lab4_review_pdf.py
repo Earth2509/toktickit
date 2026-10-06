@@ -1,4 +1,4 @@
-"""Build a post-merge review copy; online/board gates remain explicit."""
+"""Build an acceptance copy, or a gated final submission with real Board evidence."""
 from pathlib import Path
 from html import escape
 from io import BytesIO
@@ -6,6 +6,7 @@ import re
 import textwrap
 import subprocess
 import json
+import sys
 from PIL import Image as PILImage
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -19,8 +20,18 @@ from pypdf import PdfReader, PdfWriter
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / 'docs/lab-04'
 EVIDENCE = DOCS / 'evidence/main'
-OUT = ROOT / 'output/pdf/TokTickIT_Lab4_PostMerge_Review.pdf'
-MAIN_SHA = '73faa8b0cee5adce1718cd97c5e32fc4bba9ec84'
+FINAL = '--final' in sys.argv[1:]
+OUT = ROOT / ('output/pdf/TokTickIT_Lab4_Submission.pdf' if FINAL else 'output/pdf/TokTickIT_Lab4_PostMerge_Review.pdf')
+MAIN_SHA = '083962c2ec75202acae4f5e2cfebef62ee17c007'
+TESTED_SHA = '73faa8b0cee5adce1718cd97c5e32fc4bba9ec84'
+signoff_path = DOCS / 'evidence/final-signoff.json'
+signoff = json.loads(signoff_path.read_text(encoding='utf-8')) if FINAL else None
+if FINAL:
+    assert signoff['publishedMain'] == MAIN_SHA
+    assert signoff['issue60Closed'] and signoff['allLab4IssuesDone'] and signoff['pdfAcceptancePassed']
+    assert signoff['boardSourceUrl'].startswith('https://github.com/users/Earth2509/projects/')
+    assert signoff['verifiedAt'] and signoff['boardImage']
+    assert (EVIDENCE / signoff['boardImage']).is_file(), 'A genuine final Board image is required.'
 PUBLISHED_PATHS = set(subprocess.check_output(
     ['git', '-c', f'safe.directory={ROOT.as_posix()}', 'ls-tree', '-r', '--name-only', MAIN_SHA],
     cwd=ROOT, text=True).splitlines())
@@ -151,27 +162,44 @@ parts[8][2].extend([f'completion/action-edit-submitting-controlled-{viewport}.pn
 
 text_segment([
     p('TokTickIT Lab 4','Title4'),
-    p('Post-Merge Evidence Review','Title4'),
+    p('Final Submission' if FINAL else 'Post-Merge Submission Acceptance Copy','Title4'),
     p('Pattharapon Kijjanukij','Heading4'),
     p('Student ID: 67070501069 | Section: 1'),
-    p('Developer-supplied post-merge passing summaries are complete, and the six engineering-document links work. Complete current-source server/browser/optional output, reviewed publication of the local update and all-Done Project Board evidence remain unresolved. This is not yet the unconditional final submission. Answer Parts 1-9 include all six rendered engineering documents and full proportional images.'),
+    p('Answer Parts 1-9 contain all six rendered engineering documents, twelve complete verification outputs and full proportional images. The reviewed publication is complete. ' + ('Final acceptance and the genuine all-Done Board are recorded in Part 1.' if FINAL else 'This acceptance copy still awaits final Issue/Board evidence and sign-off; it is not the unconditional final submission.')),
     p('Repository: [Earth2509/toktickit](https://github.com/Earth2509/toktickit)'),
-    p(f'Latest main source: [{MAIN_SHA[:7]}](https://github.com/Earth2509/toktickit/commit/{MAIN_SHA}), merge of peer-approved [PR #72](https://github.com/Earth2509/toktickit/pull/72). Developer-supplied post-merge outcomes: server 134 passed / 9 skipped, all 9 opt-in cases passed separately, client 45 passed, browser E2E 29 passed and both builds passed. Supplied excerpts and historical complete logs are kept distinct.'),
+    p(f'Published main: [{MAIN_SHA[:7]}](https://github.com/Earth2509/toktickit/commit/{MAIN_SHA}), merge of peer-approved [PR #74](https://github.com/Earth2509/toktickit/pull/74). Tested runtime source: {TESTED_SHA[:7]}; the documentation publication changes no runtime/test files. Complete collected outcomes: server 134 passed / 9 skipped, all 9 opt-in cases passed separately, client 45 passed, browser E2E 29 passed and both builds passed. These are not newly rerun tests on the later documentation merge. Supplied excerpts and historical complete logs remain distinct.'),
     p('Visual/accessibility evidence: the successful-save focus correction was reviewed through PR #71 and promoted through PR #72. Historical live/controlled images and reviewer/developer runs retain their original attribution; they are not relabelled as new images taken on the final main merge.'),
-    p('Reading note: long screenshots use proportionally tall pages at full content width, without cropping or stretching. All six engineering-document URLs returned HTTP 200 on 6 October after the temporary DNS outage resolved. Later locally updated contents and complete-output records are not yet claimed published or byte-identical to public main. Unpublished supplementary records remain labelled local references. Current-source complete server/browser/opt-in output and the final Board remain acceptance gates.'),
+    p('Reading note: long screenshots use proportionally tall pages at full content width, without cropping or stretching. All six engineering-document URLs returned HTTP 200 after PR #74 merged on 6 October, and the published twelve-entry manifest was checked. The rendered six engineering documents match that published tree. The new post-merge follow-up has separate local/publication attribution. Dated earlier pending statements are historical observations, not a claim that the completed publication is still pending. ' + ('The final Board and acceptance record supersede older Issue #60 status statements.' if FINAL else 'Only actual final acceptance, Issue/Board evidence and publication of the new follow-up remain gates.')),
 ])
 for number,(title,files,images) in enumerate(parts,1):
     story = [p(f'Answer Part {number}: {title}','Title4')]
     if number == 1:
-        story += [p('PR #72 is approved and merged into main. The live Project has five completed Lab 4 issues (#55-#59). The final-evidence Issue #60 was moved from Backlog to In progress on 6 October. It is not yet closed or Done. The Project also contains nine completed older Lab 3 items; those are not counted as Lab 4 issues. Final all-Done Board evidence must follow completion, not precede it.')]
+        story += [p('PR #74 is approved and merged into main at 083962c. ' + ('Final Issue/Board acceptance was verified at ' + signoff['verifiedAt'] + ': six Lab 4 Issues (#55-#60) are Done; see the genuine Board below.' if FINAL else 'The final-evidence Issue #60 remains In progress until this acceptance copy passes final QA and the actual Board is verified.') + ' The Project also contains nine completed older Lab 3 items; those are not counted as Lab 4 issues.')]
         story += markdown(ROOT/'README.md') + markdown(ROOT/'.gitignore')
         dirs = [x for x in ['client/src','client/tests','server/src','server/prisma','server/tests','server/scripts','e2e/lab-04','docs/lab-04'] if (ROOT/x).is_dir()]
         story += [p('Directory evidence: actual workspace directory inventory (not an IDE screenshot).','Heading4')]+[p(d) for d in dirs]
+        story += markdown(DOCS/'pdf-acceptance-verification.md')
+    if number == 2 and FINAL:
+        story += [p('Current Product Definition of Done sign-off', 'Heading4'),
+                  p('Dated final acceptance at ' + signoff['verifiedAt'] + '. This completed sign-off supersedes the older publication/Board checkbox in the full published specification below; it does not rewrite that historical source.')]
+        for item in [
+            'Contract and planned tests peer-reviewed before implementation; contract PR #61 predates the Actions foundation.',
+            'Migration preserves earlier relationships; repeat-safe seed and separate recovery verification passed.',
+            'Acceptance criteria map to executable tests with recorded final outcomes.',
+            'Authorization, validation, stale-write and safe-failure checks passed on the attributed reviewed runtime source.',
+            'Desktop/tablet/mobile and scoped visual/accessibility checks completed with full evidence.',
+            'Labs 1-3 regressions and all separately enabled database cases passed.',
+            'README/setup instructions and all six rendered engineering documents are publicly published; main URLs returned HTTP 200.',
+            'Feature/release peer-review workflow completed, PR #74 merged into main, and all six Lab 4 Issues (#55-#60) verified in Done.'
+        ]:
+            story.append(p('[x] ' + item))
+    if number == 9 and FINAL:
+        story += [p('Current visual and accessibility acceptance', 'Heading4'),
+                  p('[x] The completed scoped checklist in the full ui-spec.md below, its dated corrections and full responsive images were inspected. Final PDF acceptance and the actual Done Board were additionally verified at ' + signoff['verifiedAt'] + '. Historical pending statements below retain their dates; they are not current submission status. This is a scoped evidence review, not WCAG certification.')]
     for file in files:
         if file in ['specification.md', 'tests.md', 'api-spec.md', 'ui-spec.md', 'reviewer.md', 'ai-use.md']:
-            note = 'The source path exists in the recorded main merge and its public GitHub URL returned HTTP 200 on 6 October.'
-            if file in ['specification.md', 'tests.md', 'ui-spec.md', 'api-spec.md', 'reviewer.md']:
-                note += ' This rendered local copy includes a later 6 October post-merge status update not yet published; the online file is not claimed byte-identical.'
+            note = 'This rendered document matches published main 083962c; its public URL returned HTTP 200 after PR #74 merged on 6 October. Later publication/acceptance facts are recorded separately. Historical pending statements retain their original dates.'
+            assert subprocess.check_output(['git', '-c', f'safe.directory={ROOT.as_posix()}', 'show', f'{MAIN_SHA}:docs/lab-04/{file}'], cwd=ROOT).decode('utf-8-sig').replace('\r\n', '\n') == (DOCS/file).read_text(encoding='utf-8-sig').replace('\r\n', '\n'), f'Rendered source differs from published {file}'
             story += [p(f'GitHub source: [{file}](https://github.com/Earth2509/toktickit/blob/main/docs/lab-04/{file})'), p(note)]
         story += markdown(DOCS/file)
     if number == 3:
@@ -179,14 +207,14 @@ for number,(title,files,images) in enumerate(parts,1):
         manifest_path = collected/'manifest.json'
         if manifest_path.exists():
             manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
-            assert manifest['source'] == MAIN_SHA, 'Do not mix collected runtime sources.'
+            assert manifest['source'] == TESTED_SHA, 'Do not mix collected runtime sources.'
             for name, result in manifest['checks'].items():
                 if not result['passed'] or result['exitCode'] != 0:
                     continue
                 log = collected/result['file']
                 assert log.parent == collected and log.is_file()
                 body = log.read_text(encoding='utf-8')
-                assert f'Reviewed runtime/test source: {MAIN_SHA}' in body
+                assert f'Reviewed runtime/test source: {TESTED_SHA}' in body
                 assert 'Exit code: 0' in body
                 story += [p(f'New complete current-source output: {name}', 'Heading4'), p('Runtime/test tracked files match reviewed main; documentation-only branch and actual checkout are recorded in the output header. This is a collector run, not a terminal screenshot. The assistant client/build collection used the process-only VITE_PRESERVE_SYMLINKS=true workaround; attribution is in the dated post-merge record.')]
                 for line in body.splitlines():
@@ -201,6 +229,8 @@ for number,(title,files,images) in enumerate(parts,1):
                 for wrapped in textwrap.wrap(clean(line),90,replace_whitespace=False) or [' ']:
                     story.append(p(wrapped))
     text_segment(story)
+    if number == 1 and FINAL:
+        image_segment(signoff['boardImage'], 'Genuine final GitHub Project Board. Six Lab 4 Issues (#55-#60) in Done, separate from nine older Lab 3 items. Source: ' + signoff['boardSourceUrl'] + '; verified ' + signoff['verifiedAt'] + '.')
     for rel in images:
         label = rel.rsplit('/',1)[-1].rsplit('.',1)[0].replace('-',' ')
         provenance = 'Recorded provenance: dated evidence/main/README.md and the corresponding verification record. Historical responsive captures are not relabelled as 4 October live images.'
@@ -241,11 +271,11 @@ for index,page in enumerate(writer.pages,1):
     cv = canvas.Canvas(stream,pagesize=(width,height))
     cv.setFont('Report',8)
     cv.setFillColor(INK)
-    cv.drawString(48,22,'POST-MERGE REVIEW - final output/publication/board pending')
+    cv.drawString(48,22,'TokTickIT Lab 4 | Final submission' if FINAL else 'SUBMISSION ACCEPTANCE COPY - final Issue/Board sign-off pending')
     cv.drawRightString(width-48,22,f'Page {index} of {total}')
     cv.save()
     page.merge_page(PdfReader(BytesIO(stream.getvalue())).pages[0])
-writer.add_metadata({'/Title':'TokTickIT Lab 4 Post-Merge Evidence Review','/Subject':'Main summaries verified; complete-output/publication/board gates remain'})
+writer.add_metadata({'/Title':'TokTickIT Lab 4 Final Submission' if FINAL else 'TokTickIT Lab 4 Submission Acceptance Copy','/Subject':'Reviewed main publication 083962c; tested runtime source 73faa8b'})
 with OUT.open('wb') as file:
     writer.write(file)
 print(f'Created {OUT}; pages={total}; figures={figure}')

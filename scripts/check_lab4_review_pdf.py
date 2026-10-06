@@ -1,13 +1,15 @@
 from pathlib import Path
 import json
 import re
+import sys
 import pypdfium2 as pdfium
 from pypdf import PdfReader
 from PIL import Image, ImageDraw
 
 root = Path(__file__).resolve().parents[1]
-path = root/'output/pdf/TokTickIT_Lab4_PostMerge_Review.pdf'
-out = root/'tmp/pdfs/lab4-postmerge-qa'
+final = '--final' in sys.argv[1:]
+path = root/('output/pdf/TokTickIT_Lab4_Submission.pdf' if final else 'output/pdf/TokTickIT_Lab4_PostMerge_Review.pdf')
+out = root/('tmp/pdfs/lab4-final-qa' if final else 'tmp/pdfs/lab4-postmerge-qa')
 out.mkdir(parents=True, exist_ok=True)
 reader = PdfReader(path)
 doc = pdfium.PdfDocument(str(path))
@@ -15,7 +17,7 @@ parts,figures,blank,links = [],[],[],0
 sheet = None
 for index,page in enumerate(reader.pages):
     text = page.extract_text() or ''
-    content = re.sub(r'Page \d+ of \d+', '', text.replace('POST-MERGE REVIEW - final output/publication/board pending',''))
+    content = re.sub(r'Page \d+ of \d+', '', text.replace('SUBMISSION ACCEPTANCE COPY - final Issue/Board sign-off pending','').replace('TokTickIT Lab 4 | Final submission',''))
     if len(content.strip()) < 20 and not page.images:
         blank.append(index+1)
     parts += [(index+1, m.group(0)) for m in re.finditer(r'Answer Part \d: [^\n]+',text)]
@@ -33,7 +35,7 @@ for index,page in enumerate(reader.pages):
     if index%16==15 or index==len(reader.pages)-1:
         sheet.save(out/f'contact-{index//16+1}.jpg')
 assert not blank, blank
-assert [f for _,f in figures] == list(range(1,71)), figures
+assert [f for _,f in figures] == list(range(1,72 if final else 71)), figures
 assert len(parts)==9, parts
 summary = dict(pages=len(reader.pages),blankPages=blank,partPages=parts,figures=len(figures),linkAnnotations=links)
 (out/'checks.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
