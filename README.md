@@ -8,8 +8,8 @@ TokTickIT is a full-stack IT service desk built through reviewed CPE334 Lab 1-4 
 - `server/`: Express API, Prisma/PostgreSQL schema and migrations, seed, Vitest/Supertest tests.
 - `e2e/`: Playwright browser regression and responsive checks.
 - `docs/lab-01/` through `docs/lab-04/`: specifications, test plans, review records and submission evidence.
-- `docs/lab-04/evidence/`: twelve committed desktop, tablet and mobile screenshots of the major Lab 4 screens.
-- `artifacts/`: local Playwright reports, traces and runtime files; ignored by Git.
+- `docs/lab-04/evidence/`: curated responsive and interaction screenshots, attributed query records, and selected verification output.
+- `artifacts/`: local Playwright reports, traces and runtime files. The configured runtime/report paths are ignored; publish only the selected evidence copied to `docs/lab-04/evidence/`.
 
 ## Local setup
 
@@ -62,15 +62,16 @@ npm --prefix server run build
 npm --prefix client run build
 ```
 
-The default server run intentionally skips database-resetting integration, recovery and performance suites. To run the guarded Lab 4 checks against *disposable local PostgreSQL schemas*, first verify your `server/.env` points to a local database, then run each separately:
+The default server run intentionally skips opt-in database integration, recovery, performance and history suites. To run the guarded Lab 4 checks against *disposable local PostgreSQL schemas*, first verify your `server/.env` points to a local database, then run each separately:
 
 ```bash
 npm --prefix server run test:lab4-migration
 npm --prefix server run test:lab4-recovery
 npm --prefix server run test:lab4-performance
+npm --prefix server run test:lab4-history
 ```
 
-The scripts reset only their named test schemas (`lab4_migration_test`, `lab4_recovery_source_test`, `lab4_recovery_target_test`, and `lab4_dashboard_perf_test`). They must not be used as a production backup or performance benchmark. `docs/lab-04/tests.md` records the separate results and their limits.
+The migration/recovery/performance scripts reset only their named test schemas (`lab4_migration_test`, `lab4_recovery_source_test`, `lab4_recovery_target_test`, and `lab4_dashboard_perf_test`). The history runner instead creates a fresh `lab4_history_test_<12 hex characters>` schema, refuses to reuse an existing schema and removes only the one it successfully created. It verifies prior-event preservation across two real workflow API writes, repeated chronological reads, and no history change after stale/Requester-denied writes. These checks must not be used as a production backup or performance benchmark. `docs/lab-04/tests.md` records the separate results and their limits.
 
 The root Playwright command starts its own API and UI and **resets the disposable `lab3_e2e` schema** before seeding it. Stop any local servers on the configured E2E ports first. With a working local PostgreSQL `DATABASE_URL` in `server/.env`, run:
 
@@ -80,6 +81,17 @@ npm run e2e
 ```
 
 Playwright covers Lab 2/3 regressions and Lab 4 Action, dashboard, workflow and responsive scenarios. Its HTML report is written to `artifacts/lab-03/playwright-report/`; the twelve Lab 4 responsive evidence images are committed under `docs/lab-04/evidence/`. Run final verification again **after** the reviewed staging branch is promoted to `main`; feature-branch results alone do not establish a passing final `main`.
+
+The additional submission browser cases cover pending/failed saves, Dashboard states, ownership and inactive-assignee rejection, long Action text, and keyboard focus in the Action form. Run the file through the same guarded runner:
+
+```bash
+npm run e2e -- e2e/lab-04/evidence-completion.spec.ts
+npm run e2e -- --grep "final Action keyboard"
+```
+
+The first command discovers the whole supplementary file; the second is a focused subset. Both reset the disposable E2E schema. Controlled responses are labelled in the evidence records and distinguish rendering checks from actual database/API behavior. `docs/lab-04/final-checklist-verification.md` records the final Action focus checks and their client regression/build results. These local submission results retain their source attribution until the correction is reviewed and promoted to main.
+
+The six engineering documents are [specification](docs/lab-04/specification.md), [API contract](docs/lab-04/api-spec.md), [test plan and results](docs/lab-04/tests.md), [UI contract and checklist](docs/lab-04/ui-spec.md), [peer review record](docs/lab-04/reviewer.md), and [AI use and reflection](docs/lab-04/ai-use.md). The [submission audit](docs/lab-04/submission-completion-audit.md) identifies the remaining publication and final Project-board steps.
 
 ## Security and data handling
 

@@ -1,0 +1,21 @@
+55f8200d373577977d2205499d1c29732fe6b9ec
+main
+
+> toktickit-server@1.0.0 test:lab4-recovery
+> npm run build --silent && node dist/scripts/run-lab4-recovery-test.js
+
+Resetting only the disposable local lab4_recovery_source_test and lab4_recovery_target_test schemas.
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server[39m
+
+[90mstdout[2m | tests/lab-04/migration-recovery.integration.test.ts[2m > [22m[2mLab 4 logical database and attachment recovery[2m > [22m[2mrestores all application rows and attachment bytes into a separate disposable schema
+[22m[39mLab 4 logical recovery verified 28 Tickets, 3 Actions, 1 attachment metadata rows and the copied attachment SHA-256 in a separate local schema.
+
+ [32m✓[39m tests/lab-04/migration-recovery.integration.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2138[2mms[22m[39m
+   [33m[2m✓[22m[39m Lab 4 logical database and attachment recovery[2m > [22mrestores all application rows and attachment bytes into a separate disposable schema [33m2138[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 15:11:29
+[2m   Duration [22m 2.55s[2m (transform 63ms, setup 0ms, collect 97ms, tests 2.14s, environment 0ms, prepare 98ms)[22m
+

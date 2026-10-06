@@ -62,9 +62,13 @@ describe("Lab 4 Actions Taken", () => {
     render(<ActionsTakenSection ticketId={7} user={staff} />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Add action" }));
+    expect(screen.getByLabelText(/^Action date and time/)).toHaveFocus();
     fireEvent.click(screen.getByRole("button", { name: "Save action" }));
 
     expect(await screen.findByText("Enter an Action description.")).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Action description/)).toHaveFocus();
+    fireEvent.click(screen.getByRole("button", { name: /^Cancel$/ }));
+    expect(screen.getByRole("button", { name: "Add action" })).toHaveFocus();
     expect(fetchMock).not.toHaveBeenCalledWith("/api/staff/tickets/7/actions-taken", expect.objectContaining({ method: "POST" }));
   });
 
@@ -81,6 +85,7 @@ describe("Lab 4 Actions Taken", () => {
     render(<ActionsTakenSection ticketId={7} user={assignee} />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Complete action" }));
+    expect(screen.getByLabelText(/^Result/)).toHaveFocus();
     fireEvent.change(screen.getByLabelText(/^Result/), { target: { value: "Service returned to normal operation." } });
     fireEvent.click(screen.getByRole("button", { name: "Complete action" }));
 

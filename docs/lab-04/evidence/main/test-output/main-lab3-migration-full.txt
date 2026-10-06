@@ -1,0 +1,31 @@
+55f8200d373577977d2205499d1c29732fe6b9ec
+main
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/server[39m
+
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+ [32m✓[39m tests/lab-03/migration.test.ts[2m > [22mLab 3 requester-to-user migration[2m > [22mretains an existing ID, Ticket ownership, and attachment removal attribution[33m 6315[2mms[22m[39m
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Script executed successfully.
+Error: ERROR: Requester emails collide after trim/lower normalization; resolve collisions before the Lab 3 migration.
+
+
+ [32m✓[39m tests/lab-03/migration.test.ts[2m > [22mLab 3 requester-to-user migration[2m > [22mstops before renaming tables when normalized requester emails collide[33m 2821[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 15:16:26
+[2m   Duration [22m 9.82s[2m (transform 127ms, setup 0ms, collect 339ms, tests 9.17s, environment 0ms, prepare 96ms)[22m
+

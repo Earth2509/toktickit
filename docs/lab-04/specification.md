@@ -1,6 +1,6 @@
 # Lab 4 Engineering Contract
 
-Status: Contract reviewed before implementation; the release is merged into `main` at `ffe6e0e`. Automated main verification is recorded in [final-main-verification.md](final-main-verification.md). Product Definition of Done sign-off remains pending; [submission-completion-audit.md](submission-completion-audit.md) identifies unresolved product and submission evidence requirements.
+Status: Contract reviewed before implementation. The latest application release was merged into `main` by PR #69 at `7329652`; PR #70 subsequently merged its documentation record at `55f8200`. The earlier `ffe6e0e` release remains historical evidence. Automated main verification is recorded in [final-main-verification.md](final-main-verification.md). Product Definition of Done sign-off remains pending; [submission-completion-audit.md](submission-completion-audit.md) identifies unresolved submission evidence requirements.
 
 ## 1. Sprint Goal
 
@@ -100,13 +100,13 @@ See [api-spec.md](api-spec.md). All protected endpoints use the existing session
 
 ## 10. Product Definition of Done
 
-- [ ] Contract and planned tests reviewed before implementation PRs.
-- [ ] Migration preserves prior data and repeat-safe seed data covers actions and dashboards.
-- [ ] Every acceptance criterion maps to executable tests and final outcomes are recorded.
-- [ ] API authorization, validation, stale-write and safe failure checks pass.
-- [ ] Desktop, tablet and mobile screens have no clipping, overlap or page-level horizontal overflow.
-- [ ] Existing Labs 1-3 flows pass regression verification.
-- [ ] README/setup/test instructions and all six Lab 4 documents are current.
+- [x] Contract and planned tests reviewed before implementation PRs. Engineering contract PR #61 was peer-approved and merged as `6ce7862` on 25 September 2026 at 17:49:57 +07:00. That merge is an ancestor of the initial Actions foundation implementation `343e00f`, committed at 22:43:03 +07:00. The three contract review rounds and source links are recorded in [reviewer.md](reviewer.md#pr-61--engineering-contract-three-review-rounds).
+- [x] Migration preserves prior data and repeat-safe seed data covers actions and dashboards. Verified by the separately passing main migration/recovery cases and repeat-safe seed test; see [main output verification](main-full-output-verification.md).
+- [x] Every acceptance criterion maps to executable tests and final outcomes are recorded in [tests.md](tests.md). Supplemental visual tests have their own branch attribution and do not replace the main run.
+- [x] API authorization, validation, stale-write and safe failure checks pass in the preserved main suite; see [main output verification](main-full-output-verification.md).
+- [x] Desktop, tablet and mobile representative screens have no observed clipping, overlap or page-level horizontal overflow. Refreshed main images and the supplementary long-content and final form-state browser assertions/images are recorded in [ui-spec.md](ui-spec.md) and [final checklist evidence](final-checklist-verification.md); this is scoped to documented screens and fixtures, not every possible content permutation.
+- [x] Existing Labs 1-3 flows pass regression verification in the preserved main suites and separately passing opt-in database cases. See [main output verification](main-full-output-verification.md).
+- [x] README/setup/test instructions and all six local Lab 4 documents are current, including supplementary verification commands, the adopted reflection and scoped visual checklist. The submission correction and evidence still require peer-reviewed publication before the final main URLs can be treated as matching these rendered local copies.
 - [ ] Feature PRs are peer-reviewed into `lab4-staging`, then release-reviewed into `main`; completed Issues are in Done.
 
 ## 11. Assumptions and Decisions

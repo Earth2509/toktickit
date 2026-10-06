@@ -1,0 +1,522 @@
+{
+  "id": 21,
+  "ticketNumber": "TT-2026-000021",
+  "currentStatus": "OPEN",
+  "version": 5,
+  "ownerId": 32,
+  "resolutionSummary": "Local Lab 4 workflow evidence: both diagnostic Actions are completed with no follow-up required; the optional Action was cancelled. The isolated demonstration Ticket is resolved.",
+  "actionsTaken": [
+    {
+      "id": 1,
+      "status": "COMPLETED",
+      "version": 3,
+      "performedById": 32,
+      "assignedToId": 32,
+      "completedAt": "2026-10-01T17:18:20.708Z",
+      "followUpRequired": false,
+      "result": "The diagnostic check completed successfully and the connection was verified. No follow-up is required for this demonstration Action."
+    },
+    {
+      "id": 2,
+      "status": "CANCELLED",
+      "version": 2,
+      "performedById": 32,
+      "assignedToId": 32,
+      "completedAt": null,
+      "followUpRequired": false,
+      "result": null
+    },
+    {
+      "id": 3,
+      "status": "COMPLETED",
+      "version": 3,
+      "performedById": 32,
+      "assignedToId": 32,
+      "completedAt": "2026-10-04T08:34:10.848Z",
+      "followUpRequired": false,
+      "result": "Local Lab 4 demonstration: the remaining diagnostic Action is complete. No follow-up is required for this isolated fixture."
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "actorId": 32,
+      "type": "ACTION_TAKEN_CREATED",
+      "before": null,
+      "after": {
+        "id": 1,
+        "result": null,
+        "status": "OPEN",
+        "version": 1,
+        "actionAt": "2026-10-01T17:17:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:17:52.101Z",
+        "updatedAt": "2026-10-01T17:17:52.101Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: inspected the reported connection problem and documented diagnostic steps.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "reason": null,
+      "createdAt": "2026-10-01T17:17:52.104Z"
+    },
+    {
+      "id": 2,
+      "actorId": 32,
+      "type": "ACTION_TAKEN_UPDATED",
+      "before": {
+        "id": 1,
+        "result": null,
+        "status": "OPEN",
+        "version": 1,
+        "actionAt": "2026-10-01T17:17:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:17:52.101Z",
+        "updatedAt": "2026-10-01T17:17:52.101Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: inspected the reported connection problem and documented diagnostic steps.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "after": {
+        "id": 1,
+        "result": null,
+        "status": "OPEN",
+        "version": 2,
+        "actionAt": "2026-10-01T17:17:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:17:52.101Z",
+        "updatedAt": "2026-10-01T17:18:09.643Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: inspected the connection problem, verified network settings and recorded the diagnostic findings.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "reason": null,
+      "createdAt": "2026-10-01T17:18:09.645Z"
+    },
+    {
+      "id": 3,
+      "actorId": 32,
+      "type": "ACTION_TAKEN_STATUS_CHANGED",
+      "before": {
+        "id": 1,
+        "result": null,
+        "status": "OPEN",
+        "version": 2,
+        "actionAt": "2026-10-01T17:17:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:17:52.101Z",
+        "updatedAt": "2026-10-01T17:18:09.643Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: inspected the connection problem, verified network settings and recorded the diagnostic findings.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "after": {
+        "id": 1,
+        "result": "The diagnostic check completed successfully and the connection was verified. No follow-up is required for this demonstration Action.",
+        "status": "COMPLETED",
+        "version": 3,
+        "actionAt": "2026-10-01T17:17:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:17:52.101Z",
+        "updatedAt": "2026-10-01T17:18:20.709Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": "2026-10-01T17:18:20.708Z",
+        "description": "Visual evidence: inspected the connection problem, verified network settings and recorded the diagnostic findings.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "reason": null,
+      "createdAt": "2026-10-01T17:18:20.711Z"
+    },
+    {
+      "id": 4,
+      "actorId": 32,
+      "type": "ACTION_TAKEN_CREATED",
+      "before": null,
+      "after": {
+        "id": 2,
+        "result": null,
+        "status": "OPEN",
+        "version": 1,
+        "actionAt": "2026-10-01T17:18:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:18:35.518Z",
+        "updatedAt": "2026-10-01T17:18:35.518Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: optional additional investigation task, to be cancelled as unnecessary.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "reason": null,
+      "createdAt": "2026-10-01T17:18:35.519Z"
+    },
+    {
+      "id": 5,
+      "actorId": 32,
+      "type": "ACTION_TAKEN_STATUS_CHANGED",
+      "before": {
+        "id": 2,
+        "result": null,
+        "status": "OPEN",
+        "version": 1,
+        "actionAt": "2026-10-01T17:18:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:18:35.518Z",
+        "updatedAt": "2026-10-01T17:18:35.518Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: optional additional investigation task, to be cancelled as unnecessary.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "after": {
+        "id": 2,
+        "result": null,
+        "status": "CANCELLED",
+        "version": 2,
+        "actionAt": "2026-10-01T17:18:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:18:35.518Z",
+        "updatedAt": "2026-10-01T17:18:52.445Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: optional additional investigation task, to be cancelled as unnecessary.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "reason": null,
+      "createdAt": "2026-10-01T17:18:52.447Z"
+    },
+    {
+      "id": 6,
+      "actorId": 32,
+      "type": "ACTION_TAKEN_CREATED",
+      "before": null,
+      "after": {
+        "id": 3,
+        "result": null,
+        "status": "OPEN",
+        "version": 1,
+        "actionAt": "2026-10-01T17:21:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:21:09.303Z",
+        "updatedAt": "2026-10-01T17:21:09.303Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: concurrent edit demonstration Action.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "reason": null,
+      "createdAt": "2026-10-01T17:21:09.305Z"
+    },
+    {
+      "id": 7,
+      "actorId": 32,
+      "type": "ACTION_TAKEN_UPDATED",
+      "before": {
+        "id": 3,
+        "result": null,
+        "status": "OPEN",
+        "version": 1,
+        "actionAt": "2026-10-01T17:21:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:21:09.303Z",
+        "updatedAt": "2026-10-01T17:21:09.303Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: concurrent edit demonstration Action.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "after": {
+        "id": 3,
+        "result": null,
+        "status": "OPEN",
+        "version": 2,
+        "actionAt": "2026-10-01T17:21:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:21:09.303Z",
+        "updatedAt": "2026-10-01T17:21:28.866Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: committed update from the first browser tab.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "reason": null,
+      "createdAt": "2026-10-01T17:21:28.868Z"
+    },
+    {
+      "id": 8,
+      "actorId": 36,
+      "type": "ACTION_TAKEN_STATUS_CHANGED",
+      "before": {
+        "id": 3,
+        "result": null,
+        "status": "OPEN",
+        "version": 2,
+        "actionAt": "2026-10-01T17:21:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:21:09.303Z",
+        "updatedAt": "2026-10-01T17:21:28.866Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": null,
+        "description": "Visual evidence: committed update from the first browser tab.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "after": {
+        "id": 3,
+        "result": "Local Lab 4 demonstration: the remaining diagnostic Action is complete. No follow-up is required for this isolated fixture.",
+        "status": "COMPLETED",
+        "version": 3,
+        "actionAt": "2026-10-01T17:21:00.000Z",
+        "ticketId": 21,
+        "createdAt": "2026-10-01T17:21:09.303Z",
+        "updatedAt": "2026-10-04T08:34:10.848Z",
+        "assignedTo": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "completedAt": "2026-10-04T08:34:10.848Z",
+        "description": "Visual evidence: committed update from the first browser tab.",
+        "performedBy": {
+          "id": 32,
+          "role": "IT_STAFF",
+          "displayName": "Kamon IT Support"
+        },
+        "followUpNote": null,
+        "attachmentNotes": null,
+        "followUpRequired": false
+      },
+      "reason": null,
+      "createdAt": "2026-10-04T08:34:10.851Z"
+    },
+    {
+      "id": 9,
+      "actorId": 36,
+      "type": "STATUS_CHANGED",
+      "before": {
+        "id": 21,
+        "ownerId": 32,
+        "version": 1,
+        "itPriority": "LOW",
+        "currentStatus": "OPEN"
+      },
+      "after": {
+        "id": 21,
+        "ownerId": 32,
+        "version": 2,
+        "updatedAt": "2026-10-04T08:34:31.485Z",
+        "itPriority": "LOW",
+        "ticketNumber": "TT-2026-000021",
+        "currentStatus": "RESOLVED",
+        "resolutionSummary": "Local Lab 4 workflow evidence: both diagnostic Actions are completed with no follow-up required; the optional Action was cancelled. The isolated demonstration Ticket is resolved."
+      },
+      "reason": "",
+      "createdAt": "2026-10-04T08:34:31.486Z"
+    },
+    {
+      "id": 10,
+      "actorId": 36,
+      "type": "STATUS_CHANGED",
+      "before": {
+        "id": 21,
+        "ownerId": 32,
+        "version": 2,
+        "itPriority": "LOW",
+        "currentStatus": "RESOLVED"
+      },
+      "after": {
+        "id": 21,
+        "ownerId": 32,
+        "version": 3,
+        "updatedAt": "2026-10-04T08:34:41.102Z",
+        "itPriority": "LOW",
+        "ticketNumber": "TT-2026-000021",
+        "currentStatus": "CLOSED",
+        "resolutionSummary": "Local Lab 4 workflow evidence: both diagnostic Actions are completed with no follow-up required; the optional Action was cancelled. The isolated demonstration Ticket is resolved."
+      },
+      "reason": "",
+      "createdAt": "2026-10-04T08:34:41.104Z"
+    },
+    {
+      "id": 11,
+      "actorId": 36,
+      "type": "STATUS_CHANGED",
+      "before": {
+        "id": 21,
+        "ownerId": 32,
+        "version": 3,
+        "itPriority": "LOW",
+        "currentStatus": "CLOSED"
+      },
+      "after": {
+        "id": 21,
+        "ownerId": 32,
+        "version": 4,
+        "updatedAt": "2026-10-04T08:35:00.408Z",
+        "itPriority": "LOW",
+        "ticketNumber": "TT-2026-000021",
+        "currentStatus": "REOPENED",
+        "resolutionSummary": "Local Lab 4 workflow evidence: both diagnostic Actions are completed with no follow-up required; the optional Action was cancelled. The isolated demonstration Ticket is resolved."
+      },
+      "reason": "Reopened only to verify the Lab 4 post-reopen resolution safeguard on this authorized local demonstration fixture.",
+      "createdAt": "2026-10-04T08:35:00.410Z"
+    },
+    {
+      "id": 12,
+      "actorId": 36,
+      "type": "STATUS_CHANGED",
+      "before": {
+        "id": 21,
+        "ownerId": 32,
+        "version": 4,
+        "itPriority": "LOW",
+        "currentStatus": "REOPENED"
+      },
+      "after": {
+        "id": 21,
+        "ownerId": 32,
+        "version": 5,
+        "updatedAt": "2026-10-04T08:35:09.675Z",
+        "itPriority": "LOW",
+        "ticketNumber": "TT-2026-000021",
+        "currentStatus": "OPEN",
+        "resolutionSummary": "Local Lab 4 workflow evidence: both diagnostic Actions are completed with no follow-up required; the optional Action was cancelled. The isolated demonstration Ticket is resolved."
+      },
+      "reason": "Reopened only to verify the Lab 4 post-reopen resolution safeguard on this authorized local demonstration fixture.",
+      "createdAt": "2026-10-04T08:35:09.677Z"
+    }
+  ]
+}

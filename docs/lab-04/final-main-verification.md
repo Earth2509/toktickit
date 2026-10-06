@@ -1,5 +1,13 @@
 # Lab 4 post-merge main verification
 
+## Submission release pending - 5 October 2026
+
+The approved PR #71 correction/evidence increment is merged into staging at `381e123`, but fetched main remains `55f8200`. The records below are preserved historical main checks, not final-main verification of the new focus behavior or supplemental history test. [Submission release verification](submission-release-verification.md) separates reviewer-run `56a95c1` results from any new release or post-merge main runs. Do not relabel historical 41-client/19-browser results as the newer 45-client/29-browser outcomes.
+
+## Latest complete output — 4 October 2026
+
+Eight complete developer-run logs now include branch `main` and full commit `55f8200d373577977d2205499d1c29732fe6b9ec`. Server 134 passed / 8 skipped, client 41 passed, browser 19 passed, and all eight opt-in server cases passed separately. See [full output verification](main-full-output-verification.md) for originals, timings, hashes and scope. This newer record supersedes the excerpt-only limitation below for these test runs; new complete build logs and final visual/PDF sign-off remain outstanding.
+
 ## Latest verification — PR #69 merged main, 2026-10-03
 
 Tested source: `7329652011d406ca0a9c5466f5b4c1c93f7cf8ad` (`main` and `origin/main`), merge of [PR #69](https://github.com/Earth2509/toktickit/pull/69). The assistant confirmed the local HEAD before recording these results. The developer supplied the output below after updating to this source and running each requested command. The output excerpts do not independently include SHA headers or complete logs; the assistant did not independently rerun these suites.

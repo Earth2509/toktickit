@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createActionTaken,
   fetchActionsTaken,
@@ -74,6 +74,22 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [idempotencyKey, setIdempotencyKey] = useState(() => newIdempotencyKey());
+  const sectionRef = useRef<HTMLElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const returnFocusKey = useRef("create");
+  const formWasOpen = useRef(false);
+
+  useEffect(() => {
+    if (showForm) {
+      formWasOpen.current = true;
+      formRef.current?.querySelector<HTMLElement>("input:not(:disabled), select:not(:disabled), textarea:not(:disabled)")?.focus();
+    } else if (formWasOpen.current) {
+      formWasOpen.current = false;
+      const trigger = Array.from(sectionRef.current?.querySelectorAll<HTMLButtonElement>("[data-action-trigger]") ?? [])
+        .find(button => button.dataset.actionTrigger === returnFocusKey.current);
+      (trigger ?? sectionRef.current?.querySelector<HTMLButtonElement>('[data-action-trigger="create"]'))?.focus();
+    }
+  }, [showForm]);
 
   const load = async (nextPage = 1, append = false) => {
     setLoading(true);
@@ -98,6 +114,7 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
   useEffect(() => { void load(); }, [ticketId, readOnly]);
 
   function startCreate() {
+    returnFocusKey.current = "create";
     setEditing(null);
     setForm(emptyForm(user.id));
     setIdempotencyKey(newIdempotencyKey());
@@ -106,6 +123,7 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
   }
 
   function startEdit(action: ActionTaken, status: ActionForm["status"] = "OPEN") {
+    returnFocusKey.current = `${action.id}-${status}`;
     setEditing(action);
     setForm({ ...actionForm(action), status });
     setFormError("");
@@ -208,14 +226,21 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
     "aria-describedby": invalidField === field ? "action-form-error" : undefined,
   });
 
-  return <section className="actions-taken-section" aria-labelledby="actions-taken-heading">
+  useEffect(() => {
+    if (!showForm || !formError || saving) return;
+    const target = invalidField ? formRef.current?.querySelector<HTMLElement>(`#${invalidField}`)
+      : formRef.current?.querySelector<HTMLElement>("#action-form-error");
+    target?.focus();
+  }, [formError, invalidField, saving, showForm]);
+
+  return <section ref={sectionRef} className="actions-taken-section" aria-labelledby="actions-taken-heading">
     <div className="section-heading-row">
       <div><h2 id="actions-taken-heading">Actions Taken</h2><p>Recorded work associated with this Ticket.</p></div>
-      {!readOnly && canWrite && !showForm && <button className="button button-primary" type="button" onClick={startCreate}>Add action</button>}
+      {!readOnly && canWrite && !showForm && <button data-action-trigger="create" className="button button-primary" type="button" onClick={startCreate}>Add action</button>}
     </div>
     {readOnly && <p className="field-hint">Actions Taken are visible for transparency. Only IT Staff and Administrators can make changes.</p>}
     {error && <div className="error-panel" role="alert"><p>{error}</p><button className="button button-secondary" type="button" onClick={() => load()}>Retry</button></div>}
-    {showForm && !readOnly && canWrite && <form className="action-form" onSubmit={submit} noValidate>
+    {showForm && !readOnly && canWrite && <form ref={formRef} className="action-form" onSubmit={submit} aria-busy={saving} noValidate>
       <h3>{editing ? form.status === "COMPLETED" ? "Complete action" : form.status === "CANCELLED" ? "Cancel action" : "Edit action" : "Add action"}</h3>
       <div className="form-grid">
         <div className="form-field"><label htmlFor="action-at">Action date and time <span className="required-marker">*</span></label><input id="action-at" type="datetime-local" value={form.actionAt} onChange={event => setForm(current => ({ ...current, actionAt: event.target.value }))} disabled={saving || editing !== null} {...errorAttributes("action-at")} /></div>
@@ -226,14 +251,14 @@ export default function ActionsTakenSection({ ticketId, user, readOnly = false, 
         <div className="form-field full-width"><label htmlFor="action-attachment-notes">Attachment notes</label><textarea id="action-attachment-notes" maxLength={1000} value={form.attachmentNotes} onChange={event => setForm(current => ({ ...current, attachmentNotes: event.target.value }))} disabled={disableOpenFields} /><p className="field-hint">Describe related files here. This does not upload an attachment.</p></div>
         {form.status === "COMPLETED" && <div className="form-field full-width"><label htmlFor="action-result">Result <span className="required-marker">*</span></label><textarea id="action-result" maxLength={2000} value={form.result} onChange={event => setForm(current => ({ ...current, result: event.target.value }))} disabled={saving} {...errorAttributes("action-result")} /></div>}
       </div>
-      {formError && <p id="action-form-error" className="field-error" role="alert">{formError}</p>}
+      {formError && <p id="action-form-error" className="field-error" role="alert" tabIndex={-1}>{formError}</p>}
       <div className="form-actions"><button className="button button-primary" type="submit" disabled={saving}>{saving ? "Saving action..." : form.status === "COMPLETED" ? "Complete action" : form.status === "CANCELLED" ? "Cancel action" : "Save action"}</button><button className="button button-secondary" type="button" onClick={closeForm} disabled={saving}>Cancel</button></div>
     </form>}
     {loading && items.length === 0 ? <p className="status-message" role="status">Loading Actions Taken...</p> : items.length === 0 ? <p className="empty-panel" role="status">No Actions Taken have been recorded for this Ticket.</p> : <><ul className="action-list" aria-label="Actions Taken">
       {items.map(action => <li key={action.id} className="action-item">
         <div className="action-item-header"><div><h3>{action.description}</h3><p>Action date/time {displayDate.format(new Date(action.actionAt))}</p></div><span className={`action-status action-status-${action.status.toLowerCase()}`}>{action.status}</span></div>
         <dl className="action-metadata"><ActionField label="Performed by" value={action.performedBy.displayName} /><ActionField label="Assignee" value={action.assignedTo.displayName} /><ActionField label="Recorded at" value={displayDate.format(new Date(action.createdAt))} /><ActionField label="Completed" value={action.completedAt ? displayDate.format(new Date(action.completedAt)) : "Not completed"} /><ActionField label="Follow-up" value={action.followUpRequired ? action.followUpNote ?? "Required" : "Not required"} />{action.result && <ActionField label="Result" value={action.result} />}{action.attachmentNotes && <ActionField label="Attachment notes" value={action.attachmentNotes} />}</dl>
-        {!readOnly && canWrite && action.status === "OPEN" && !showForm && <div className="action-controls">{canEdit(action) && <button className="button button-secondary" type="button" onClick={() => startEdit(action)}>Edit action</button>}{canTransition(action) && <><button className="button button-primary" type="button" onClick={() => startEdit(action, "COMPLETED")}>Complete action</button><button className="button button-secondary" type="button" onClick={() => startEdit(action, "CANCELLED")}>Cancel action</button></>}</div>}
+        {!readOnly && canWrite && action.status === "OPEN" && !showForm && <div className="action-controls">{canEdit(action) && <button data-action-trigger={`${action.id}-OPEN`} className="button button-secondary" type="button" onClick={() => startEdit(action)}>Edit action</button>}{canTransition(action) && <><button data-action-trigger={`${action.id}-COMPLETED`} className="button button-primary" type="button" onClick={() => startEdit(action, "COMPLETED")}>Complete action</button><button data-action-trigger={`${action.id}-CANCELLED`} className="button button-secondary" type="button" onClick={() => startEdit(action, "CANCELLED")}>Cancel action</button></>}</div>}
       </li>)}
     </ul><p className="field-hint">Showing {items.length} of {totalItems} Actions Taken.</p>{loadedPage < totalPages && <button className="button button-secondary" type="button" onClick={() => load(loadedPage + 1, true)} disabled={loading}>Load more actions</button>}</>}
   </section>;
