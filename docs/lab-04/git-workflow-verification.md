@@ -17,6 +17,8 @@ All timestamps below are recorded Git metadata with timezone +07:00 (Asia/Bangko
 
 A separate ancestry check for contract merge `6ce7862` against implementation `343e00f` returned exit code 1. Therefore, do not claim that the foundation commit was based on that merge commit or included every reviewed contract change. The initial contract ancestry is proven; the contract merge precedes the implementation only in the recorded timestamps.
 
+Rechecked on 29 October 2026: `git show -s --format=%P 343e00f` identifies reviewed contract tip `be3c5ab7c2bce0261384e4e9c1628c1e212201ae` as the foundation's sole direct parent. The ancestry check from that tip to the foundation returns 0, and `reviewer.md` records approval of PR #61 on that tip. This is the precise reviewed-contract relationship; merge `6ce7862` is not substituted for it.
+
 ## Feature, staging and main integration
 
 The local graph contains the real feature merge commits and promotion merges. Selected ancestry, condensed from `git log --graph`:

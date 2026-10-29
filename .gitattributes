@@ -3,3 +3,6 @@
 docs/lab-04/evidence/main/test-output/*.txt -text whitespace=-blank-at-eof
 docs/lab-04/evidence/build-output/*.txt -text whitespace=-blank-at-eof
 docs/lab-04/evidence/main/*.json -text
+# Preserve original log bytes across Windows/Linux checkouts so manifest hashes
+# continue to verify the evidence, rather than normalized line-ending variants.
+docs/lab-04/evidence/compliance-20261029/** -text whitespace=-blank-at-eof,-blank-at-eol

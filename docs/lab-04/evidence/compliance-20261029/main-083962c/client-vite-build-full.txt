@@ -1,0 +1,27 @@
+Evidence kind: main-083962c
+Checkout HEAD: 083962c2ec75202acae4f5e2cfebef62ee17c007
+Branch: main
+Tracked working tree clean: true
+Working directory: C:\Users\ASUS\Documents\Codex\2026-08-12\github\tmp\lab4-main-verification-083962c
+Command directory: client
+Command: node node_modules/vite/bin/vite.js build
+Node: v24.22.1
+Invocation environment (non-secret): {}
+Dependency provenance: installed dependencies copied from the existing workspace; lockfiles are tracked in this checkout.
+Started UTC: 2026-10-29T07:28:04.604Z
+
+STDOUT
+vite v6.4.3 building for production...
+transforming...
+✓ 37 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.41 kB │ gzip:  0.27 kB
+dist/assets/index-BxP1s5g_.css   24.41 kB │ gzip:  5.20 kB
+dist/assets/index-B5PnQ1t8.js   230.98 kB │ gzip: 65.66 kB
+✓ built in 720ms
+
+STDERR
+
+Completed UTC: 2026-10-29T07:28:06.970Z
+Exit code: 0
