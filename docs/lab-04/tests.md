@@ -6,6 +6,8 @@ The current required file paths are listed in the tables below. The eleven Dashb
 
 Original screenshot bytes are also available under the three required `artifacts/lab-04/screenshots/` directories, with a SHA-256 provenance map. This is a path correction, not a new image capture or test run.
 
+Review-branch implementation `b54a040` has separately passing full server (134 / 9 intentional skips), client (45), focused Dashboard API (11) and build checks with clean tracked files. Browser discovery finds 29 cases in 8 files, but the sandbox execution stalled before a summary/exit and was interrupted; it is not marked Passed. [Original branch outputs and incomplete-attempt disclosure](evidence/compliance-20261029/branch-compliance/) remain separate from the baseline main result. A completed Browser run is required before approving this relocation increment.
+
 ## Latest clean-main baseline - 29 October 2026
 
 All twelve commands passed on tracked-clean branch `main` at `083962c2ec75202acae4f5e2cfebef62ee17c007`: default server 134 passed / 9 intentional skips; all nine optional cases passed separately; client 45 passed; Browser 29 passed; server/client TypeScript and client Vite builds passed. [Complete logs and manifest](evidence/compliance-20261029/main-083962c/manifest.json) preserve the actual command, runtime, timestamps, checkout and hashes. These baseline results predate the test-file relocation and do not certify the new paths as merged main. The implementation assertions are preserved by `node scripts/check_lab4_compliance_paths.mjs`; relocated-branch runs are recorded separately before review.

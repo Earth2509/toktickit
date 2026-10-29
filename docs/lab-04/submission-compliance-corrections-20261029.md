@@ -101,6 +101,32 @@ correction workspace, which reuses its already installed dependencies. Test
 counts, commands, checkout labels and exit codes are unaffected by this metadata
 clarification.
 
+## Review-branch verification before publication
+
+The isolated review checkout was committed as
+`b54a04001c5719ea3530f4236312ab6f4c5a0ca9`. All seven completed checks ran on
+that branch with tracked files clean before and after the command. The original
+outputs and manifest are under
+[`branch-compliance/`](evidence/compliance-20261029/branch-compliance/):
+
+| Check | Actual result |
+| --- | --- |
+| Relocated Dashboard API | 2 files / 11 tests passed |
+| Full server | 26 files passed / 6 skipped; 134 tests passed / 9 intentional skips |
+| Full client | 13 files / 45 tests passed |
+| Server TypeScript | exit 0 |
+| Client TypeScript | exit 0 |
+| Client Vite production build | exit 0; 37 modules |
+| Browser discovery only | 29 tests across 8 files; not execution |
+
+Browser execution listed all 29 cases but stalled before returning a summary or
+successful exit. It was interrupted, not counted as passed; original streams and
+the diagnostic boundary are in
+[`branch-compliance/attempts/`](evidence/compliance-20261029/branch-compliance/attempts/).
+A completed relocated-source Browser run is a review requirement. The baseline
+main result (29 passed) remains separate. The following evidence/tooling update
+does not change the tested runtime or test-case bodies.
+
 ## Report layout
 
 The corrected report preserves all complete original images without cropping,

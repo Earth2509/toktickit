@@ -1,0 +1,48 @@
+Evidence kind: branch-compliance
+Checkout HEAD: b54a04001c5719ea3530f4236312ab6f4c5a0ca9
+Branch: feature/lab4-submission-compliance
+Tracked working tree clean: true
+Working directory: C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-submission-compliance
+Command directory: client
+Command: node node_modules/vitest/vitest.mjs run
+Node: v24.22.1
+Invocation environment (non-secret): {}
+Dependency provenance: installed dependencies copied from the existing workspace; lockfiles are tracked in this checkout.
+Started UTC: 2026-10-29T08:10:21.064Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-submission-compliance/client
+
+ ✓ tests/lab-04/RequesterDashboard.test.tsx (2 tests) 167ms
+ ✓ tests/lab-04/TicketWorkflow.test.tsx (2 tests) 235ms
+ ✓ tests/lab-04/StaffDashboard.test.tsx (4 tests) 237ms
+ ✓ tests/lab-04/ZenGreenLab4.styles.test.tsx (3 tests) 355ms
+ ✓ tests/lab-04/ActionsTaken.test.tsx (6 tests) 774ms
+   ✓ Lab 4 Actions Taken > reloads page one after creating an Action so totals and later pages stay accurate 406ms
+ ✓ tests/lab-03/AuthenticatedShell.test.tsx (6 tests) 559ms
+ ✓ tests/lab-04/StaffActionFocus.test.tsx (4 tests) 938ms
+   ✓ Staff Ticket Detail Action focus integration > keeps the real section mounted and restores focus after successful create 353ms
+ ✓ tests/lab-02/ZenGreen.styles.test.tsx (1 test) 687ms
+   ✓ Zen Green UI style > keeps the labelled, busy and focusable Ticket controls aligned with the Zen Green tokens 685ms
+ ✓ tests/lab-02/RequesterTicketDetail.test.tsx (2 tests) 758ms
+   ✓ Requester Ticket Detail > shows only owned detail data, active and removed metadata, and no removed download action 486ms
+ ✓ tests/lab-02/CreateTicketForm.test.tsx (5 tests) 1032ms
+   ✓ Create Ticket > shows inline validation and does not call the create API for an incomplete form 416ms
+ ✓ tests/lab-02/MyTickets.test.tsx (8 tests) 1740ms
+   ✓ My Tickets > sends resettable search and filter controls to the Ticket API 477ms
+   ✓ My Tickets > debounces search input so one completed term produces one Ticket request 475ms
+   ✓ My Tickets > shows a no-results state separately from an empty requester and returns to page one when filters change 372ms
+ ✓ tests/App.test.tsx (1 test) 79ms
+ ✓ tests/lab-03/UserManagement.test.tsx (1 test) 139ms
+
+ Test Files  13 passed (13)
+      Tests  45 passed (45)
+   Start at  15:10:23
+   Duration  19.16s (transform 1.72s, setup 32.17s, collect 24.55s, tests 7.70s, environment 117.81s, prepare 6.30s)
+
+
+STDERR
+
+Completed UTC: 2026-10-29T08:10:42.720Z
+Exit code: 0

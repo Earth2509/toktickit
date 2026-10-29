@@ -39,7 +39,9 @@ const jobs=[
 if(selection==='plan'){console.log(JSON.stringify({label,checkout,branch,commit,trackedWorkingTreeClean:!status,checks:jobs.map(j=>j[0]),databaseScope:'Only the named, guarded disposable local schemas. No public-schema reset.'},null,2));process.exit(0)}
 const selected=jobs.filter(j=>selection==='all'? !['e2e-list','dashboard-api'].includes(j[0]):j[0]===selection);
 if(!selected.length)throw new Error('Unknown check');
-const out=path.join(reportRoot,'docs/lab-04/evidence/compliance-20261029',label);
+// Keep subsequent review-branch commits separate, rather than overwriting the
+// accepted output or refusing every legitimate rerun after an evidence commit.
+const out=path.join(reportRoot,'docs/lab-04/evidence/compliance-20261029',label,...(label==='branch-compliance'?[commit.slice(0,7)]:[]));
 mkdirSync(out,{recursive:true});
 const manifestPath=path.join(out,'manifest.json');
 const manifest=existsSync(manifestPath)?JSON.parse(readFileSync(manifestPath,'utf8')):{label,checkout,commit,branch,trackedWorkingTreeClean:!status,checks:{}};
