@@ -1,0 +1,117 @@
+{
+  "label": "main-083962c",
+  "checkout": "C:\\Users\\ASUS\\Documents\\Codex\\2026-08-12\\github\\tmp\\lab4-main-verification-083962c",
+  "commit": "083962c2ec75202acae4f5e2cfebef62ee17c007",
+  "branch": "main",
+  "trackedWorkingTreeClean": true,
+  "checks": {
+    "server": {
+      "startedAt": "2026-10-29T07:27:23.559Z",
+      "endedAt": "2026-10-29T07:27:36.367Z",
+      "file": "server-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "059d7b127654c073f33d57e8dc3872e2ca53a0941fd0417512205493b21b78ef",
+      "testListingOnly": false
+    },
+    "client": {
+      "startedAt": "2026-10-29T07:27:36.430Z",
+      "endedAt": "2026-10-29T07:27:56.811Z",
+      "file": "client-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "fca647a7805d4c0a40cd97ddddd7cb31de8398f8cf776b8deca0a4b837344985",
+      "testListingOnly": false
+    },
+    "server-build": {
+      "startedAt": "2026-10-29T07:27:56.877Z",
+      "endedAt": "2026-10-29T07:28:01.360Z",
+      "file": "server-build-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "600152222d4641fc00febeec9ffaf17802969fa53db768bb8e8ecfb7b7ebc314",
+      "testListingOnly": false
+    },
+    "client-build": {
+      "startedAt": "2026-10-29T07:28:01.419Z",
+      "endedAt": "2026-10-29T07:28:04.541Z",
+      "file": "client-build-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "9c567c9cdc013eecd11fd44c55c1f7a0f4d3dde4c95294010d7b042be6d0a4c0",
+      "testListingOnly": false
+    },
+    "client-vite-build": {
+      "startedAt": "2026-10-29T07:28:04.604Z",
+      "endedAt": "2026-10-29T07:28:06.970Z",
+      "file": "client-vite-build-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "8247f699710efec63e48500420e77dc5bb53a183673e9609ee92f21f373c6b19",
+      "testListingOnly": false
+    },
+    "history": {
+      "startedAt": "2026-10-29T07:32:26.986Z",
+      "endedAt": "2026-10-29T07:32:31.270Z",
+      "file": "history-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "f035086f0396bb549181e9518e8973b5895009927a1a5d5b0203e3c86dc301b9",
+      "testListingOnly": false
+    },
+    "migration": {
+      "startedAt": "2026-10-29T07:32:31.543Z",
+      "endedAt": "2026-10-29T07:32:39.512Z",
+      "file": "migration-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "cd0c4c084ae00a55d5585db4838d76f9ac1424a84a4dce965d20df5c07f4dedc",
+      "testListingOnly": false
+    },
+    "recovery": {
+      "startedAt": "2026-10-29T07:32:39.789Z",
+      "endedAt": "2026-10-29T07:32:43.382Z",
+      "file": "recovery-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "de986ffeedbac96e72096b014331bbb565d42eb4e5778c1dfbd5a2a8c731ce33",
+      "testListingOnly": false
+    },
+    "performance": {
+      "startedAt": "2026-10-29T07:32:43.657Z",
+      "endedAt": "2026-10-29T07:32:47.356Z",
+      "file": "performance-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "5dda7fb58cbf8fdd7233837885c8e82db82ee1fe5312a0ed6a83b8b16d9aeee7",
+      "testListingOnly": false
+    },
+    "lab3-migration": {
+      "startedAt": "2026-10-29T07:32:47.634Z",
+      "endedAt": "2026-10-29T07:32:59.933Z",
+      "file": "lab3-migration-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "91c14ea3dc9a86c818ccd5c76e0bb01b227af125a1ac386eeba2f78456fefd8f",
+      "testListingOnly": false
+    },
+    "admin-integration": {
+      "startedAt": "2026-10-29T07:33:00.212Z",
+      "endedAt": "2026-10-29T07:33:03.268Z",
+      "file": "admin-integration-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "b1286be770b67eabb9b493c85756d24e124153533bd8eb6cf71a3aff0206ab92",
+      "testListingOnly": false
+    },
+    "e2e": {
+      "startedAt": "2026-10-29T07:43:40.880Z",
+      "endedAt": "2026-10-29T07:45:01.097Z",
+      "file": "e2e-full.txt",
+      "exitCode": 0,
+      "passed": true,
+      "sha256": "6c7b0e7fce2288000556886d0dae005ee069911002580509c0a23401a70386e4",
+      "testListingOnly": false
+    }
+  }
+}

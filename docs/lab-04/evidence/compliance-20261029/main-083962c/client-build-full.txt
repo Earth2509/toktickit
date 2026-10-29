@@ -1,0 +1,18 @@
+Evidence kind: main-083962c
+Checkout HEAD: 083962c2ec75202acae4f5e2cfebef62ee17c007
+Branch: main
+Tracked working tree clean: true
+Working directory: C:\Users\ASUS\Documents\Codex\2026-08-12\github\tmp\lab4-main-verification-083962c
+Command directory: client
+Command: node node_modules/typescript/bin/tsc
+Node: v24.22.1
+Invocation environment (non-secret): {}
+Dependency provenance: installed dependencies copied from the existing workspace; lockfiles are tracked in this checkout.
+Started UTC: 2026-10-29T07:28:01.419Z
+
+STDOUT
+
+STDERR
+
+Completed UTC: 2026-10-29T07:28:04.541Z
+Exit code: 0

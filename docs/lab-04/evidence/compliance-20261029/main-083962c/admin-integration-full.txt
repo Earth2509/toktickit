@@ -1,0 +1,37 @@
+Evidence kind: main-083962c
+Checkout HEAD: 083962c2ec75202acae4f5e2cfebef62ee17c007
+Branch: main
+Tracked working tree clean: true
+Working directory: C:\Users\ASUS\Documents\Codex\2026-08-12\github\tmp\lab4-main-verification-083962c
+Command directory: server
+Command: node node_modules/vitest/vitest.mjs run tests/lab-03/users-admin.integration.test.ts
+Node: v24.22.1
+Invocation environment (non-secret): {}
+Dependency provenance: installed dependencies copied from the existing workspace; lockfiles are tracked in this checkout.
+Started UTC: 2026-10-29T07:33:00.212Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/tmp/lab4-main-verification-083962c/server
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "[password-redacted]", schema "lab3_admin_users_test" at "localhost:5432"
+
+The PostgreSQL database "[password-redacted]" schema "lab3_admin_users_test" at "localhost:5432" was successfully reset.
+
+Your database is now in sync with your Prisma schema. Done in 135ms
+
+ ✓ tests/lab-03/users-admin.integration.test.ts (2 tests) 1765ms
+   ✓ Lab 3 Administrator user management integration > serializes concurrent Administrator deactivations so one active Administrator survives 419ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  14:33:00
+   Duration  2.46s (transform 144ms, setup 0ms, collect 220ms, tests 1.77s, environment 0ms, prepare 173ms)
+
+
+STDERR
+
+Completed UTC: 2026-10-29T07:33:03.268Z
+Exit code: 0

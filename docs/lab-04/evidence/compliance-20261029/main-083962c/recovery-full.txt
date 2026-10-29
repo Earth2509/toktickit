@@ -1,0 +1,33 @@
+Evidence kind: main-083962c
+Checkout HEAD: 083962c2ec75202acae4f5e2cfebef62ee17c007
+Branch: main
+Tracked working tree clean: true
+Working directory: C:\Users\ASUS\Documents\Codex\2026-08-12\github\tmp\lab4-main-verification-083962c
+Command directory: server
+Command: node dist/scripts/run-lab4-recovery-test.js
+Node: v24.22.1
+Invocation environment (non-secret): {}
+Dependency provenance: installed dependencies copied from the existing workspace; lockfiles are tracked in this checkout.
+Started UTC: 2026-10-29T07:32:39.789Z
+
+STDOUT
+Resetting only the disposable local lab4_recovery_source_test and lab4_recovery_target_test schemas.
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/tmp/lab4-main-verification-083962c/server
+
+stdout | tests/lab-04/migration-recovery.integration.test.ts > Lab 4 logical database and attachment recovery > restores all application rows and attachment bytes into a separate disposable schema
+Lab 4 logical recovery verified 28 Tickets, 3 Actions, 1 attachment metadata rows and the copied attachment SHA-256 in a separate local schema.
+
+ ✓ tests/lab-04/migration-recovery.integration.test.ts (1 test) 2312ms
+   ✓ Lab 4 logical database and attachment recovery > restores all application rows and attachment bytes into a separate disposable schema 2311ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  14:32:40
+   Duration  2.93s (transform 72ms, setup 0ms, collect 157ms, tests 2.31s, environment 0ms, prepare 184ms)
+
+
+STDERR
+
+Completed UTC: 2026-10-29T07:32:43.382Z
+Exit code: 0

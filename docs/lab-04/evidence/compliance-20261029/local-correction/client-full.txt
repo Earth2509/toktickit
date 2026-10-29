@@ -1,0 +1,50 @@
+Evidence kind: local-correction
+Checkout HEAD: 995bbe48a4ecdc57293cb25b9a43749f98d297c2
+Branch: feature/lab4-post-merge-signoff
+Tracked working tree clean: false
+Working directory: C:\Users\ASUS\Documents\Codex\2026-08-12\github\lab4-engineering-contract
+Command directory: client
+Command: node node_modules/vitest/vitest.mjs run
+Node: v24.22.1
+Invocation environment (non-secret): {}
+Dependency provenance: installed dependencies copied from the existing workspace; lockfiles are tracked in this checkout.
+Started UTC: 2026-10-29T07:26:30.989Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/lab4-engineering-contract/client
+
+ ✓ tests/lab-04/RequesterDashboard.test.tsx (2 tests) 208ms
+ ✓ tests/lab-04/TicketWorkflow.test.tsx (2 tests) 308ms
+ ✓ tests/lab-04/StaffDashboard.test.tsx (4 tests) 329ms
+ ✓ tests/lab-04/ZenGreenLab4.styles.test.tsx (3 tests) 490ms
+ ✓ tests/lab-04/ActionsTaken.test.tsx (6 tests) 990ms
+   ✓ Lab 4 Actions Taken > reloads page one after creating an Action so totals and later pages stay accurate 494ms
+ ✓ tests/lab-03/AuthenticatedShell.test.tsx (6 tests) 735ms
+ ✓ tests/lab-04/StaffActionFocus.test.tsx (4 tests) 1246ms
+   ✓ Staff Ticket Detail Action focus integration > keeps the real section mounted and restores focus after successful create 502ms
+ ✓ tests/lab-02/RequesterTicketDetail.test.tsx (2 tests) 916ms
+   ✓ Requester Ticket Detail > shows only owned detail data, active and removed metadata, and no removed download action 528ms
+   ✓ Requester Ticket Detail > uploads a permitted file and soft-removes an active attachment with a required reason 386ms
+ ✓ tests/lab-02/ZenGreen.styles.test.tsx (1 test) 913ms
+   ✓ Zen Green UI style > keeps the labelled, busy and focusable Ticket controls aligned with the Zen Green tokens 911ms
+ ✓ tests/lab-02/CreateTicketForm.test.tsx (5 tests) 1295ms
+   ✓ Create Ticket > shows inline validation and does not call the create API for an incomplete form 454ms
+   ✓ Create Ticket > preserves entered values after a recoverable API failure and allows the same Ticket to be retried 320ms
+ ✓ tests/lab-02/MyTickets.test.tsx (8 tests) 1874ms
+   ✓ My Tickets > sends resettable search and filter controls to the Ticket API 574ms
+   ✓ My Tickets > debounces search input so one completed term produces one Ticket request 481ms
+   ✓ My Tickets > shows a no-results state separately from an empty requester and returns to page one when filters change 396ms
+ ✓ tests/lab-03/UserManagement.test.tsx (1 test) 142ms
+ ✓ tests/App.test.tsx (1 test) 78ms
+
+ Test Files  13 passed (13)
+      Tests  45 passed (45)
+   Start at  14:26:33
+   Duration  14.45s (transform 1.18s, setup 9.95s, collect 18.15s, tests 9.52s, environment 91.75s, prepare 6.12s)
+
+
+STDERR
+
+Completed UTC: 2026-10-29T07:26:48.045Z
+Exit code: 0

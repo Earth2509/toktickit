@@ -1,0 +1,65 @@
+Evidence kind: main-083962c
+Checkout HEAD: 083962c2ec75202acae4f5e2cfebef62ee17c007
+Branch: main
+Tracked working tree clean: true
+Working directory: C:\Users\ASUS\Documents\Codex\2026-08-12\github\tmp\lab4-main-verification-083962c
+Command directory: server
+Command: node node_modules/vitest/vitest.mjs run
+Node: v24.22.1
+Invocation environment (non-secret): {}
+Dependency provenance: installed dependencies copied from the existing workspace; lockfiles are tracked in this checkout.
+Started UTC: 2026-10-29T07:27:23.559Z
+
+STDOUT
+
+ RUN  v2.1.9 C:/Users/ASUS/Documents/Codex/2026-08-12/github/tmp/lab4-main-verification-083962c/server
+
+ ↓ tests/lab-04/migration-recovery.integration.test.ts (1 test | 1 skipped)
+ ↓ tests/lab-03/users-admin.integration.test.ts (2 tests | 2 skipped)
+ ↓ tests/lab-04/workflow-history.integration.test.ts (1 test | 1 skipped)
+ ↓ tests/lab-04/migration-actions.integration.test.ts (1 test | 1 skipped)
+ ↓ tests/lab-03/migration.test.ts (2 tests | 2 skipped)
+ ✓ tests/lab-04/dashboards.api.test.ts (11 tests) 127ms
+ ✓ tests/lab-02/attachments.api.test.ts (9 tests) 276ms
+ ✓ tests/lab-03/ticket-workflow.api.test.ts (5 tests) 281ms
+ ✓ tests/lab-03/comments-notes.api.test.ts (7 tests) 321ms
+ ✓ tests/lab-02/create-ticket.api.test.ts (11 tests) 345ms
+ ✓ tests/lab-03/authorization.api.test.ts (16 tests) 362ms
+ ✓ tests/lab-04/ticket-workflow.api.test.ts (8 tests) 367ms
+ ✓ tests/lab-04/actions-taken.api.test.ts (10 tests) 387ms
+ ✓ tests/lab-02/ticket-query.unit.test.ts (6 tests) 8ms
+ ✓ tests/lab-03/users-admin.api.test.ts (7 tests) 894ms
+   ✓ Lab 3 Administrator user API > validates user creation and never returns the supplied password 487ms
+   ✓ Lab 3 Administrator user API > resets an initial password by revoking sessions and requiring a change 328ms
+ ✓ tests/lab-04/seed-data.unit.test.ts (1 test) 8ms
+ ✓ tests/lab-04/actions-taken.unit.test.ts (5 tests) 7ms
+ ✓ tests/lab-03/ticket-workflow.unit.test.ts (4 tests) 8ms
+ ✓ tests/lab-02/attachment-validation.unit.test.ts (3 tests) 8ms
+ ✓ tests/lab-04/ticket-workflow.unit.test.ts (4 tests) 5ms
+ ✓ tests/lab-02/my-tickets.api.test.ts (5 tests) 78ms
+ ✓ tests/lab-02/ticket-validation.unit.test.ts (2 tests) 5ms
+ ↓ tests/lab-04/dashboard-performance.smoke.test.ts (2 tests | 2 skipped)
+ ✓ tests/lab-04/dashboard-filters.unit.test.ts (2 tests) 6ms
+ ✓ tests/lab-03/ticket-discussions.unit.test.ts (4 tests) 5ms
+ ✓ tests/lab-02/ticket-number.unit.test.ts (2 tests) 3ms
+ ✓ tests/lab-03/runtime-config.test.ts (2 tests) 4ms
+ ✓ tests/categories.test.ts (1 test) 39ms
+ ✓ tests/health.test.ts (1 test) 20ms
+ ✓ tests/lab-03/password.test.ts (3 tests) 981ms
+   ✓ Lab 3 password primitives > stores a versioned scrypt hash and verifies only the original password 979ms
+ ✓ tests/lab-03/auth.api.test.ts (5 tests) 4386ms
+   ✓ Lab 3 authentication API > logs in an active fixture user, exposes /me, and revokes the session on logout 616ms
+   ✓ Lab 3 authentication API > uses safe failures for unknown credentials and only names inactive status after a matching password 1293ms
+   ✓ Lab 3 authentication API > rotates all sessions only after a valid current-password change 1206ms
+   ✓ Lab 3 authentication API > rejects untrusted mutation origins and throttles the sixth failed login 1087ms
+
+ Test Files  25 passed | 6 skipped (31)
+      Tests  134 passed | 9 skipped (143)
+   Start at  14:27:26
+   Duration  10.17s (transform 2.17s, setup 0ms, collect 52.83s, tests 8.93s, environment 8ms, prepare 12.51s)
+
+
+STDERR
+
+Completed UTC: 2026-10-29T07:27:36.367Z
+Exit code: 0

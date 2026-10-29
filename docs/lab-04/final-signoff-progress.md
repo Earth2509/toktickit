@@ -2,7 +2,7 @@
 
 ## 5 October 2026: remaining checklist corrections
 
-The contract-before-implementation item is now checked against repository history, not inferred from the PDF: contract merge `6ce7862` is an ancestor of implementation head `343e00f`. Commit times are 25 September 17:49:57 and 22:43:03 +07:00 respectively; formal contract peer approval is linked in `reviewer.md`.
+Correction, 29 October 2026: the earlier assertion that contract merge `6ce7862` is an ancestor of implementation `343e00f` was incorrect. Foundation `343e00f` has the reviewed contract tip `be3c5ab` as its direct parent. The merge's recorded time (25 September 17:49:57 +07:00) precedes the foundation's (22:43:03), but timestamp order is not ancestry. `merge-base --is-ancestor 6ce7862 343e00f` returns 1; the same check for `be3c5ab` returns 0. Formal contract peer approval is linked in `reviewer.md`.
 
 The earlier manual inspection identified Action form focus gaps. The local application correction moves focus into the first enabled form field on opening, moves focus to the invalid field for validation or the focusable error for a save failure/conflict, and restores the invoking Action control on dismissal (falling back to Add action if a successful transition removed that control). The form now exposes `aria-busy` while saving. Existing unit cases now assert opening, validation, cancellation and completion-field focus.
 

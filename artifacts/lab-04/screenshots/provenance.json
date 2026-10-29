@@ -1,0 +1,80 @@
+{
+  "purpose": "Labsheet section 12 path compliance; preserved original captures, not a new browser run",
+  "sourceRecord": "docs/lab-04/evidence/main/README.md",
+  "originalCaptureTime": "Retained in the dated source record; copy time is not capture time",
+  "transformations": "None. Source and destination SHA-256 values are identical.",
+  "entries": [
+    {
+      "source": "docs/lab-04/evidence/main/desktop/staff-dashboard.png",
+      "destination": "artifacts/lab-04/screenshots/staff-dashboard/staff-dashboard-desktop.png",
+      "sha256": "f464393f4e9bd49bcc57ed6f5f98fd3b530c543badc07eb0683353601ae9ac8b",
+      "viewport": "desktop"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/desktop/requester-dashboard.png",
+      "destination": "artifacts/lab-04/screenshots/requester-dashboard/requester-dashboard-desktop.png",
+      "sha256": "f84e68a539e337ba2e2ea945c472074656fdea02f8e0bd727e4aef1c494b0fd6",
+      "viewport": "desktop"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/desktop/staff-ticket-actions.png",
+      "destination": "artifacts/lab-04/screenshots/actions-taken/staff-ticket-actions-desktop.png",
+      "sha256": "60fb51e93aef6f51de5836816f98d2ab2dd864be28b1da05b28a89ae9300d11b",
+      "viewport": "desktop"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/desktop/requester-ticket-actions.png",
+      "destination": "artifacts/lab-04/screenshots/actions-taken/requester-ticket-actions-desktop.png",
+      "sha256": "8000b765ace85db844ad78e64c92d7a272f2ad7765715dbdec57fec18776a04e",
+      "viewport": "desktop"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/tablet/staff-dashboard.png",
+      "destination": "artifacts/lab-04/screenshots/staff-dashboard/staff-dashboard-tablet.png",
+      "sha256": "c38e1dabc8c9af6b5196350f562aa7700a456d97beae45037151f4a9f41a4bad",
+      "viewport": "tablet"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/tablet/requester-dashboard.png",
+      "destination": "artifacts/lab-04/screenshots/requester-dashboard/requester-dashboard-tablet.png",
+      "sha256": "0940d362717efe7753c554000f7399b475863489477307f3f8bab659bfb93d79",
+      "viewport": "tablet"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/tablet/staff-ticket-actions.png",
+      "destination": "artifacts/lab-04/screenshots/actions-taken/staff-ticket-actions-tablet.png",
+      "sha256": "783de4a9aafffd01f8d70c312de5fb56cfe6b4fdc9837083748773fdbce1e3b2",
+      "viewport": "tablet"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/tablet/requester-ticket-actions.png",
+      "destination": "artifacts/lab-04/screenshots/actions-taken/requester-ticket-actions-tablet.png",
+      "sha256": "41d37348e9f6d30f75f19b39d3e84c8954ef881f5374e3fc73869922aafd0390",
+      "viewport": "tablet"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/mobile/staff-dashboard.png",
+      "destination": "artifacts/lab-04/screenshots/staff-dashboard/staff-dashboard-mobile.png",
+      "sha256": "abe5e3994e2c0e71a0073e5a05a00ac0e7faf4d39ae5e558d6832390336f476a",
+      "viewport": "mobile"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/mobile/requester-dashboard.png",
+      "destination": "artifacts/lab-04/screenshots/requester-dashboard/requester-dashboard-mobile.png",
+      "sha256": "1dd2add8f999567cf9c74f9f42a87664d54f93aea56843063068a0ae7eae6718",
+      "viewport": "mobile"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/mobile/staff-ticket-actions.png",
+      "destination": "artifacts/lab-04/screenshots/actions-taken/staff-ticket-actions-mobile.png",
+      "sha256": "c57ed7be12836e6b43de53bbd7451ceea8337118c72a7785b1164c5a22846e70",
+      "viewport": "mobile"
+    },
+    {
+      "source": "docs/lab-04/evidence/main/mobile/requester-ticket-actions.png",
+      "destination": "artifacts/lab-04/screenshots/actions-taken/requester-ticket-actions-mobile.png",
+      "sha256": "85e814cb25637b74ed2a4e4d74158af09b126984ca15a4cec0a0444b5be0d45d",
+      "viewport": "mobile"
+    }
+  ]
+}
