@@ -63,6 +63,10 @@ increases by one, while executable test counts remain unchanged.
 - Local correction output is under `evidence/compliance-20261029/local-correction/`.
   Each manifest records actual checkout, command, exit code and log hash. A new
   result is accepted only after the corresponding command exits successfully.
+  These are historical dirty-workspace results at unpublished `995bbe4`, which
+  cannot be checked out from the public repository and would not reproduce the
+  modified tree from that commit alone. They are not independently reproducible
+  review evidence; see the [attribution warning](evidence/compliance-20261029/local-correction/README.md).
 
 The older 6 October collector output is valid preserved source-equivalent
 evidence, but not a clean-main invocation. It remains available unchanged.
@@ -123,9 +127,13 @@ Browser execution listed all 29 cases but stalled before returning a summary or
 successful exit. It was interrupted, not counted as passed; original streams and
 the diagnostic boundary are in
 [`branch-compliance/attempts/`](evidence/compliance-20261029/branch-compliance/attempts/).
-A completed relocated-source Browser run is a review requirement. The baseline
-main result (29 passed) remains separate. The following evidence/tooling update
-does not change the tested runtime or test-case bodies.
+The completed relocated-source Browser run required for review was subsequently
+reported by Nuggetkub on `cf3409a`: a full 29-test run exited 0 after a disclosed
+earlier environment failure. See the [peer verification record](compliance-peer-verification-20261029.md)
+for both runs and the review's limits. This is peer-reported branch evidence,
+not a new successful sandbox log, approval or post-merge main run. The baseline
+main result remains separate. This documentation correction changes no runtime
+or test-case bodies.
 
 ## Report layout
 
